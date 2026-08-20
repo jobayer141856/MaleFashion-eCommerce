@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace MaleFashion.Web.Data.Migrations
+namespace MaleFashion.Infrastructure.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

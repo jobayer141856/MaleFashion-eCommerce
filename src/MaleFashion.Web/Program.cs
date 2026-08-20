@@ -1,8 +1,10 @@
-using MaleFashion.Web.Data;
+using MaleFashion.Infrastructure.Data;
+using MaleFashion.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +23,8 @@ try
 
     // Add services to the container.
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
-    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    var migrationAssembly = Assembly.GetAssembly(typeof(ApplicationDbContext));
+
 
     builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -37,6 +38,17 @@ try
             .Enrich.FromLogContext()
             .ReadFrom.Configuration(context.Configuration);
     });
+    #endregion
+
+    #region Dependency Injection Configuration
+
+    builder.Services.AddInfrastructureDependency();
+    #endregion
+
+    #region DbContext Configuration
+
+    builder.Services.AddDbContext(connectionString, migrationAssembly);
+
     #endregion
 
     var app = builder.Build();

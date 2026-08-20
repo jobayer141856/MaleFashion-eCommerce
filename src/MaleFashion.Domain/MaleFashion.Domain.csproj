@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\..\..\aspnet-b13\src\Demo.Domain\Contracts\IAggregateRoot.cs" Link="Contracts\IAggregateRoot.cs" />
+    <Compile Include="..\..\..\..\aspnet-b13\src\Demo.Domain\Contracts\IRepository.cs" Link="Contracts\IRepository.cs" />
+    <Compile Include="..\..\..\..\aspnet-b13\src\Demo.Domain\Contracts\IUnitOfWork.cs" Link="Contracts\IUnitOfWork.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Contracts\" />
+  </ItemGroup>
+
 </Project>

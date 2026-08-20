@@ -26,8 +26,11 @@ try
     var migrationAssembly = Assembly.GetAssembly(typeof(ApplicationDbContext));
 
 
-    builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-        .AddEntityFrameworkStores<ApplicationDbContext>();
+    #region Identity Configuration
+    builder.Services.AddIdentity();
+    #endregion
+
+
     builder.Services.AddControllersWithViews();
 
     #region Serilog Configuration

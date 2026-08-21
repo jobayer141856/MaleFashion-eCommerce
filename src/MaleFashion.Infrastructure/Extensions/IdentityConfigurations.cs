@@ -1,5 +1,5 @@
-﻿using Demo.Infrastructure.Identity;
-using MaleFashion.Infrastructure.Data;
+﻿using MaleFashion.Infrastructure.Data;
+using MaleFashion.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;

@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Identity;
 
-namespace Demo.Infrastructure.Identity
+namespace MaleFashion.Infrastructure.Identity
 {
     public class ApplicationRoleClaim
         : IdentityRoleClaim<Guid>

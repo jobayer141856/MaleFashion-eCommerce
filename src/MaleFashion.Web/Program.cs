@@ -6,6 +6,7 @@ using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()

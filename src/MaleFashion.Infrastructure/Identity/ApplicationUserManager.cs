@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Demo.Infrastructure.Identity
+namespace MaleFashion.Infrastructure.Identity
 {
     public class ApplicationUserManager
         : UserManager<ApplicationUser>

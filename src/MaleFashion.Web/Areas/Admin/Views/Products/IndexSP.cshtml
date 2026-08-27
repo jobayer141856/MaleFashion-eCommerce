@@ -1,0 +1,163 @@
+﻿@model ProductListSPModel
+@section Styles
+{
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+    <link rel="stylesheet" href="~/sneat/assets/css/custom-datatables.css">
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">View Products</h5>
+                    <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn btn-primary btn-sm">Add Product</a>
+                </div>
+                <div class="card-body pb-0">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Price From</label>
+                            <input type="text" asp-for="PriceFrom" class="form-control" />
+                            <span asp-validation-for="PriceFrom" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Price To</label>
+                            <input type="text" asp-for="PriceTo" class="form-control" placeholder="Search price to" />
+                            <span asp-validation-for="PriceTo" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-1">
+                        <button id="searchButton" type="button" class="btn btn-primary">Search</button>
+                        <button id="resetButton" type="button" class="btn btn-outline-secondary">Reset</button>
+                    </div>
+                </div>
+                <div class="card-body table-responsive pt-0">
+                    <partial name="_ModalPartial" />
+                    <table id="products" class="table table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>Picture</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <!-- DataTables Core v2 -->
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- DataTables Buttons Extension -->
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
+
+    <!-- Required for Excel/PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(function(){
+            $("#products").DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                searching: false,
+                autoWidth: true,
+                pagingType: "simple_numbers",
+                ajax:{
+                    url: "/Admin/Products/GetPagedProductsSP",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: function(d){
+                        d.Name = $("#Name").val() ? $("#Name").val() : null;
+                        d.PriceFrom = $("#PriceFrom").val() ? $("#PriceFrom").val() : null;
+                        d.PriceTo = $("#PriceTo").val() ? $("#PriceTo").val() : null;
+                        return JSON.stringify(d);
+                    }
+                },
+                columnDefs: [
+                {
+                    orderable: false,
+                    targets: 0,
+                    render: function(data, type, row){
+                        return `
+                            <img src="${data}" alt="Product Image" class="img-thumbnail" style="width:60px; height: 60px; object-fit: cover;" />
+                        `;
+                    }
+                },
+                {
+                        orderable: false,
+                        targets: -1,
+                        render: function(data, type, row){
+                            return `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item text-warning" href="/Admin/Products/Update/${data}">Edit</a></li>
+                                    <li><button class="dropdown-item text-danger show-bs-modal" data-id="${data}">Delete</button></li>
+                                </ul>
+                            </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            $("#products").on('click', '.show-bs-modal', function(){
+                let id = $(this).data('id');
+                let deleteModal = $("#delete-modal");
+                deleteModal.find('#modelLabel').text("Delete Product");
+                deleteModal.find('.modal-body p').html('Are you sure you want to delete this product?');
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/admin/products/delete');
+                deleteModal.modal('show');
+            });
+
+            $('#delete-btn').on('click', function(){
+                $('#delete-form').submit();
+            })
+
+            $("#searchButton").click(function(){
+                $("#products").DataTable().ajax.reload(null, false);
+            });
+
+            $("#resetButton").click(function(){
+                $("#Name").val('');
+                $("#PriceFrom").val('');
+                $("#PriceTo").val('');
+                $("#products").DataTable().ajax.reload(null, false);
+            });
+        });
+    </script>
+}

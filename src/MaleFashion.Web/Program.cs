@@ -1,5 +1,7 @@
+using Cortex.Mediator.DependencyInjection;
 using MaleFashion.Infrastructure.Data;
 using MaleFashion.Infrastructure.Extensions;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -46,7 +48,7 @@ try
 
     #region Dependency Injection Configuration
 
-    builder.Services.AddInfrastructureDependency();
+    builder.Services.AddInfrastructureDependency(builder.Environment.WebRootPath);
     #endregion
 
     #region DbContext Configuration
@@ -54,6 +56,30 @@ try
     builder.Services.AddDbContext(connectionString, migrationAssembly);
 
     #endregion
+
+    #region Cortex Mediator Configuration
+
+    builder.Services.AddCortexMediator(
+        new[] { typeof(Program) },
+        options => options.AddDefaultBehaviors()
+
+    );
+    #endregion
+
+    #region Mapstar Configuration
+
+    //Custom Configuration
+    //var config = TypeAdapterConfig.GlobalSettings;
+    //config.Scan(typeof(MapsterConfiguration).Assembly);
+    //builder.Services.AddSingleton(config);
+    //builder.Services.AddScoped<IMapper, ServiceMapper>();
+
+    // Default Configuration
+    builder.Services.AddMapster();
+
+    #endregion
+
+    builder.Services.AddRazorPages();
 
     var app = builder.Build();
 
@@ -75,6 +101,11 @@ try
     app.UseAuthorization();
 
     app.MapStaticAssets();
+
+    app.MapControllerRoute(
+        name: "area",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
+        .WithStaticAssets();
 
     app.MapControllerRoute(
         name: "default",

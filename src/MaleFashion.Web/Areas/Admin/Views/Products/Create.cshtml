@@ -1,0 +1,39 @@
+﻿@model ProductModel
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row mb-6 gy-6">
+        <div class="col-xl">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Create new Product</h5>
+                    <small class="text-body float-end">(new)</small>
+                </div>
+                <div class="card-body">
+                    <partial name="_ResponsePartial" />
+                    <form asp-area="admin" asp-controller="products" asp-action="create" asp-antiforgery="true" 
+                        enctype="multipart/form-data" method="post">
+                        <div class="mb-6">
+                            <label class="form-label" asp-for="Name">Name</label>
+                            <input type="text" class="form-control" asp-for="Name" placeholder="Camera" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="mb-6">
+                            <label class="form-label" asp-for="Price">Price</label>
+                            <input type="number" class="form-control" asp-for="Price" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                        <div class="mb-6">
+                            <label asp-for="Image" class="form-label">Picture</label>
+                            <input asp-for="Image" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <small class="text-muted">Allowed: JPG, JPEG, PNG, WEBP.</small><br/>
+                            <span asp-validation-for="Image" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

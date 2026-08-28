@@ -15,6 +15,7 @@ namespace MaleFashion.Infrastructure.Extensions
         {
             services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
             services.AddSingleton<IFileStorageService, FileStorageService>(x => new FileStorageService(rootPath));
+            services.AddScoped<IEmailService, EmailService>();
             // Add your infrastructure services here
             // For example, if you have a repository or service layer, you can register them here
             // services.AddScoped<IYourRepository, YourRepository>();

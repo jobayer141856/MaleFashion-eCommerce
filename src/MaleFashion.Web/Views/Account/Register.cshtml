@@ -1,0 +1,71 @@
+﻿@model RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Register</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Account" asp-action="Register">Home</a>
+                        <span>Register</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <h6 class="coupon__code text-center mb-4">Create your account to start shopping</h6>
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="checkout__input">
+                            <p>First Name<span>*</span></p>
+                            <input asp-for="FirstName" placeholder="John Doe" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Last Name<span>*</span></p>
+                            <input asp-for="LastName" placeholder="Smith" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Email Address<span>*</span></p>
+                            <input asp-for="Email" placeholder="email@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Password<span>*</span></p>
+                            <input asp-for="Password" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Confirm Password<span>*</span></p>
+                            <input asp-for="ConfirmPassword" type="password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="site-btn w-100">Sign Up</button>
+
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a asp-action="Login" class="text-dark font-weight-bold">Sign In</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,51 @@
+﻿using MaleFashion.Application.Contracts.Services;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Net.Mail;
+using System.Text;
+
+namespace MaleFashion.Infrastructure.Services
+{
+    public class EmailService : IEmailService
+    {
+        //private readonly SmtpSettings _smtpSettings;
+
+        //public EmailService(IOptions<SmtpSettings> smtpSettings)
+        //{
+        //    _smtpSettings = smtpSettings.Value;
+        //}
+
+        //public async Task SendEmailAsync(string receiverName, string reciverEmail, string subject, string body)
+        //{
+        //    var message = new MimeMessage();
+        //    message.From.Add(new MailboxAddress(_smtpSettings.FromName, _smtpSettings.FromEmail));
+        //    message.To.Add(new MailboxAddress(receiverName, reciverEmail));
+        //    message.Subject = subject;
+
+        //    message.Body = new TextPart("html")
+        //    {
+        //        Text = body
+        //    };
+
+        //    using (var client = new SmtpClient())
+        //    {
+        //        await client.ConnectAsync(_smtpSettings.Host, _smtpSettings.Port,
+        //            _smtpSettings.SmtpEncryption != SmtpEncryptionTypes.Normal);
+
+        //        client.Timeout = _smtpSettings.Timeout;
+
+        //        if (!string.IsNullOrEmpty(_smtpSettings.Username))
+        //        {
+        //            await client.AuthenticateAsync(_smtpSettings.Username, _smtpSettings.Password);
+        //        }
+        //        await client.SendAsync(message);
+        //        await client.DisconnectAsync(true);
+        //    }
+        //}
+        public Task SendEmailAsync(string receiverName, string reciverEmail, string subject, string body)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

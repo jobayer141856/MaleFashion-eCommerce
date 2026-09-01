@@ -5,13 +5,30 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello, @User.Identity?.Name!</a>
-    <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
-        <button type="submit" class="btn btn-link p-0 border-0 align-baseline" style="color: inherit; font-size: inherit; text-transform: uppercase;">Logout</button>
-    </form>
+    var currentUser = await UserManager.GetUserAsync(User);
+    var displayName = currentUser != null
+        ? $"{currentUser.FirstName} {currentUser.LastName}".Trim()
+        : User.Identity?.Name;
+
+    <div class="dropdown d-inline-block">
+        <a class="nav-link dropdown-toggle text-white" href="#" role="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Hello, @displayName!
+        </a>
+        <div class="dropdown-menu dropdown-menu-right shadow-sm header-dropdown-menu" aria-labelledby="userDropdown">
+            <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangePassword" style="color: #111111 !important;">
+                Change Password
+            </a>
+            <div class="dropdown-divider"></div>
+            <form asp-area="" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0 p-0">
+                <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-left">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
 }
 else
 {
-    <a asp-area="" asp-controller="Account" asp-action="Login">Sign In </a>
-    <a asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+    <a class="nav-link d-inline-block" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
+    <a class="nav-link d-inline-block" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
 }

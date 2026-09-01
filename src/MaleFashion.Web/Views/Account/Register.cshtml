@@ -10,7 +10,7 @@
                 <div class="breadcrumb__text">
                     <h4>Register</h4>
                     <div class="breadcrumb__links">
-                        <a asp-controller="Account" asp-action="Register">Home</a>
+                        <a asp-controller="Home" asp-action="Index">Home</a>
                         <span>Register</span>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6 col-md-8">
                     <h6 class="coupon__code text-center mb-4">Create your account to start shopping</h6>
-                    <form asp-action="Register" method="post">
+                    <form asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="checkout__input">
@@ -48,13 +48,23 @@
 
                         <div class="checkout__input">
                             <p>Password<span>*</span></p>
-                            <input asp-for="Password" type="password" />
+                            <div class="password-wrapper position-relative">
+                                <input asp-for="Password" type="password" id="passwordInput" class="w-100" />
+                                <span class="toggle-password" onclick="togglePasswordVisibility('passwordInput', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
                         <div class="checkout__input">
                             <p>Confirm Password<span>*</span></p>
-                            <input asp-for="ConfirmPassword" type="password" />
+                            <div class="password-wrapper position-relative">
+                                <input asp-for="ConfirmPassword" type="password" id="confirmPasswordInput" class="w-100" />
+                                <span class="toggle-password" onclick="togglePasswordVisibility('confirmPasswordInput', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
 
@@ -69,3 +79,43 @@
         </div>
     </div>
 </section>
+
+<!-- CSS for Toggle Positioning -->
+<style>
+    .password-wrapper {
+        position: relative;
+    }
+    .password-wrapper input {
+        padding-right: 45px; /* Prevents text overlapping with the icon */
+    }
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #666;
+        z-index: 2;
+    }
+    .toggle-password:hover {
+        color: #111;
+    }
+</style>
+
+<!-- Toggle Script -->
+<script>
+    function togglePasswordVisibility(inputId, toggleEl) {
+        const input = document.getElementById(inputId);
+        const icon = toggleEl.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>

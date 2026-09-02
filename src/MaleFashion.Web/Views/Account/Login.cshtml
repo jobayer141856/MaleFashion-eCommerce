@@ -59,6 +59,10 @@
 
                         <div class="text-center mt-3">
                             <p>Don't have an account? <a asp-action="Register" class="text-dark font-weight-bold">Register</a></p>
+                            <p class="mt-2 text-muted" style="font-size: 14px;">
+                                Are you an admin?
+                                <a asp-area="Admin" asp-controller="Account" asp-action="Login" class="text-danger font-weight-bold">Click here to login as admin</a>
+                            </p>
                         </div>
                     </form>
                 </div>

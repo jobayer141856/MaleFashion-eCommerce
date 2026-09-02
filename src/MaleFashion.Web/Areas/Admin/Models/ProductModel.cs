@@ -1,7 +1,7 @@
 ﻿using MaleFashion.Domain.Contracts;
 using System.ComponentModel.DataAnnotations;
 
-namespace Demo.Web.Areas.Admin.Models
+namespace MaleFashion.Web.Areas.Admin.Models
 {
     public class ProductModel
     {

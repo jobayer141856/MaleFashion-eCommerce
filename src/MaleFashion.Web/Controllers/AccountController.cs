@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts.Services;
+using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Infrastructure.Identity;
 using MaleFashion.Web.Models.Account;
 using MapsterMapper;
@@ -248,6 +248,60 @@ namespace MaleFashion.Web.Controllers
             return RedirectToAction("ForgotPasswordConfirmation");
         }
 
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string? code = null, string? email = null)
+        {
+            if (code == null)
+            {
+                return BadRequest("A code must be supplied for password reset.");
+            }
+            var model = new ResetPasswordModel
+            {
+                Code = code, // Keep token URL-safe inside the form
+                Email = email ?? string.Empty
+            };
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
+            var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
         private ApplicationUser CreateUser()
         {
             try

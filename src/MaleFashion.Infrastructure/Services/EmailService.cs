@@ -1,11 +1,10 @@
-﻿using MaleFashion.Application.Contracts.Services;
+using MaleFashion.Application.Contracts.Services;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System;
-using System.Collections.Generic;
-using System.Net.Mail;
 using System.Text;
 using MailKit.Net.Smtp;
+using MaleFashion.Domain.Utilities;
 
 
 namespace MaleFashion.Infrastructure.Services
@@ -45,10 +44,6 @@ namespace MaleFashion.Infrastructure.Services
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
-        }
-        public Task SendEmailAsync(string receiverName, string reciverEmail, string subject, string body)
-        {
-            throw new NotImplementedException();
         }
     }
 }

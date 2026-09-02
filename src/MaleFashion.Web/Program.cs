@@ -1,4 +1,5 @@
 using Cortex.Mediator.DependencyInjection;
+using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Data;
 using MaleFashion.Infrastructure.Extensions;
 using Mapster;
@@ -77,6 +78,10 @@ try
     // Default Configuration
     builder.Services.AddMapster();
 
+    #endregion
+
+    #region AppSettings Configuration
+    builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
     #endregion
 
     builder.Services.AddRazorPages();

@@ -1,0 +1,100 @@
+﻿@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Registration Confirmation";
+}
+
+<!-- Breadcrumb Section Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Registration Confirmation</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>Confirm Account</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb Section End -->
+<!-- Confirmation Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="card border-0 shadow-sm p-4 text-center" style="border-radius: 8px; background: #ffffff;">
+
+                        @if (Model.DisplayConfirmAccountLink)
+                        {
+                            <!-- Development Mode (No Email Provider Configured) -->
+                            <div class="mb-3">
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-warning mb-3" style="width: 70px; height: 70px;">
+                                    <i class="fa fa-info-circle" style="font-size: 34px;"></i>
+                                </div>
+                                <h4 class="font-weight-bold mb-2">Development Notice</h4>
+                                <p class="text-muted small">
+                                    Simulated verification generated for <strong class="text-dark">@Model.Email</strong>.
+                                    For production configuration, see the
+                                    <a href="https://aka.ms/aspaccountconf" target="_blank" class="text-dark font-weight-bold text-decoration-underline">official documentation</a>.
+                                </p>
+                            </div>
+
+                            <div class="alert alert-warning py-3 mb-4 text-left" role="alert">
+                                <span class="d-block font-weight-bold mb-1">Simulated Email Link:</span>
+                                <small class="text-muted">In development, click below directly to confirm:</small>
+                                <div class="mt-2 text-center">
+                                    <a id="confirm-link" href="@Model.EmailConfirmationUrl" class="site-btn btn-sm d-inline-block px-4 py-2">
+                                        Click here to confirm account
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Live Production Mode -->
+                            <div class="mb-3">
+                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-success mb-3" style="width: 70px; height: 70px;">
+                                    <i class="fa fa-envelope-o text-success" style="font-size: 34px;"></i>
+                                </div>
+                                <h4 class="font-weight-bold mb-2">Check Your Inbox</h4>
+                                <p class="text-muted mb-2">
+                                    We have dispatched a verification link to:
+                                </p>
+                                <p class="font-weight-bold text-dark mb-3">@Model.Email</p>
+                                <p class="text-muted small mb-4">
+                                    Please click the link in your email to activate your account. You will not be able to log in until your email address is verified.
+                                </p>
+                            </div>
+
+                            <div class="border-top pt-3">
+                                <p class="text-muted small mb-3">
+                                    Didn't receive the email? Check your spam folder, attempt to sign in to auto-resend, or request a fresh link below.
+                                </p>
+                                <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 10px;">
+                                    <a asp-controller="Account" asp-action="ResendEmailConfirmation" class="site-btn px-4 py-2" style="background: #6c757d;">
+                                        Resend Email
+                                    </a>
+                                    <a asp-controller="Account" asp-action="Login" class="site-btn px-4 py-2" style="background: #111111;">
+                                        Proceed to Sign In
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="mt-4 pt-2">
+                            <a asp-controller="Home" asp-action="Index" class="text-muted small">
+                                <i class="fa fa-arrow-left me-1"></i> Back to Homepage
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Confirmation Section End -->

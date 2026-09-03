@@ -1,0 +1,66 @@
+﻿@model ResendEmailConfirmationModel
+@{
+    ViewData["Title"] = "Resend Email Confirmation";
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Resend Confirmation</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>Resend Verification</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-8">
+                    <div class="card border-0 shadow-sm p-4" style="border-radius: 8px; background: #ffffff;">
+                        <div class="text-center mb-4">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-primary mb-3" style="width: 70px; height: 70px;">
+                                <i class="fa fa-envelope-open-o" style="font-size: 32px; color: #111;"></i>
+                            </div>
+                            <h4 class="font-weight-bold mb-1">Verify Your Email</h4>
+                            <p class="text-muted small">Enter your account email to receive a new activation link</p>
+                        </div>
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success small mb-4" role="alert">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        <form asp-action="ResendEmailConfirmation" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                            <div class="checkout__input mb-3">
+                                <p>Email Address<span>*</span></p>
+                                <input asp-for="Email" placeholder="email@example.com" class="w-100" autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <button type="submit" class="site-btn w-100">Send Verification Email</button>
+
+                            <div class="text-center mt-3">
+                                <p class="text-muted small mb-0">
+                                    Remember your credentials?
+                                    <a asp-action="Login" class="text-dark font-weight-bold">Sign In</a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -45,6 +45,8 @@ namespace MaleFashion.Web.Controllers
             return View();
         }
 
+        #region Login
+
         public async Task<IActionResult> Login(string? returnUrl = null)
         {
             var model = new LoginModel();
@@ -70,9 +72,18 @@ namespace MaleFashion.Web.Controllers
 
             if (ModelState.IsValid)
             {
+                // 1. Check if user exists first
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "You have to register first.");
+                    return View(model);
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -87,6 +98,33 @@ namespace MaleFashion.Web.Controllers
                     _logger.LogWarning("User account locked out.");
                     return RedirectToAction("Lockout", "Account");
                 }
+
+                // 2. If credentials match but email is not confirmed yet
+                if (result.IsNotAllowed && !await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    // Generate and resend a fresh confirmation token
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                    var callbackUrl = Url.Action(
+                        "ConfirmEmail",
+                        "Account",
+                        values: new { area = "", userId = userId, code = code, returnUrl = model.ReturnUrl },
+                        protocol: Request.Scheme)!;
+
+                    var fullName = $"{user.FirstName} {user.LastName}".Trim();
+
+                    await _emailService.SendEmailAsync(
+                        fullName,
+                        user.Email!,
+                        "Confirm your email",
+                        $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
+                    );
+
+                    // Redirect user to the confirmation notice page
+                    return RedirectToAction("RegisterConfirmation", new { email = model.Email, returnUrl = model.ReturnUrl });
+                }
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -98,7 +136,9 @@ namespace MaleFashion.Web.Controllers
             return View(model);
         }
 
+        #endregion
 
+        #region Register
         public async Task<IActionResult> Register(string? returnUrl = null)
         {
             var model = new RegisterModel();
@@ -107,7 +147,7 @@ namespace MaleFashion.Web.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost] [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
             model.ReturnUrl ??= Url.Content("~/");
@@ -116,8 +156,6 @@ namespace MaleFashion.Web.Controllers
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
-
-         
 
                 await _userStore.SetUserNameAsync(user, model.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, model.Email, CancellationToken.None);
@@ -143,17 +181,10 @@ namespace MaleFashion.Web.Controllers
                     var fullName = $"{user.FirstName} {user.LastName}";
 
                     await _emailService.SendEmailAsync(fullName, model.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                         $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToAction("RegisterConfirmation", new { email = model.Email, returnUrl = model.ReturnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(model.ReturnUrl);
-                    }
+                    // 2. Direct redirect without the if/else check (stops auto-login):
+                    return RedirectToAction("RegisterConfirmation", new { email = model.Email, returnUrl = model.ReturnUrl });
                 }
                 foreach (var error in result.Errors)
                 {
@@ -164,13 +195,144 @@ namespace MaleFashion.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> RegisterConfirmation(string? email, string? returnUrl = null)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            returnUrl ??= Url.Content("~/");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with email '{email}'.");
+            }
+
+            var model = new RegisterConfirmationModel
+            {
+                Email = email,
+                // Set to true if running locally without an SMTP provider, or false if live emails are sent:
+                DisplayConfirmAccountLink = false
+            };
+
+            if (model.DisplayConfirmAccountLink)
+            {
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                model.EmailConfirmationUrl = Url.Action(
+                    "ConfirmEmail",
+                    "Account",
+                    values: new { area = "", userId = userId, code = code, returnUrl = returnUrl },
+                    protocol: Request.Scheme)!;
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string? userId, string? code, string? returnUrl = null)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(code))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userId}'.");
+            }
+
+            var model = new ConfirmEmailModel();
+
+            try
+            {
+                var decodedCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+                var result = await _userManager.ConfirmEmailAsync(user, decodedCode);
+
+                if (result.Succeeded)
+                {
+                    model.IsSuccess = true;
+                    model.StatusMessage = "Thank you for confirming your email. Your account is now active!";
+                }
+                else
+                {
+                    model.IsSuccess = false;
+                    model.StatusMessage = "Error confirming your email. The token may be expired or invalid.";
+                }
+            }
+            catch
+            {
+                model.IsSuccess = false;
+                model.StatusMessage = "Invalid verification link.";
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ResendEmailConfirmation()
+        {
+            return View();
+        }
+
+        [HttpPost] [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendEmailConfirmation(ResendEmailConfirmationModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            // Security: Do not reveal if the email exists or if the account is already confirmed
+            if (user == null)
+            {
+                TempData["SuccessMessage"] = "Verification email sent. Please check your email inbox.";
+                return RedirectToAction(nameof(ResendEmailConfirmation));
+            }
+
+            if (await _userManager.IsEmailConfirmedAsync(user))
+            {
+                TempData["SuccessMessage"] = "This account has already been confirmed. You can sign in directly.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Generate token and link
+            var userId = await _userManager.GetUserIdAsync(user);
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var callbackUrl = Url.Action(
+                "ConfirmEmail",
+                "Account",
+                values: new { userId = userId, code = code },
+                protocol: Request.Scheme)!;
+
+            // Send email
+            await _emailService.SendEmailAsync($"{user.FirstName} {user.LastName}", model.Email, "Confirm your email",
+                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            TempData["SuccessMessage"] = "Verification email sent. Please check your email inbox.";
+            return RedirectToAction(nameof(ResendEmailConfirmation));
+        }
+
+        #endregion
+
+        #region Change Password
         public async Task<IActionResult> ChangePassword()
         {
             var model = new ChangePasswordModel();
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost] [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
             if (!ModelState.IsValid)
@@ -199,6 +361,9 @@ namespace MaleFashion.Web.Controllers
             }
         }
 
+        #endregion
+
+        #region Logout
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout(string? returnUrl = null)
         {
@@ -215,13 +380,16 @@ namespace MaleFashion.Web.Controllers
             }
         }
 
+        #endregion
+
+        #region Forgot Password
         public async Task<IActionResult> ForgotPassword()
         {
             var model = new ForgotPasswordModel();
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost] [ValidateAntiForgeryToken]
 
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
@@ -302,6 +470,8 @@ namespace MaleFashion.Web.Controllers
         {
             return View();
         }
+
+        #endregion 
         private ApplicationUser CreateUser()
         {
             try

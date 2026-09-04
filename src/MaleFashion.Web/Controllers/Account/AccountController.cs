@@ -141,7 +141,7 @@ namespace MaleFashion.Web.Controllers.Account
 
         #region Login with 2FA
         [HttpGet]
-        public async Task<IActionResult> LoginWith2faModel(bool rememberMe, string? returnUrl = null)
+        public async Task<IActionResult> LoginWith2fa(bool rememberMe, string? returnUrl = null)
         {
             var model = new LoginWith2faModel();
             // Ensure the user has gone through the username & password screen first
@@ -160,7 +160,7 @@ namespace MaleFashion.Web.Controllers.Account
 
         [HttpPost] 
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LoginWith2faModel(LoginWith2faModel model)
+        public async Task<IActionResult> LoginWith2fa(LoginWith2faModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -204,7 +204,7 @@ namespace MaleFashion.Web.Controllers.Account
         #region Login with Recovery Code
 
         [HttpGet]
-        public async Task<IActionResult> LoginWithRecoveryCodeModel(string? returnUrl = null)
+        public async Task<IActionResult> LoginWithRecoveryCode(string? returnUrl = null)
         {
             var model = new LoginWithRecoveryCodeModel();
             // Ensure the user has gone through the username & password screen first
@@ -221,7 +221,7 @@ namespace MaleFashion.Web.Controllers.Account
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LoginWithRecoveryCodeModel(LoginWithRecoveryCodeModel model)
+        public async Task<IActionResult> LoginWithRecoveryCode(LoginWithRecoveryCodeModel model)
         {
             if (!ModelState.IsValid)
             {

@@ -82,7 +82,7 @@ namespace MaleFashion.Web.Controllers
         #region Two-Factor Authentication
 
         [HttpGet]
-        public async Task<IActionResult> Disable2faModel()
+        public async Task<IActionResult> Disable2fa()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -100,7 +100,7 @@ namespace MaleFashion.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Disable2faModel(Disable2faModel model)
+        public async Task<IActionResult> Disable2fa(Disable2faModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -120,7 +120,7 @@ namespace MaleFashion.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EnableAuthenticatorModel()
+        public async Task<IActionResult> EnableAuthenticator()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -133,7 +133,7 @@ namespace MaleFashion.Web.Controllers
             return View();
         }
 
-        public async Task<IActionResult> EnableAuthenticatorModel(EnableAuthenticatorModel model)
+        public async Task<IActionResult> EnableAuthenticator(EnableAuthenticatorModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -223,7 +223,7 @@ namespace MaleFashion.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GenerateRecoveryCodesModel()
+        public async Task<IActionResult> GenerateRecoveryCodes()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -242,7 +242,7 @@ namespace MaleFashion.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GenerateRecoveryCodesModel(GenerateRecoveryCodesModel model)
+        public async Task<IActionResult> GenerateRecoveryCodes(GenerateRecoveryCodesModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -265,7 +265,7 @@ namespace MaleFashion.Web.Controllers
             return RedirectToAction("ShowRecoveryCodes", "Manage");
         }
 
-        public async Task<IActionResult> ResetAuthenticatorModel()
+        public async Task<IActionResult> ResetAuthenticator()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -276,7 +276,7 @@ namespace MaleFashion.Web.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ResetAuthenticatorModel(ResetAuthenticatorModel model)
+        public async Task<IActionResult> ResetAuthenticator(ResetAuthenticatorModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -296,7 +296,7 @@ namespace MaleFashion.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult ShowRecoveryCodesModel()
+        public IActionResult ShowRecoveryCodes()
         {
             var model = new ShowRecoveryCodesModel();
             if (model.RecoveryCodes == null || model.RecoveryCodes.Length == 0)
@@ -308,7 +308,7 @@ namespace MaleFashion.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> TwoFactorAuthenticationModel()
+        public async Task<IActionResult> TwoFactorAuthentication()
         {
             var model = new TwoFactorAuthenticationModel();
             var user = await _userManager.GetUserAsync(User);
@@ -327,7 +327,7 @@ namespace MaleFashion.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TwoFactorAuthenticationModel(TwoFactorAuthenticationModel model)
+        public async Task<IActionResult> TwoFactorAuthentication(TwoFactorAuthenticationModel model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)

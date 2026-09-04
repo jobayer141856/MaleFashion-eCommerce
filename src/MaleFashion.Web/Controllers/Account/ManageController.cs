@@ -58,14 +58,14 @@ namespace MaleFashion.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
             if (result.Succeeded)
             {
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Your password has been changed.";
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Account");
             }
             else
             {
@@ -128,9 +128,10 @@ namespace MaleFashion.Web.Controllers
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            var model = new EnableAuthenticatorModel();
             await LoadSharedKeyAndQrCodeUriAsync(user);
 
-            return View();
+            return View(model);
         }
 
         public async Task<IActionResult> EnableAuthenticator(EnableAuthenticatorModel model)
@@ -292,7 +293,7 @@ namespace MaleFashion.Web.Controllers
             await _signInManager.RefreshSignInAsync(user);
             model.StatusMessage = "Your authenticator app key has been reset, you will need to configure your authenticator app using the new key.";
 
-            return RedirectToAction("EnableAuthenticatorModel", "Manage");
+            return RedirectToAction("EnableAuthenticator", "Manage");
         }
 
         [HttpGet]

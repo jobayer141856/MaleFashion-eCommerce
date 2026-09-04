@@ -21,7 +21,7 @@ namespace MaleFashion.Web.Controllers.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
+        private readonly ILogger<AccountController> _logger;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
 
@@ -29,7 +29,7 @@ namespace MaleFashion.Web.Controllers.Account
            UserManager<ApplicationUser> userManager,
            IUserStore<ApplicationUser> userStore,
            SignInManager<ApplicationUser> signInManager,
-           ILogger<RegisterModel> logger,
+           ILogger<AccountController> logger,
            IEmailService emailService,
            IMapper mapper)
         {
@@ -88,7 +88,11 @@ namespace MaleFashion.Web.Controllers.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(model.ReturnUrl);
+                    if (Url.IsLocalUrl(model.ReturnUrl))
+                    {
+                        return LocalRedirect(model.ReturnUrl);
+                    }
+                    return RedirectToAction("Index", "Home");
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -488,12 +492,15 @@ namespace MaleFashion.Web.Controllers.Account
             }
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
             var callbackUrl = Url.Action(
                 "ResetPassword",
                 "Account",
-                values: new { area = "", code },
+                values: new { area = "", code=code, email = model.Email },
                 protocol: Request.Scheme)!;
-            var fullName = $"{user.FirstName} {user.LastName}";
+
+            var fullName = $"{user.FirstName} {user.LastName}".Trim();
+
             await _emailService.SendEmailAsync(fullName, model.Email, "Reset Password",
                 $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
             return RedirectToAction("ForgotPasswordConfirmation");
@@ -534,16 +541,25 @@ namespace MaleFashion.Web.Controllers.Account
                 // Don't reveal that the user does not exist
                 return RedirectToAction("ResetPasswordConfirmation");
             }
-            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
-            var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
-            if (result.Succeeded)
+            try
             {
-                return RedirectToAction("ResetPasswordConfirmation");
+                var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
+                var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ResetPasswordConfirmation");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                }
             }
-            foreach (var error in result.Errors)
+            catch (FormatException)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(string.Empty, "Invalid password reset token.");
             }
+
             return View(model);
         }
 
@@ -562,6 +578,14 @@ namespace MaleFashion.Web.Controllers.Account
         public IActionResult Lockout()
         {
             _logger.LogWarning("Lockout notification page accessed.");
+            return View();
+        }
+        #endregion
+
+        #region Access Denied
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
             return View();
         }
         #endregion

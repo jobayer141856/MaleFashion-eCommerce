@@ -58,6 +58,13 @@
                         <button type="submit" class="site-btn w-100 mb-3">Log In</button>
                     </form>
 
+                    <div class="text-center border-top pt-3 mt-2">
+                        <p class="small text-muted mb-2">Don't have your authenticator device?</p>
+                        <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl" class="site-btn btn-sm px-3 py-2" style="background: #6c757d;">
+                            Sign In with Recovery Code
+                        </a>
+                    </div>
+
                     <div class="text-center mt-3">
                         <a asp-action="Login" class="text-muted small">
                             <i class="fa fa-arrow-left mr-1"></i> Back to standard login
@@ -72,4 +79,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-

@@ -1,6 +1,23 @@
-﻿@{
+﻿@using MaleFashion.Infrastructure.Identity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
     var activeItem = ViewData["ActiveMenu"]?.ToString() ?? "ManageAccount";
-    var userDisplayName = ViewData["UserDisplayName"]?.ToString() ?? "User";
+    var userDisplayName = ViewData["UserDisplayName"]?.ToString();
+
+    if (string.IsNullOrWhiteSpace(userDisplayName) && SignInManager.IsSignedIn(User))
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            var fullName = $"{currentUser.FirstName} {currentUser.LastName}".Trim();
+            userDisplayName = !string.IsNullOrWhiteSpace(fullName) ? fullName : currentUser.UserName;
+        }
+    }
+
+    userDisplayName ??= "User";
 }
 
 <div class="user-sidebar-card shadow-sm p-3 mb-4">
@@ -51,6 +68,7 @@
         <!-- Logout -->
         <div class="pt-3 mt-3 border-top px-2">
             <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-link text-danger p-0 font-weight-bold logout-btn">
                     <i class="fa fa-sign-out mr-2"></i> Logout
                 </button>

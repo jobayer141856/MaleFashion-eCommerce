@@ -34,10 +34,28 @@ namespace MaleFashion.Web.Controllers
             _urlEncoder = urlEncoder;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var model = new ManageModel
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                IsEmailConfirmed = user.EmailConfirmed
+            };
+            ViewData["UserDisplayName"] = $"{user.FirstName} {user.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(ViewData["UserDisplayName"]?.ToString()))
+            {
+                ViewData["UserDisplayName"] = user.UserName;
+            }
+            return View(model);
         }
 
         #region Change Password
@@ -64,8 +82,8 @@ namespace MaleFashion.Web.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.RefreshSignInAsync(user);
-                TempData["SuccessMessage"] = "Your password has been changed.";
-                return RedirectToAction("Login", "Account");
+                TempData["SuccessMessage"] = "Your password has been successfully changed.";
+                return RedirectToAction(nameof(ChangePassword));
             }
             else
             {
@@ -92,10 +110,11 @@ namespace MaleFashion.Web.Controllers
 
             if (!await _userManager.GetTwoFactorEnabledAsync(user))
             {
-                throw new InvalidOperationException($"Cannot disable 2FA for user as it's not currently enabled.");
+               TempData["StatusMessage"] = "2FA is not currently enabled for your account.";
+                return RedirectToAction(nameof(TwoFactorAuthentication));
             }
 
-            return View();
+            return View(new Disable2faModel());
         }
 
         [HttpPost]
@@ -115,8 +134,8 @@ namespace MaleFashion.Web.Controllers
             }
 
             _logger.LogInformation("User with ID '{UserId}' has disabled 2fa.", _userManager.GetUserId(User));
-            model.StatusMessage = "2fa has been disabled. You can reenable 2fa when you setup an authenticator app";
-            return RedirectToAction("TwoFactorAuthentication", "Manage");
+            TempData["StatusMessage"] = "2FA has been disabled. You can re-enable 2FA when you set up an authenticator app.";
+            return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
         [HttpGet]
@@ -129,7 +148,7 @@ namespace MaleFashion.Web.Controllers
             }
 
             var model = new EnableAuthenticatorModel();
-            await LoadSharedKeyAndQrCodeUriAsync(user);
+            await LoadSharedKeyAndQrCodeUriAsync(user, model);
 
             return View(model);
         }
@@ -144,7 +163,7 @@ namespace MaleFashion.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                await LoadSharedKeyAndQrCodeUriAsync(user);
+                await LoadSharedKeyAndQrCodeUriAsync(user, model);
                 return View(model);
             }
 
@@ -156,8 +175,8 @@ namespace MaleFashion.Web.Controllers
 
             if (!is2faTokenValid)
             {
-                ModelState.AddModelError("Input.Code", "Verification code is invalid.");
-                await LoadSharedKeyAndQrCodeUriAsync(user);
+                ModelState.AddModelError(nameof(model.Code), "Verification code is invalid.");
+                await LoadSharedKeyAndQrCodeUriAsync(user, model);
                 return View(model);
             }
 
@@ -167,21 +186,23 @@ namespace MaleFashion.Web.Controllers
 
             model.StatusMessage = "Your authenticator app has been verified.";
 
+            TempData["StatusMessage"] = "Your authenticator app has been verified.";
+
             if (await _userManager.CountRecoveryCodesAsync(user) == 0)
             {
                 var recoveryCodes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
                 model.RecoveryCodes = recoveryCodes!.ToArray();
-                return RedirectToAction("ShowRecoveryCodes", "manage");
+                TempData["RecoveryCodes"] = recoveryCodes!.ToArray();
+                return RedirectToAction(nameof(ShowRecoveryCodes));
             }
             else
             {
-                return RedirectToAction("TwoFactorAuthentication", "Manage");
+                return RedirectToAction(nameof(TwoFactorAuthentication));
             }
         }
 
-        private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user)
+        private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user, EnableAuthenticatorModel model)
         {
-            var model = new EnableAuthenticatorModel();
             // Load the authenticator key & QR code URI to display on the form
             var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
             if (string.IsNullOrEmpty(unformattedKey))
@@ -238,7 +259,7 @@ namespace MaleFashion.Web.Controllers
                 throw new InvalidOperationException($"Cannot generate recovery codes for user because they do not have 2FA enabled.");
             }
 
-            return View();
+            return View(new GenerateRecoveryCodesModel());
         }
 
         [HttpPost]
@@ -259,13 +280,18 @@ namespace MaleFashion.Web.Controllers
             }
 
             var recoveryCodes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            
             model.RecoveryCodes = recoveryCodes!.ToArray();
-
-            _logger.LogInformation("User with ID '{UserId}' has generated new 2FA recovery codes.", userId);
             model.StatusMessage = "You have generated new recovery codes.";
-            return RedirectToAction("ShowRecoveryCodes", "Manage");
+
+            TempData["RecoveryCodes"] = recoveryCodes!.ToArray();
+            TempData["StatusMessage"] = "You have generated new recovery codes.";
+            
+            _logger.LogInformation("User with ID '{UserId}' has generated new 2FA recovery codes.", userId);
+            return RedirectToAction(nameof(ShowRecoveryCodes));
         }
 
+        [HttpGet]
         public async Task<IActionResult> ResetAuthenticator()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -274,9 +300,11 @@ namespace MaleFashion.Web.Controllers
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            return View();
+            return View(new ResetAuthenticatorModel());
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetAuthenticator(ResetAuthenticatorModel model)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -293,18 +321,21 @@ namespace MaleFashion.Web.Controllers
             await _signInManager.RefreshSignInAsync(user);
             model.StatusMessage = "Your authenticator app key has been reset, you will need to configure your authenticator app using the new key.";
 
-            return RedirectToAction("EnableAuthenticator", "Manage");
+            return RedirectToAction(nameof(EnableAuthenticator));
         }
 
         [HttpGet]
         public IActionResult ShowRecoveryCodes()
         {
-            var model = new ShowRecoveryCodesModel();
-            if (model.RecoveryCodes == null || model.RecoveryCodes.Length == 0)
+            var recoveryCodes = TempData["RecoveryCodes"] as string[];
+            if (recoveryCodes == null || recoveryCodes.Length == 0)
             {
-                return RedirectToAction("TwoFactorAuthentication", "Manage");
+                return RedirectToAction(nameof(TwoFactorAuthentication));
             }
-
+            var model = new ShowRecoveryCodesModel
+            {
+                RecoveryCodes = recoveryCodes
+            };
             return View(model);
         }
 
@@ -337,8 +368,12 @@ namespace MaleFashion.Web.Controllers
             }
 
             await _signInManager.ForgetTwoFactorClientAsync();
+            
             model.StatusMessage = "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
-            return RedirectToAction("TwoFactorAuthentication", "Manage");
+            
+            TempData["StatusMessage"] = "The current browser has been forgotten. When you log in again from this browser, you will be prompted for your 2FA code.";
+
+            return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
         #endregion

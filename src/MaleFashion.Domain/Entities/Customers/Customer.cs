@@ -1,4 +1,5 @@
 ﻿using MaleFashion.Domain.Contracts;
+using MaleFashion.Domain.Entities.Ordering;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,5 +16,6 @@ namespace MaleFashion.Domain.Entities.Customers
 
         public ICollection<CustomerAddress> Addresses { get; set; } = new List<CustomerAddress>();
         public ICollection<WishlistItem> Wishlist { get; set; } = new List<WishlistItem>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

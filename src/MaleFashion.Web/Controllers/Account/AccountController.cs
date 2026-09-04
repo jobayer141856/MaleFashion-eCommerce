@@ -1,6 +1,7 @@
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Infrastructure.Identity;
 using MaleFashion.Web.Models.Account;
+using MaleFashion.Web.Models.Account.Manage;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Account
 {
     public class AccountController : Controller
 
@@ -136,6 +137,69 @@ namespace MaleFashion.Web.Controllers
             return View(model);
         }
 
+        #endregion
+
+        #region Login With 2FA
+        [HttpGet]
+        public async Task<IActionResult> LoginWith2fa(bool rememberMe, string? returnUrl = null)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
+
+            var model = new LoginWith2faModel
+            {
+                RememberMe = rememberMe,
+                ReturnUrl = returnUrl
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LoginWith2fa(LoginWith2faModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            model.ReturnUrl ??= Url.Content("~/");
+
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
+
+            var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
+
+            var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, model.RememberMe, model.RememberMachine);
+
+            var userId = await _userManager.GetUserIdAsync(user);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", userId);
+                return LocalRedirect(model.ReturnUrl);
+            }
+            else if (result.IsLockedOut)
+            {
+                _logger.LogWarning("User with ID '{UserId}' account locked out.", userId);
+                ModelState.AddModelError(string.Empty, "This account has been locked out. Please try again later.");
+                return View(model);
+            }
+            else
+            {
+                _logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", userId);
+                ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
+                return View(model);
+            }
+        }
         #endregion
 
         #region Register
@@ -325,44 +389,6 @@ namespace MaleFashion.Web.Controllers
 
         #endregion
 
-        #region Change Password
-        public async Task<IActionResult> ChangePassword()
-        {
-            var model = new ChangePasswordModel();
-            return View(model);
-        }
-
-        [HttpPost] [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login");
-            }
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded)
-            {
-                await _signInManager.RefreshSignInAsync(user);
-                TempData["SuccessMessage"] = "Your password has been changed.";
-                return RedirectToAction("Login");
-            }
-            else
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return View(model);
-            }
-        }
-
-        #endregion
-
         #region Logout
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout(string? returnUrl = null)
@@ -472,6 +498,7 @@ namespace MaleFashion.Web.Controllers
         }
 
         #endregion 
+
         private ApplicationUser CreateUser()
         {
             try

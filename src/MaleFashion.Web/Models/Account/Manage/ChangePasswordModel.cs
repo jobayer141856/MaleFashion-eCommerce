@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MaleFashion.Web.Models.Account
+namespace MaleFashion.Web.Models.Account.Manage
 {
     public class ChangePasswordModel
     {

@@ -1,0 +1,97 @@
+﻿@model LoginWithRecoveryCodeModel
+@{
+    ViewData["Title"] = "Recovery Code Verification";
+}
+
+<!-- Breadcrumb Section Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Recovery Verification</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Account" asp-action="Login">Sign In</a>
+                        <span>Recovery Code</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb Section End -->
+<!-- Recovery Code Login Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-7 col-sm-10">
+                    <div class="card border-0 shadow-sm p-4 text-center" style="border-radius: 8px; background: #ffffff;">
+
+                        <!-- Icon & Header -->
+                        <div class="mb-3">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-dark mb-3" style="width: 70px; height: 70px;">
+                                <i class="fa fa-key text-dark" style="font-size: 32px;"></i>
+                            </div>
+                            <h4 class="font-weight-bold mb-2">Recovery Code Verification</h4>
+                            <p class="text-muted small mb-0">
+                                You requested to sign in using an emergency backup code.
+                            </p>
+                        </div>
+
+                        <!-- Important Session Notice -->
+                        <div class="alert alert-warning text-left p-3 mb-4 small" style="border-left: 4px solid #ffc107; background-color: #fff9e6;">
+                            <i class="fa fa-info-circle text-warning mr-1"></i>
+                            This login will not remember your browser. You will be prompted again until you sign in with your authenticator app or reset 2FA.
+                        </div>
+
+                        <form asp-controller="Account" asp-action="LoginWithRecoveryCode" method="post" asp-route-returnUrl="@Model.ReturnUrl" class="text-left">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                            <!-- Single Recovery Code Input -->
+                            <div class="checkout__input mb-4">
+                                <p>Emergency Recovery Code<span>*</span></p>
+                                <input asp-for="RecoveryCode"
+                                       class="w-100 text-center font-weight-bold tracking-wide"
+                                       placeholder="XXXXX-XXXXX"
+                                       autocomplete="off"
+                                       autofocus
+                                       style="letter-spacing: 3px; font-size: 18px; height: 50px;" />
+                                <span asp-validation-for="RecoveryCode" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="site-btn w-100 py-3 mb-3" style="background: #111111;">
+                                Verify Recovery Code
+                            </button>
+                        </form>
+
+                        <!-- Back to Standard 2FA -->
+                        <div class="border-top pt-3 mt-2">
+                            <p class="text-muted small mb-2">
+                                Found your authenticator device?
+                            </p>
+                            <a asp-controller="Account" asp-action="LoginWith2fa" asp-route-returnUrl="@Model.ReturnUrl" class="site-btn btn-sm px-3 py-2" style="background: #6c757d;">
+                                Use Authenticator App
+                            </a>
+                        </div>
+
+                        <!-- Back to Homepage -->
+                        <div class="mt-4 pt-2">
+                            <a asp-controller="Home" asp-action="Index" class="text-muted small">
+                                <i class="fa fa-arrow-left me-1"></i> Back to Homepage
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Recovery Code Login Section End -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

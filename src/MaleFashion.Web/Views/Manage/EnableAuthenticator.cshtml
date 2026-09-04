@@ -1,0 +1,159 @@
+﻿@model EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Configure Authenticator App";
+    ViewData["ActiveMenu"] = "Security";
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="Manage/_ManageSidebar" />
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8">
+                <div class="main-dashboard-card p-4 shadow-sm bg-white" style="border-radius: 4px; border: 1px solid #f0f0f0;">
+
+                    <!-- Title Bar -->
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div>
+                            <h4 class="font-weight-bold mb-1 text-dark">Configure Authenticator App</h4>
+                            <p class="text-muted small mb-0">Follow the steps below to link an authenticator app with your account.</p>
+                        </div>
+                        <a asp-action="TwoFactorAuthentication" class="text-secondary small font-weight-bold">
+                            <i class="fa fa-arrow-left mr-1"></i> Back to 2FA
+                        </a>
+                    </div>
+
+                    @if (TempData["StatusMessage"] != null)
+                    {
+                        <div class="alert alert-info alert-dismissible fade show small mb-4" role="alert">
+                            @TempData["StatusMessage"]
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        </div>
+                    }
+
+                    <!-- Step-by-Step Setup Guide -->
+                    <div class="setup-steps">
+                        <!-- Step 1 -->
+                        <div class="step-item d-flex mb-4">
+                            <div class="step-number mr-3">1</div>
+                            <div class="step-content">
+                                <h6 class="font-weight-bold text-dark mb-1">Download an Authenticator Application</h6>
+                                <p class="small text-muted mb-2">
+                                    Install a standard TOTP app on your smartphone, such as:
+                                </p>
+                                <ul class="small list-unstyled pl-2 mb-0">
+                                    <li class="mb-1">
+                                        <strong>Microsoft Authenticator:</strong>
+                                        <a href="https://go.microsoft.com/fwlink/?Linkid=825072" target="_blank" class="text-primary font-weight-bold">Android</a> /
+                                        <a href="https://go.microsoft.com/fwlink/?Linkid=825073" target="_blank" class="text-primary font-weight-bold">iOS</a>
+                                    </li>
+                                    <li>
+                                        <strong>Google Authenticator:</strong>
+                                        <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en" target="_blank" class="text-primary font-weight-bold">Android</a> /
+                                        <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" target="_blank" class="text-primary font-weight-bold">iOS</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="step-item d-flex mb-4">
+                            <div class="step-number mr-3">2</div>
+                            <div class="step-content w-100">
+                                <h6 class="font-weight-bold text-dark mb-1">Scan the QR Code or Enter Key Manually</h6>
+                                <p class="small text-muted mb-3">
+                                    Scan the code with your app or copy and paste the secret setup key (casing and spaces do not matter):
+                                </p>
+
+                                <div class="bg-light border rounded p-3 mb-3 d-inline-block">
+                                    <span class="small text-muted d-block mb-1">Secret Key:</span>
+                                    <kbd class="px-3 py-1 font-weight-bold" style="letter-spacing: 2px; font-size: 14px; background: #212529; color: #fff;">@Model.SharedKey</kbd>
+                                </div>
+
+                                <!-- QR Code Rendering Box -->
+                                <div class="qr-container p-3 border rounded bg-white text-center mb-2" style="max-width: 220px;">
+                                    <div id="qrCode"></div>
+                                    <div id="qrCodeData" data-url="@Model.AuthenticatorUri"></div>
+                                </div>
+                                <small class="text-muted d-block">Scan with your phone's camera inside the authenticator app.</small>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="step-item d-flex">
+                            <div class="step-number mr-3">3</div>
+                            <div class="step-content w-100">
+                                <h6 class="font-weight-bold text-dark mb-1">Verify Authenticator Code</h6>
+                                <p class="small text-muted mb-3">
+                                    Enter the 6-digit code shown in your app to activate Two-Factor Authentication.
+                                </p>
+
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-5">
+                                        <form asp-action="EnableAuthenticator" method="post" id="send-code">
+                                            @Html.AntiForgeryToken()
+                                            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                                            <div class="checkout__input mb-3">
+                                                <p>6-Digit Verification Code<span>*</span></p>
+                                                <input asp-for="Code" class="w-100 font-weight-bold text-center" style="letter-spacing: 4px; font-size: 18px;" placeholder="000000" maxlength="7" autocomplete="off" />
+                                                <span asp-validation-for="Code" class="text-danger small"></span>
+                                            </div>
+
+                                            <button type="submit" class="site-btn px-4 py-2 w-100" style="background: #111111;">
+                                                Verify & Activate 2FA
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .step-number {
+        width: 32px;
+        height: 32px;
+        background-color: #111111;
+        color: #ffffff;
+        font-weight: 700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 14px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- QRCode JS Library for client-side rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var uriElement = document.getElementById("qrCodeData");
+            if (uriElement) {
+                var uri = uriElement.getAttribute("data-url");
+                if (uri) {
+                    new QRCode(document.getElementById("qrCode"), {
+                        text: uri,
+                        width: 180,
+                        height: 180,
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+            }
+        });
+    </script>
+}

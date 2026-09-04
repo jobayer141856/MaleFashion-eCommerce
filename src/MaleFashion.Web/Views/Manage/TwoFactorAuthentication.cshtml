@@ -1,0 +1,180 @@
+﻿@model TwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+    ViewData["ActiveMenu"] = "TwoFactor";
+    ViewData["UserDisplayName"] = User.Identity?.Name ?? "User";
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar (Col 3) -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="_ManageSidebar" />
+            </div>
+
+            <!-- Main Content (Col 9) -->
+            <div class="col-lg-9 col-md-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show small mb-3">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show small mb-3">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                }
+
+                <div class="main-dashboard-card p-4 shadow-sm bg-white rounded">
+                    <!-- Title Bar -->
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div>
+                            <h4 class="font-weight-bold mb-1 text-dark">Two-Factor Authentication (2FA)</h4>
+                            <small class="text-muted">Enhance your account security with two-factor verification.</small>
+                        </div>
+                        <div>
+                            @if (Model.Is2faEnabled)
+                            {
+                                <span class="badge badge-success px-3 py-2 font-weight-bold" style="font-size: 13px;">
+                                    <i class="fa fa-shield mr-1"></i> Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary px-3 py-2 font-weight-bold" style="font-size: 13px;">
+                                    <i class="fa fa-shield mr-1"></i> Inactive
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.Is2faEnabled)
+                    {
+                        <!-- 2FA is currently ENABLED: Show Deactivate option -->
+                        <div class="card border-0 bg-light p-4 mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-circle bg-success text-white mr-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 50%;">
+                                    <i class="fa fa-check fa-lg"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-weight-bold text-dark mb-1">Your account is protected</h5>
+                                    <p class="text-muted mb-0 small">
+                                        Two-factor authentication is currently active. Every time you log in, you will be required to provide a 6-digit code from your authenticator app.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="mt-2">
+                                <h6 class="font-weight-bold text-dark mb-1">Deactivate Two-Factor Authentication</h6>
+                                <p class="text-muted small mb-3">
+                                    Disabling 2FA will lower your account security. You will only need your email and password to log in.
+                                </p>
+                                <form asp-action="Deactivate2fa" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger font-weight-bold px-4" onclick="return confirm('Are you sure you want to deactivate Two-Factor Authentication?');">
+                                        <i class="fa fa-unlock mr-2"></i> Deactivate 2FA
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- 2FA is currently DISABLED: Show Setup & Activate form -->
+                        <div class="alert alert-info small mb-4">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            Protect your account from unauthorized access by setting up an Authenticator App (such as <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong>, or <strong>Authy</strong>).
+                        </div>
+
+                        <!-- Step 1: Scan QR or copy key -->
+                        <div class="setup-step mb-4">
+                            <h6 class="font-weight-bold text-dark mb-2">
+                                <span class="badge badge-dark mr-2">Step 1</span> Scan the QR Code or enter the setup key
+                            </h6>
+                            <p class="text-muted small mb-3">
+                                Open your authenticator app, choose <strong>Scan a QR code</strong>, or manually enter the key provided below.
+                            </p>
+
+                            <div class="row align-items-center bg-light p-3 rounded mx-0 mb-3">
+                                @if (!string.IsNullOrEmpty(Model.AuthenticatorUri))
+                                {
+                                    <div class="col-auto text-center pr-md-4 mb-3 mb-md-0 border-right">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?data=@Uri.EscapeDataString(Model.AuthenticatorUri)&size=160x160"
+                                             alt="2FA QR Code"
+                                             class="img-fluid rounded border bg-white p-2"
+                                             style="max-width: 160px; max-height: 160px;" />
+                                    </div>
+                                }
+                                <div class="col">
+                                    <label class="font-weight-bold small text-muted mb-1">Setup Key (Manual Entry)</label>
+                                    <div class="input-group" style="max-width: 380px;">
+                                        <input type="text" class="form-control font-weight-bold bg-white text-uppercase" id="setupKeyInput" value="@Model.SharedKey" readonly style="letter-spacing: 2px;" />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="copyKeyBtn" onclick="copySetupKey()">
+                                                <i class="fa fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small id="copySuccessMsg" class="text-success font-weight-bold d-none mt-1">Key copied to clipboard!</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Verification Code -->
+                        <div class="setup-step">
+                            <h6 class="font-weight-bold text-dark mb-2">
+                                <span class="badge badge-dark mr-2">Step 2</span> Enter the 6-digit code to activate
+                            </h6>
+                            <p class="text-muted small mb-3">
+                                Once your authenticator app generates a 6-digit code, enter it below and click <strong>Activate 2FA</strong>.
+                            </p>
+
+                            <form asp-action="Activate2fa" method="post" style="max-width: 400px;">
+                                @Html.AntiForgeryToken()
+                                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Code" class="font-weight-bold small text-dark mb-1">6-Digit Verification Code</label>
+                                    <input asp-for="Code" class="form-control form-control-lg text-center font-weight-bold"
+                                           placeholder="000 000" maxlength="7" autocomplete="off" style="letter-spacing: 4px; font-size: 20px;" />
+                                    <span asp-validation-for="Code" class="text-danger small"></span>
+                                </div>
+
+                                <button type="submit" class="btn btn-dark font-weight-bold px-4 py-2">
+                                    <i class="fa fa-shield mr-2"></i> Activate 2FA
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function copySetupKey() {
+            var keyInput = document.getElementById('setupKeyInput');
+            if (keyInput) {
+                navigator.clipboard.writeText(keyInput.value.replace(/\s+/g, '')).then(function () {
+                    var msg = document.getElementById('copySuccessMsg');
+                    if (msg) {
+                        msg.classList.remove('d-none');
+                        setTimeout(function () { msg.classList.add('d-none'); }, 3000);
+                    }
+                });
+            }
+        }
+    </script>
+}
+

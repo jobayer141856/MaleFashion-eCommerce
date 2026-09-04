@@ -1,0 +1,122 @@
+﻿@model ManageModel
+@{
+    ViewData["Title"] = "Manage My Account";
+    ViewData["ActiveMenu"] = "ManageAccount";
+    ViewData["UserDisplayName"] = "jobayer";
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar (Col 3) -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="_ManageSidebar" />
+            </div>
+
+            <!-- Main Content (Col 9) -->
+            <div class="col-lg-9 col-md-8">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show small mb-3">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                }
+
+                <div class="main-dashboard-card p-4 shadow-sm bg-white">
+                    <!-- Title Bar -->
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <h4 class="font-weight-bold mb-0 text-dark">Manage My Account</h4>
+                        <a asp-action="ChangePassword" class="text-primary font-weight-bold small text-decoration-none">
+                            Change Password
+                        </a>
+                    </div>
+
+                    <!-- Profile & Address Cards -->
+                    <div class="row mb-4">
+                        <!-- Personal Profile -->
+                        <div class="col-md-6 border-right">
+                            <div class="pr-md-3 mb-3 mb-md-0">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="font-weight-bold text-secondary mb-0">Personal Profile</h6>
+                                    <a href="#" class="text-primary small font-weight-bold">Edit</a>
+                                </div>
+                                <div class="profile-info-body">
+                                    <p class="font-weight-bold text-dark mb-1"></p>
+                                    <p class="text-muted mb-1 small"></p>
+                                    <p class="text-muted mb-0 small"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Book -->
+                        <div class="col-md-6">
+                            <div class="pl-md-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="font-weight-bold text-secondary mb-0">Address Book</h6>
+                                    <a href="#" class="text-primary small font-weight-bold">Edit</a>
+                                </div>
+                                <div class="address-info-body">
+                                    <small class="text-muted d-block mb-1 font-weight-bold">Default Delivery Address</small>
+                                    <p class="font-weight-bold text-dark mb-1"></p>
+                                    <p class="text-muted mb-1 small">
+                                        <br />
+                                      <br />
+                                        
+                                    </p>
+                                    <p class="text-muted mb-0 small"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Track Orders Table -->
+                    <div class="track-orders-section mt-4 pt-3 border-top">
+                        <h5 class="font-weight-bold mb-3 text-dark">Track Orders</h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-borderless order-table mb-0">
+                                <thead>
+                                    <tr class="text-secondary small font-weight-bold border-bottom">
+                                        <th>Order No</th>
+                                        <th>Order Date</th>
+                                        <th>Shop Name</th>
+                                        <th>Item(s)</th>
+                                        <th>Amount</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                             
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted small">
+                                            No active or recent orders found.
+                                        </td>
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-dashboard-card {
+        border-radius: 4px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .order-table td, .order-table th {
+        vertical-align: middle;
+        padding: 14px 10px;
+    }
+
+    .order-table thead th {
+        border-bottom: 2px solid #ededed;
+    }
+</style>

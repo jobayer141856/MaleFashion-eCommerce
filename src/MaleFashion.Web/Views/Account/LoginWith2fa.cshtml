@@ -1,0 +1,75 @@
+@model LoginWith2faModel
+@{
+    ViewData["Title"] = "Two-Factor Authentication";
+}
+
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Two-Factor Authentication</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>2FA Verification</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-8">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-dark text-white mb-3" style="width: 64px; height: 64px;">
+                            <i class="fa fa-shield fa-2x"></i>
+                        </div>
+                        <h4 class="font-weight-bold text-dark mb-1">Security Verification</h4>
+                        <p class="text-muted small">
+                            Your login is protected by Two-Factor Authentication. Please enter the code from your authenticator app below.
+                        </p>
+                    </div>
+
+                    <form asp-action="LoginWith2fa" asp-route-returnurl="@Model.ReturnUrl" method="post">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="RememberMe" type="hidden" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="checkout__input mb-3">
+                            <p>Authenticator Code<span>*</span></p>
+                            <input asp-for="TwoFactorCode" class="text-center font-weight-bold"
+                                   placeholder="000 000" maxlength="7" autocomplete="off"
+                                   style="letter-spacing: 4px; font-size: 20px;" />
+                            <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="checkout__input__checkbox mb-4">
+                            <label for="RememberMachine">
+                                Remember this machine
+                                <input type="checkbox" asp-for="RememberMachine" id="RememberMachine" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="site-btn w-100 mb-3">Log In</button>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <a asp-action="Login" class="text-muted small">
+                            <i class="fa fa-arrow-left mr-1"></i> Back to standard login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

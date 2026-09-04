@@ -1,0 +1,109 @@
+﻿@{
+    var activeItem = ViewData["ActiveMenu"]?.ToString() ?? "ManageAccount";
+    var userDisplayName = ViewData["UserDisplayName"]?.ToString() ?? "User";
+}
+
+<div class="user-sidebar-card shadow-sm p-3 mb-4">
+    <!-- Header / Name -->
+    <div class="mb-3 px-2">
+        <small class="text-muted d-block">Hello,</small>
+        <h6 class="font-weight-bold text-dark mb-1">@userDisplayName</h6>
+        <span class="badge-verified"><i class="fa fa-check-circle mr-1"></i> Verified Account</span>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+        <!-- Manage My Account -->
+        <div class="nav-group mb-2">
+            <a asp-controller="Manage" asp-action="Index" class="nav-heading @(activeItem == "ManageAccount" ? "active-heading" : "")">
+                <i class="fa fa-user-o mr-2"></i> Manage My Account
+            </a>
+            <ul class="sub-nav list-unstyled pl-4 mt-1">
+                <li><a asp-controller="Manage" asp-action="Index" class="@(activeItem == "MyProfile" ? "active-link" : "")">My Profile</a></li>
+                <li><a href="#" class="@(activeItem == "AddressBook" ? "active-link" : "")">Address Book</a></li>
+                <li><a asp-controller="Manage" asp-action="TwoFactorAuthentication" class="@(activeItem == "TwoFactor" ? "active-link" : "")">Two-Factor Auth (2FA)</a></li>
+            </ul>
+        </div>
+
+        <!-- Voucher Center -->
+        <div class="nav-group mb-2">
+            <span class="nav-heading text-secondary"><i class="fa fa-ticket mr-2"></i> Voucher Center</span>
+            <ul class="sub-nav list-unstyled pl-4 mt-1">
+                <li><a href="#">My Voucher</a></li>
+            </ul>
+        </div>
+
+        <!-- Orders -->
+        <div class="nav-group mb-2">
+            <span class="nav-heading text-secondary"><i class="fa fa-shopping-bag mr-2"></i> My Orders</span>
+            <ul class="sub-nav list-unstyled pl-4 mt-1">
+                <li><a href="#">My Returns</a></li>
+                <li><a href="#">My Cancellation</a></li>
+            </ul>
+        </div>
+
+        <!-- Wishlist & Reviews -->
+        <div class="nav-group mb-2">
+            <a href="#" class="nav-heading text-secondary d-block"><i class="fa fa-star-o mr-2"></i> My Reviews</a>
+            <a href="#" class="nav-heading text-secondary d-block mt-2"><i class="fa fa-heart-o mr-2"></i> My Wishlist</a>
+        </div>
+
+        <!-- Logout -->
+        <div class="pt-3 mt-3 border-top px-2">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="btn btn-link text-danger p-0 font-weight-bold logout-btn">
+                    <i class="fa fa-sign-out mr-2"></i> Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+</div>
+
+<style>
+    .user-sidebar-card {
+        background: #ffffff;
+        border-radius: 4px;
+        border: 1px solid #f0f0f0;
+    }
+
+    .badge-verified {
+        display: inline-block;
+        background: #eafaf1;
+        color: #27ae60;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+
+    .sidebar-nav .nav-heading {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #333333;
+        text-decoration: none;
+        display: block;
+        padding: 4px 0;
+    }
+
+    .sidebar-nav .active-heading {
+        color: #e53637 !important;
+    }
+
+    .sub-nav li a {
+        font-size: 13px;
+        color: #666666;
+        text-decoration: none;
+        display: block;
+        padding: 3px 0;
+        transition: 0.2s ease;
+    }
+
+        .sub-nav li a:hover, .sub-nav li a.active-link {
+            color: #e53637;
+        }
+
+    .logout-btn {
+        font-size: 13px;
+        text-decoration: none !important;
+    }
+</style>

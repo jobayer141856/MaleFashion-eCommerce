@@ -1,0 +1,138 @@
+﻿@model ShowRecoveryCodesModel
+@{
+    ViewData["Title"] = "Recovery Codes";
+    ViewData["ActiveMenu"] = "Security";
+    var codes = Model.RecoveryCodes?.ToArray() ?? Array.Empty<string>();
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="Manage/_ManageSidebar" />
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8">
+                <div class="main-dashboard-card p-4 shadow-sm bg-white" style="border-radius: 4px; border: 1px solid #f0f0f0;">
+
+                    <!-- Title Bar -->
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div>
+                            <h4 class="font-weight-bold mb-1 text-dark">Two-Factor Recovery Codes</h4>
+                            <p class="text-muted small mb-0">Emergency one-time backup keys to regain access to your account.</p>
+                        </div>
+                        <a asp-action="TwoFactorAuthentication" class="text-secondary small font-weight-bold">
+                            <i class="fa fa-arrow-left mr-1"></i> Back to 2FA
+                        </a>
+                    </div>
+
+                    <!-- Critical Warning Callout -->
+                    <div class="alert alert-warning border-left-warning p-3 mb-4" role="alert" style="border-left: 4px solid #ffc107;">
+                        <h6 class="font-weight-bold text-dark mb-1">
+                            <i class="fa fa-exclamation-triangle text-warning mr-1"></i> Put these codes in a safe place!
+                        </h6>
+                        <p class="mb-0 small text-muted">
+                            If you lose your device or authenticator application and do not possess these recovery codes, you will permanently lose access to your account. Each code can be used only once.
+                        </p>
+                    </div>
+
+                    <!-- Recovery Codes Display Container -->
+                    <div class="card bg-light border-0 p-4 mb-4" style="border-radius: 6px;">
+                        <div class="row" id="recoveryCodesList">
+                            @if (codes.Length > 0)
+                            {
+                                @for (var row = 0; row < codes.Length; row += 2)
+                                {
+                                    <div class="col-sm-6 mb-2">
+                                        <div class="code-box bg-white border px-3 py-2 text-center rounded font-weight-bold tracking-wide">
+                                            @codes[row]
+                                        </div>
+                                    </div>
+                                    @if (row + 1 < codes.Length)
+                                    {
+                                        <div class="col-sm-6 mb-2">
+                                            <div class="code-box bg-white border px-3 py-2 text-center rounded font-weight-bold tracking-wide">
+                                                @codes[row + 1]
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-12 text-center text-muted small py-3">
+                                    No recovery codes available. Please generate a new set.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between pt-2 border-top" style="gap: 10px;">
+                        <div class="d-flex flex-wrap" style="gap: 8px;">
+                            <button type="button" class="site-btn btn-sm px-3 py-2" style="background: #111111;" onclick="copyRecoveryCodes()">
+                                <i class="fa fa-copy mr-1"></i> Copy All Codes
+                            </button>
+                            <button type="button" class="site-btn btn-sm px-3 py-2" style="background: #6c757d;" onclick="downloadRecoveryCodes()">
+                                <i class="fa fa-download mr-1"></i> Download .txt
+                            </button>
+                        </div>
+                        <a asp-action="TwoFactorAuthentication" class="site-btn btn-sm px-4 py-2" style="background: #e53637;">
+                            Done
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tracking-wide {
+        letter-spacing: 1.5px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 15px;
+        color: #212529;
+    }
+
+    .code-box {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function getRawCodes() {
+            var elements = document.querySelectorAll('#recoveryCodesList .code-box');
+            var codes = [];
+            elements.forEach(function(el) {
+                codes.push(el.innerText.trim());
+            });
+            return codes.join('\r\n');
+        }
+
+        function copyRecoveryCodes() {
+            var text = getRawCodes();
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Recovery codes copied to clipboard!');
+            });
+        }
+
+        function downloadRecoveryCodes() {
+            var text = "Male Fashion - Two-Factor Recovery Codes\r\n" +
+                "Generated: " + new Date().toLocaleString() + "\r\n\r\n" +
+                getRawCodes() + "\r\n\r\n" +
+                "Keep these backup codes safe and confidential.";
+            var blob = new Blob([text], { type: 'text/plain' });
+            var anchor = document.createElement('a');
+            anchor.download = 'MaleFashion-Recovery-Codes.txt';
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.click();
+            window.URL.revokeObjectURL(anchor.href);
+        }
+    </script>
+}

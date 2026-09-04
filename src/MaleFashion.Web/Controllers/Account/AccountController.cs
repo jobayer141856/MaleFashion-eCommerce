@@ -556,6 +556,15 @@ namespace MaleFashion.Web.Controllers.Account
 
         #endregion
 
+        #region Lockout
+
+        [HttpGet]
+        public IActionResult Lockout()
+        {
+            _logger.LogWarning("Lockout notification page accessed.");
+            return View();
+        }
+        #endregion
 
         #region Helpers
         private ApplicationUser CreateUser()

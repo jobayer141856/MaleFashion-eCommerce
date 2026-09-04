@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Account Locked Out";
+}
+
+<!-- Breadcrumb Section Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Security Alert</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Account" asp-action="Login">Sign In</a>
+                        <span>Locked Out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb Section End -->
+<!-- Lockout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="card border-0 shadow-sm p-4 p-md-5 text-center" style="border-radius: 8px; background: #ffffff;">
+
+                    <!-- Icon Warning Header -->
+                    <div class="mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                             style="width: 80px; height: 80px; background-color: #fff2f2;">
+                            <i class="fa fa-lock text-danger" style="font-size: 38px;"></i>
+                        </div>
+                        <h3 class="font-weight-bold text-dark mb-2">Account Temporarily Locked</h3>
+                        <p class="text-danger font-weight-bold mb-0">
+                            Too many failed login attempts have been detected.
+                        </p>
+                    </div>
+
+                    <!-- Details Callout -->
+                    <div class="alert alert-light border text-left p-3 mb-4 small" style="background-color: #fdfdfd; border-radius: 6px;">
+                        <p class="mb-2 text-muted">
+                            To protect your credentials, security settings, and saved payment methods, access to this account has been temporarily suspended.
+                        </p>
+                        <p class="mb-0 text-muted">
+                            Please wait a few minutes before attempting to sign in again, or reset your password if you don't remember it.
+                        </p>
+                    </div>
+
+                    <!-- Action Options -->
+                    <div class="d-flex flex-column" style="gap: 10px;">
+                        <a asp-controller="Account" asp-action="ForgotPassword" class="site-btn py-3" style="background: #111111;">
+                            Reset Password
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="site-btn btn-sm py-2" style="background: #6c757d;">
+                            Back to Sign In
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-link text-muted small mt-2">
+                            <i class="fa fa-arrow-left mr-1"></i> Return to Storefront
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Lockout Section End -->

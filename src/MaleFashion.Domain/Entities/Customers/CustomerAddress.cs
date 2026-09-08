@@ -1,20 +1,24 @@
-﻿using System;
+﻿using MaleFashion.Domain.Contracts;
+using MaleFashion.Domain.Enums;
+using MaleFashion.Domain.ValueOfObjects;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace MaleFashion.Domain.Entities.Customers
 {
-    public class CustomerAddress 
+    public class CustomerAddress: IAuditableEntity
     {
         public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
-        public string AddressType { get; set; } = "Shipping"; // Billing or Shipping
-        public string StreetAddress { get; set; } = string.Empty;
-        public string? ApartmentSuite { get; set; }
-        public string City { get; set; } = string.Empty;
-        public string State { get; set; } = string.Empty;
-        public string PostalCode { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
+        public Customer? Customer { get; set; }
+
+        public AddressType Type { get; set; }
+
+        public Address Address { get; set; } = default!;
         public bool IsDefault { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
     }
 }

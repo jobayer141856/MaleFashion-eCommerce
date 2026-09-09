@@ -1,0 +1,57 @@
+﻿@model MaleFashion.Web.Areas.Admin.Models.Categories.CategoryModel
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Edit Category</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Back to List</a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+                    <form asp-action="Update" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ImageName" />
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Name"></label>
+                            <input class="form-control" asp-for="Name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ParentCategoryId"></label>
+                            <select class="form-select" asp-for="ParentCategoryId" asp-items="Model.ParentCategories">
+                                <option value="">-- None (Top Level Category) --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Image"></label>
+                            @if (!string.IsNullOrEmpty(Model.ImageName))
+                            {
+                                <div class="mb-2">
+                                    <img src="/uploads/categories/@Model.ImageName" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" />
+                                </div>
+                            }
+                            <input class="form-control" asp-for="Image" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <span asp-validation-for="Image" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Publish & Show in Store</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Update Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

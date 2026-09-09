@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Infrastructure.Data.Configurations
+namespace MaleFashion.Infrastructure.Data.Configurations.Reviews
 {
     public class ProductReviewConfiguration : IEntityTypeConfiguration<ProductReview>
     {

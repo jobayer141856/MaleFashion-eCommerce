@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Infrastructure.Data.Configurations
+namespace MaleFashion.Infrastructure.Data.Configurations.Customers
 {
     public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
     {

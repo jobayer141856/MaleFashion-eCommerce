@@ -1,17 +1,17 @@
-﻿using MaleFashion.Domain.Entities.Catalog;
+﻿using MaleFashion.Domain.Entities.Blogs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Infrastructure.Data.Configurations
+namespace MaleFashion.Infrastructure.Data.Configurations.Blogs
 {
-    public class ProductTagConfiguration : IEntityTypeConfiguration<ProductTag>
+    public class BlogTagConfiguration : IEntityTypeConfiguration<BlogTag>
     {
-        public void Configure(EntityTypeBuilder<ProductTag> builder)
+        public void Configure(EntityTypeBuilder<BlogTag> builder)
         {
-            builder.ToTable("ProductTags");
+            builder.ToTable("BlogTags");
             builder.HasKey(t => t.Id);
             builder.Property(t => t.Name).HasMaxLength(100).IsRequired();
         }

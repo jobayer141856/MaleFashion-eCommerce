@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Infrastructure.Data.Configurations
+namespace MaleFashion.Infrastructure.Data.Configurations.Support
 {
     public class NewsletterSubscriberConfiguration : IEntityTypeConfiguration<NewsletterSubscriber>
     {

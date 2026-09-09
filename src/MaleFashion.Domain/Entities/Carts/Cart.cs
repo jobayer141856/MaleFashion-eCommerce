@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Domain.Entities.Cart
+namespace MaleFashion.Domain.Entities.Carts
 {
     public class Cart : IAggregateRoot<Guid>, IAuditableEntity
     {

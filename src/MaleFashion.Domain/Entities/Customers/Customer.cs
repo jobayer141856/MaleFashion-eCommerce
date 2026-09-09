@@ -1,5 +1,5 @@
 ﻿using MaleFashion.Domain.Contracts;
-using MaleFashion.Domain.Entities.Cart;
+using MaleFashion.Domain.Entities.Carts;
 using MaleFashion.Domain.Entities.Ordering;
 using MaleFashion.Domain.Entities.Reviews;
 using System;
@@ -29,7 +29,7 @@ namespace MaleFashion.Domain.Entities.Customers
         public ICollection<WishlistItem> Wishlist { get; set; } = new List<WishlistItem>();
         public ICollection<Order> Orders { get; set; } = new List<Order>();
 
-        public ICollection<Cart.Cart> Carts { get; set; } = new List<Cart.Cart>();
+        public ICollection<Cart> Carts { get; set; } = new List<Cart>();
         public ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
 
 

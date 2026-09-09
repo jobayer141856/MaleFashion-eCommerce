@@ -1,11 +1,11 @@
 ﻿using MaleFashion.Domain.Contracts;
-using MaleFashion.Domain.Entities.Catalog;
+using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.ValueOfObjects;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Domain.Entities.Cart
+namespace MaleFashion.Domain.Entities.Carts
 {
     public class CartItem : IAuditableEntity
     {

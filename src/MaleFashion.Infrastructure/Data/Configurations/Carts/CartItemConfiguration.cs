@@ -1,11 +1,11 @@
-﻿using MaleFashion.Domain.Entities.Cart;
+﻿using MaleFashion.Domain.Entities.Carts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Infrastructure.Data.Configurations.Cart
+namespace MaleFashion.Infrastructure.Data.Configurations.Carts
 {
     public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
     {

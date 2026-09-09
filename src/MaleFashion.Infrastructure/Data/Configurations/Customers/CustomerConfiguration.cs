@@ -2,6 +2,7 @@
 using MaleFashion.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MaleFashion.Domain.Entities.Carts;
 using System;
 using System.Collections.Generic;
 using System.Text;

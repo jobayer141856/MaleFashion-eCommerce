@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaleFashion.Domain.Entities.Catalog
+namespace MaleFashion.Domain.Entities.Catalogs
 {
     public class Brand : IAggregateRoot<Guid> , IAuditableEntity
     {

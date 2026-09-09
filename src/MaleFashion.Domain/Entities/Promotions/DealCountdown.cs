@@ -1,5 +1,5 @@
 ﻿using MaleFashion.Domain.Contracts;
-using MaleFashion.Domain.Entities.Catalog;
+using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.ValueOfObjects;
 using System;
 using System.Collections.Generic;

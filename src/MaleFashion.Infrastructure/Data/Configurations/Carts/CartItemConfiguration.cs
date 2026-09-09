@@ -23,11 +23,11 @@ namespace MaleFashion.Infrastructure.Data.Configurations.Carts
             builder.HasOne(i => i.Product)
                    .WithMany()
                    .HasForeignKey(i => i.ProductId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(i => i.ProductVariant)
                    .WithMany()
                    .HasForeignKey(i => i.ProductVariantId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 

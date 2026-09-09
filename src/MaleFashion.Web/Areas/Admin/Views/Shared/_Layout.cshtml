@@ -2,6 +2,10 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
 
 <!doctype html>
 <html lang="en"
@@ -52,7 +56,7 @@
             <!-- Menu / Sidebar -->
             <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
                 <div class="app-brand demo">
-                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="app-brand-link">
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="app-brand-link">
                         <span class="app-brand-logo demo">
                             <span class="text-primary">
                                 <svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -102,44 +106,185 @@
                 <div class="menu-inner-shadow"></div>
 
                 <ul class="menu-inner py-1">
-                    <!-- Dashboard -->
-                    <li class="menu-item active">
-                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="menu-link">
+                    <!-- ============================================== -->
+                    <!-- 1. DASHBOARD -->
+                    <!-- ============================================== -->
+                    <li class="menu-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-home-smile"></i>
                             <div class="text-truncate">Dashboard</div>
                         </a>
                     </li>
 
+                    <!-- ============================================== -->
+                    <!-- 2. CATALOG & PRODUCTS -->
+                    <!-- ============================================== -->
                     <li class="menu-header small text-uppercase">
-                        <span class="menu-header-text">Store Management</span>
+                        <span class="menu-header-text">Catalog & Products</span>
                     </li>
 
-                    <li class="menu-item">
-                        <a asp-area="Admin" asp-controller="Category" asp-action="Index" class="menu-link">
+                    <li class="menu-item @(currentController == "Categories" || currentController == "Category" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Categories" asp-action="Index" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-category"></i>
                             <div class="text-truncate">Categories</div>
                         </a>
                     </li>
 
-                    <li class="menu-item">
-                        <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="menu-link">
+                    <li class="menu-item @(currentController == "Brands" || currentController == "Brand" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Brands" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-badge-check"></i>
+                            <div class="text-truncate">Brands</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Products" || currentController == "Product" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-package"></i>
                             <div class="text-truncate">Products</div>
                         </a>
                     </li>
 
-                    <li class="menu-item">
-                        <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="menu-link">
-                            <i class="menu-icon tf-icons bx bx-cart"></i>
+                    <!-- ============================================== -->
+                    <!-- 3. SALES & SHOPPING -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Sales & Orders</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Orders" || currentController == "Order" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-shopping-bag"></i>
                             <div class="text-truncate">Orders</div>
                         </a>
                     </li>
 
+                    <li class="menu-item @(currentController == "Carts" || currentController == "Cart" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Carts" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-cart"></i>
+                            <div class="text-truncate">Active Carts</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 4. CUSTOMERS -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Customer Management</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Customers" || currentController == "Customer" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Customers" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-user"></i>
+                            <div class="text-truncate">Customers</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 5. PROMOTIONS & MARKETING -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Promotions & Marketing</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Coupons" || currentController == "Coupon" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Coupons" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
+                            <div class="text-truncate">Coupons & Discounts</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "DealCountdowns" || currentController == "DealCountdown" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="DealCountdowns" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-timer"></i>
+                            <div class="text-truncate">Flash Deals</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Newsletters" || currentController == "NewsletterSubscriber" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Newsletters" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-envelope"></i>
+                            <div class="text-truncate">Newsletter Subscribers</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 6. CONTENT & BLOG -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Blog & Articles</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "BlogPosts" || currentController == "BlogPost" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="BlogPosts" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-news"></i>
+                            <div class="text-truncate">Blog Posts</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "BlogComments" || currentController == "BlogComment" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="BlogComments" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-comment-detail"></i>
+                            <div class="text-truncate">Comments Moderation</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 7. FEEDBACK & SUPPORT -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Feedback & Support</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Reviews" || currentController == "ProductReview" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-star"></i>
+                            <div class="text-truncate">Product Reviews</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "ContactInquiries" || currentController == "ContactInquiry" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="ContactInquiries" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-support"></i>
+                            <div class="text-truncate">Contact Messages</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 8. WEBSITE CMS -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Website CMS</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "TeamMembers" || currentController == "TeamMember" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="TeamMembers" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-group"></i>
+                            <div class="text-truncate">Team Members</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Partners" || currentController == "PartnerClient" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Partners" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-briefcase-alt"></i>
+                            <div class="text-truncate">Partner Clients</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Testimonials" || currentController == "Testimonial" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Testimonials" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-quote-right"></i>
+                            <div class="text-truncate">Testimonials</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 9. SETTINGS & ACCOUNT -->
+                    <!-- ============================================== -->
                     <li class="menu-header small text-uppercase">
                         <span class="menu-header-text">Settings</span>
                     </li>
 
-                    <li class="menu-item">
+                    <li class="menu-item @(currentController == "Account" && currentAction == "ChangePassword" ? "active" : "")">
                         <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-key"></i>
                             <div class="text-truncate">Change Password</div>

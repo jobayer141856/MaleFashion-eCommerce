@@ -30,7 +30,10 @@ namespace MaleFashion.Infrastructure.Data.Seeds
             };
             // Generate password hash for "Admin@123456"
             var hasher = new PasswordHasher<ApplicationUser>();
-            adminUser.PasswordHash = hasher.HashPassword(adminUser, "Admin@123456");
+            // Login Credentials:
+            // Email:    admin@malefashion.com
+            // Password: Admin@123456
+            adminUser.PasswordHash = "AQAAAAIAAYagAAAAEB3IfcxVAyomYxyjmzV8acaKeiBzNufAFWZxFui4R2QlCa/+X71ODjJlJBC1AJSs3g==";
             return adminUser;
         }
         public static ApplicationUserRole GetAdminUserRole()

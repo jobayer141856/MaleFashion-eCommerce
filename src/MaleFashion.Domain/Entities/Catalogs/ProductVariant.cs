@@ -17,6 +17,7 @@ namespace MaleFashion.Domain.Entities.Catalogs
         public string ColorHex { get; set; } = string.Empty;
         public string Sku { get; set; } = string.Empty;
         public int StockQuantity { get; set; }
+        public int lowStockQuantity { get; set; } = 0;
 
         // Optional price override for specific size/color
         public Money? VariantPrice { get; set; }

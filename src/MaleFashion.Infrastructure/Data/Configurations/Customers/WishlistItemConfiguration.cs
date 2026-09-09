@@ -16,11 +16,11 @@ namespace MaleFashion.Infrastructure.Data.Configurations.Customers
             builder.HasOne(w => w.Product)
                    .WithMany()
                    .HasForeignKey(w => w.ProductId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(w => w.ProductVariant)
                    .WithMany()
                    .HasForeignKey(w => w.ProductVariantId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
             // Prevent duplicate wishlist entries for the exact same variant
             builder.HasIndex(w => new { w.CustomerId, w.ProductId, w.ProductVariantId })
                    .IsUnique();

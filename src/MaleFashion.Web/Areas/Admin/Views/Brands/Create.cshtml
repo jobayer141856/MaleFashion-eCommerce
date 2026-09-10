@@ -1,0 +1,73 @@
+﻿@model BrandModel
+
+@{
+    ViewData["Title"] = "Create Brand";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Create Brand</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <!-- Brand Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Name"></label>
+                            <input class="form-control" asp-for="Name" placeholder="e.g. Nike, Adidas, Zara" autofocus />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Brand Logo Upload & Preview -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Logo"></label>
+                            <input class="form-control" asp-for="Logo" id="logoInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <span asp-validation-for="Logo" class="text-danger"></span>
+
+                            <!-- Live Preview Area -->
+                            <div class="mt-2 d-none" id="logoPreviewContainer">
+                                <img id="logoPreview" src="#" alt="Preview" class="img-thumbnail rounded" style="max-height: 120px; object-fit: cover;" />
+                            </div>
+                        </div>
+
+                        <!-- Publish Status -->
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Publish & Show in Store</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Brand
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            // Live Logo Preview Handler (Safe & Fast)
+            $('#logoInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    $('#logoPreview').attr('src', URL.createObjectURL(file));
+                    $('#logoPreviewContainer').removeClass('d-none');
+                } else {
+                    $('#logoPreviewContainer').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}

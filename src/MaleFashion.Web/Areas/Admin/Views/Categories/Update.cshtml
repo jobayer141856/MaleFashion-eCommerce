@@ -1,4 +1,14 @@
-﻿@model MaleFashion.Web.Areas.Admin.Models.Categories.CategoryModel
+﻿@model CategoryModel
+
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+@section Styles {
+    <!-- Select2 CSS & Bootstrap-5 Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+}
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row">
@@ -6,45 +16,67 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center border-bottom">
                     <h5 class="mb-0">Edit Category</h5>
-                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Back to List</a>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
                 </div>
                 <div class="card-body pt-4">
                     <partial name="_ResponsePartial" />
+
                     <form asp-action="Update" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="ImageName" />
 
+                        <!-- Category Name -->
                         <div class="mb-3">
                             <label class="form-label" asp-for="Name"></label>
                             <input class="form-control" asp-for="Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
+                        <!-- Parent Category (Select2 AJAX) -->
                         <div class="mb-3">
                             <label class="form-label" asp-for="ParentCategoryId"></label>
-                            <select class="form-select" asp-for="ParentCategoryId" asp-items="Model.ParentCategories">
+                            <select class="form-select" id="parentCategorySelect" asp-for="ParentCategoryId" asp-items="Model?.ParentCategories">
                                 <option value="">-- None (Top Level Category) --</option>
                             </select>
+                            <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
                         </div>
 
+                        <!-- Existing Image & New Image Upload -->
                         <div class="mb-3">
                             <label class="form-label" asp-for="Image"></label>
+
+                            <!-- Current Image Preview -->
                             @if (!string.IsNullOrEmpty(Model.ImageName))
                             {
-                                <div class="mb-2">
-                                    <img src="/uploads/categories/@Model.ImageName" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" />
+                                <div class="mb-2" id="currentImageContainer">
+                                    <p class="text-muted small mb-1">Current Image:</p>
+                                    <img src="/uploads/categories/@Model.ImageName" class="img-thumbnail rounded" style="width: 90px; height: 90px; object-fit: cover;" />
                                 </div>
                             }
-                            <input class="form-control" asp-for="Image" type="file" accept=".jpg,.jpeg,.png,.webp" />
+
+                            <!-- Upload input for replacement -->
+                            <input class="form-control" asp-for="Image" id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <small class="text-muted">Leave empty to keep the current image.</small><br />
                             <span asp-validation-for="Image" class="text-danger"></span>
+
+                            <!-- New Image Preview Area -->
+                            <div class="mt-2 d-none" id="newImagePreviewContainer">
+                                <p class="text-muted small mb-1">New Image Preview:</p>
+                                <img id="imagePreview" src="#" alt="New Preview" class="img-thumbnail rounded" style="max-height: 120px; object-fit: cover;" />
+                            </div>
                         </div>
 
+                        <!-- Publish Status -->
                         <div class="form-check form-switch mb-4">
                             <input class="form-check-input" type="checkbox" asp-for="IsActive" />
                             <label class="form-check-label" asp-for="IsActive">Publish & Show in Store</label>
                         </div>
 
-                        <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Update Category</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Update Category
+                        </button>
                     </form>
                 </div>
             </div>
@@ -54,4 +86,55 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(function() {
+            // Initialize Select2 with AJAX Search
+            $('#parentCategorySelect').select2({
+                theme: 'bootstrap-5',
+                placeholder: '-- None (Top Level Category) --',
+                allowClear: true,
+                width: '100%',
+                ajax: {
+                    url: '/Admin/Categories/GetAllCategories',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.map(function(c) {
+                                return {
+                                    id: c.id,
+                                    text: c.name
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+
+            // Live Image Preview Handler (Safe & Fast)
+            // document.getElementById('imageInput').addEventListener('change', function(e) {
+            //     const file = e.target.files[0];
+
+            //     if (!file) {
+            //         return;
+            //     }
+
+            //     const preview = document.getElementById('imagePreview');
+            //     const container = document.getElementById('imagePreviewContainer');
+
+            //     preview.src = URL.createObjectURL(file);
+            //     container.classList.remove('d-none');
+            // });
+        });
+    </script>
 }

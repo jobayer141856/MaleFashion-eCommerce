@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace MaleFashion.Web.Areas.Admin.Models.Categories
+namespace MaleFashion.Web.Areas.Admin.Models.Catalogs
 {
     public class CategoryModel
     {

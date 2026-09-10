@@ -1,0 +1,88 @@
+﻿@model BrandModel
+
+@{
+    ViewData["Title"] = "Edit Brand";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Edit Brand</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Update" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="LogoUrl" />
+
+                        <!-- Brand Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Name"></label>
+                            <input class="form-control" asp-for="Name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Existing Logo & Replacement Upload -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Logo"></label>
+
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <div class="mb-2" id="currentLogoContainer">
+                                    <p class="text-muted small mb-1">Current Logo:</p>
+                                    <img src="/uploads/brands/@Model.LogoUrl" class="img-thumbnail rounded" style="width: 90px; height: 90px; object-fit: cover;" />
+                                </div>
+                            }
+
+                            <!-- Upload input for replacement -->
+                            <input class="form-control" asp-for="Logo" id="logoInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <small class="text-muted">Leave empty to keep the current logo.</small><br />
+                            <span asp-validation-for="Logo" class="text-danger"></span>
+
+                            <!-- New Logo Preview Area -->
+                            <div class="mt-2 d-none" id="newLogoPreviewContainer">
+                                <p class="text-muted small mb-1">New Logo Preview:</p>
+                                <img id="logoPreview" src="#" alt="New Preview" class="img-thumbnail rounded" style="max-height: 120px; object-fit: cover;" />
+                            </div>
+                        </div>
+
+                        <!-- Publish Status -->
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Publish & Show in Store</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Update Brand
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            // Live Logo Preview Handler (Safe & Fast)
+            $('#logoInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    $('#logoPreview').attr('src', URL.createObjectURL(file));
+                    $('#newLogoPreviewContainer').removeClass('d-none');
+                } else {
+                    $('#newLogoPreviewContainer').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}

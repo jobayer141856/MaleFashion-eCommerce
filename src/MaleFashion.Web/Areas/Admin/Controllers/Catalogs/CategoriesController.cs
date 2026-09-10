@@ -7,13 +7,14 @@ using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Web.Areas.Admin.Models;
-using MaleFashion.Web.Areas.Admin.Models.Categories;
+using MaleFashion.Web.Areas.Admin.Models.Catalogs;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Web;
 
-namespace MaleFashion.Web.Areas.Admin.Controllers
+namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 {
     [Area("Admin")]
     public class CategoriesController : Controller
@@ -53,6 +54,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
             {
                 try
                 {
+                   // Console.WriteLine($"Model received: Name={model.Name}, IsActive={model.IsActive}, Image={model.Image?.FileName}");
                     string? imageName = null;
                     if (model.Image != null)
                     {
@@ -125,6 +127,23 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                 if (result != null)
                 {
                     var model = _mapper.Map<CategoryModel>(result);
+                    // Pre-populate the currently saved Parent Category for the Select2 dropdown
+                    if (result.ParentCategoryId.HasValue)
+                    {
+                        var parentCategory = await _mediator.SendQueryAsync(new GetCategoryByIdQuery { Id = result.ParentCategoryId.Value });
+                        if (parentCategory != null)
+                        {
+                            model.ParentCategories = new List<SelectListItem>
+                    {
+                        new SelectListItem
+                        {
+                            Value = parentCategory.Id.ToString(),
+                            Text = parentCategory.Name,
+                            Selected = true
+                        }
+                    };
+                        }
+                    }
                     return View(model);
                 }
                 else
@@ -272,6 +291,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                                     ? $"/uploads/categories/{HttpUtility.HtmlEncode(item.ImageName)}"
                                     : "/sneat/assets/img/elements/1.jpg",
                                 HttpUtility.HtmlEncode(item.Name),
+                                item.ParentCategory != null ? HttpUtility.HtmlEncode(item.ParentCategory.Name) : "N/A",
                                 item.IsActive ? "Active" : "Inactive",
                                 item.Id.ToString()
                             }).ToArray()
@@ -317,6 +337,36 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategories(string? q, string? searchText)
+        {
+            try
+            {
+                var term = !string.IsNullOrWhiteSpace(q) ? q : searchText;
+
+                var query = new GetAllCategoriesQuery
+                {
+                    ActiveOnly = true,
+                    SearchText = term
+                };
+
+                var result = await _mediator.SendQueryAsync(query);
+
+                var data = result.Select(c => new
+                {
+                    id = c.Id,
+                    name = c.Name
+                });
+
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get all categories.");
+                return StatusCode(500, new { message = "Failed to load categories." });
+            }
         }
     }
 }

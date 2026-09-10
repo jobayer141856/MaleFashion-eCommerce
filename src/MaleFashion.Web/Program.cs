@@ -1,4 +1,5 @@
 using Cortex.Mediator.DependencyInjection;
+using MaleFashion.Application.Features.Catalogs.Categories.Commands;
 using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Data;
 using MaleFashion.Infrastructure.Extensions;
@@ -61,7 +62,7 @@ try
     #region Cortex Mediator Configuration
 
     builder.Services.AddCortexMediator(
-        new[] { typeof(Program) },
+        new[] { typeof(Program) , typeof(CategoryAddCommand) },
         options => options.AddDefaultBehaviors()
 
     );
@@ -106,6 +107,7 @@ try
     app.UseAuthorization();
 
     app.MapStaticAssets();
+    app.UseStaticFiles();
 
     app.MapControllerRoute(
         name: "area",

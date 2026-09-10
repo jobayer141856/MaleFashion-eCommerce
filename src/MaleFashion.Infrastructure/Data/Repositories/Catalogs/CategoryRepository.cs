@@ -1,6 +1,7 @@
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
 using MaleFashion.Application.Features.Catalogs.Categories.Queries;
 using MaleFashion.Domain.Entities.Catalogs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +21,7 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
         {
             return await GetDynamicAsync(x => query.SearchText == null || x.Name.Contains(query.SearchText),
                  query.SortText,
-                 null,
+                 x => x.Include(c => c.ParentCategory),
                  query.PageIndex,
                  query.PageSize,
                  true,

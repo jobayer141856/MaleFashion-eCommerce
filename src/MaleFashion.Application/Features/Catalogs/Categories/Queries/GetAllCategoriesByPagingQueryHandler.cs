@@ -7,12 +7,12 @@ using System.Text;
 
 namespace MaleFashion.Application.Features.Catalogs.Categories.Queries
 {
-    public class GetAllProductsByPagingQueryHandler : IQueryHandler<GetAllCategoriesByPagingQuery, (IList<Category>, int, int)>
+    public class GetAllCategoriesByPagingQueryHandler : IQueryHandler<GetAllCategoriesByPagingQuery, (IList<Category>, int, int)>
     {
 
         private readonly IApplicationUnitOfWork _applicationUnitOfWork;
 
-        public GetAllProductsByPagingQueryHandler(IApplicationUnitOfWork applicationUnitOfWork)
+        public GetAllCategoriesByPagingQueryHandler(IApplicationUnitOfWork applicationUnitOfWork)
         {
             _applicationUnitOfWork = applicationUnitOfWork;
         }

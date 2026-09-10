@@ -1,9 +1,2 @@
-﻿
-using MaleFashion.Domain.Utilities;
+// Deprecated: Moved to MaleFashion.Web.Areas.Admin.Models.Catalogs.ProductListModel
 
-namespace MaleFashion.Web.Areas.Admin.Models
-{
-    public class ProductListModel : DataTables
-    {
-    }
-}

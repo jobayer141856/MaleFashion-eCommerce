@@ -1,0 +1,151 @@
+﻿@model BlogDetailsModel
+@{
+    ViewData["Title"] = Model.Post.Title;
+    var approvedComments = Model.Post.Comments?.Where(c => c.IsApproved).ToList() ?? new();
+    string imageUrl = string.IsNullOrEmpty(Model.Post.FeaturedImageUrl)
+        ? Url.Content("~/malefashion/img/blog/details/blog-details.jpg")
+        : Url.Content("~/uploads/blogs/" + Model.Post.FeaturedImageUrl);
+}
+
+<!-- Blog Details Hero Begin -->
+<section class="blog-hero spad">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-9 text-center">
+                <div class="blog__hero__text">
+                    <h2>@Model.Post.Title</h2>
+                    <ul>
+                        <li>By @Model.Post.AuthorName</li>
+                        <li>@Model.Post.PublishedDate.ToString("MMMM dd, yyyy")</li>
+                        <li>@approvedComments.Count Comments</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Hero End -->
+<!-- Blog Details Section Begin -->
+<section class="blog-details spad">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-12">
+                <div class="blog__details__pic text-center">
+                    <img src="@imageUrl" alt="@Model.Post.Title" style="max-height: 580px; width: 100%; object-fit: cover;" />
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="blog__details__content">
+                    <div class="blog__details__share">
+                        <span>share</span>
+                        <ul>
+                            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li><a href="#" class="twitter"><i class="fa fa-twitter"></i></a></li>
+                            <li><a href="#" class="youtube"><i class="fa fa-youtube-play"></i></a></li>
+                            <li><a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="blog__details__text">
+                        @Html.Raw(Model.Post.Content)
+                    </div>
+
+                    <div class="blog__details__option">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="blog__details__author">
+                                    <div class="blog__details__author__pic">
+                                        <img src="~/malefashion/img/blog/details/blog-author.jpg" alt="@Model.Post.AuthorName" />
+                                    </div>
+                                    <div class="blog__details__author__text">
+                                        <h5>@Model.Post.AuthorName</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="blog__details__tags">
+                                    @foreach (var tag in Model.Post.Tags)
+                                    {
+                                        <a href="#">#@tag.Name</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Previous & Next Post Navigation -->
+                    <div class="blog__details__btns">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                @if (Model.PreviousPost != null)
+                                {
+                                    <a asp-controller="BlogPosts" asp-action="Details" asp-route-id="@Model.PreviousPost.Id" class="blog__details__btns__item">
+                                        <p><span class="arrow_left"></span> Previous Post</p>
+                                        <h5>@Model.PreviousPost.Title</h5>
+                                    </a>
+                                }
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                @if (Model.NextPost != null)
+                                {
+                                    <a asp-controller="BlogPosts" asp-action="Details" asp-route-id="@Model.NextPost.Id" class="blog__details__btns__item blog__details__btns__item--next">
+                                        <p>Next Post <span class="arrow_right"></span></p>
+                                        <h5>@Model.NextPost.Title</h5>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approved Comments List -->
+                    @if (approvedComments.Count > 0)
+                    {
+                        <div class="mb-5">
+                            <h4 class="mb-4 font-weight-bold">Comments (@approvedComments.Count)</h4>
+                            @foreach (var c in approvedComments)
+                            {
+                                <div class="border rounded p-3 mb-3 bg-light">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="font-weight-bold mb-1">@c.Name</h6>
+                                        <small class="text-muted">@c.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                    </div>
+                                    <p class="mb-0 text-secondary">@c.CommentText</p>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Leave A Comment Section -->
+                    <div class="blog__details__comment">
+                        <h4>Leave A Comment</h4>
+                        @if (TempData["CommentSuccess"] != null)
+                        {
+                            <div class="alert alert-success">@TempData["CommentSuccess"]</div>
+                        }
+                        <form asp-controller="Blog" asp-action="AddComment" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="CommentInput.BlogPostId" value="@Model.Post.Id" />
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="text" name="CommentInput.Name" value="@Model.CommentInput.Name" placeholder="Name" required />
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="email" name="CommentInput.Email" value="@Model.CommentInput.Email" placeholder="Email" required />
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <input type="text" name="CommentInput.Phone" value="@Model.CommentInput.Phone" placeholder="Phone" />
+                                </div>
+                                <div class="col-lg-12 text-center">
+                                    <textarea name="CommentInput.CommentText" placeholder="Comment" required></textarea>
+                                    <button type="submit" class="site-btn">POST COMMENT</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Blog Details Section End -->

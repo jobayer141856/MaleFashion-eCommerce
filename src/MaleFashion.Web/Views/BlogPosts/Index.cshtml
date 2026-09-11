@@ -1,0 +1,64 @@
+﻿@model BlogModel
+@{
+    ViewData["Title"] = "Our Blog";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-blog set-bg" data-setbg="@Url.Content("~/malefashion/img/breadcrumb-bg.jpg")">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Our Blog</h2>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+<!-- Blog Section Begin -->
+<section class="blog spad">
+    <div class="container">
+        <div class="row">
+            @if (Model.Posts != null && Model.Posts.Count > 0)
+            {
+                foreach (var post in Model.Posts)
+                {
+                    string imageUrl = string.IsNullOrEmpty(post.FeaturedImageUrl)
+                        ? Url.Content("~/malefashion/img/blog/blog-1.jpg")
+                        : Url.Content("~/uploads/blogs/" + post.FeaturedImageUrl);
+
+                    <div class="col-lg-4 col-md-6 col-sm-6">
+                        <div class="blog__item">
+                            <div class="blog__item__pic set-bg" data-setbg="@imageUrl"></div>
+                            <div class="blog__item__text">
+                                <span><img src="~/malefashion/img/icon/calendar.png" alt="" /> @post.PublishedDate.ToString("dd MMMM yyyy")</span>
+                                <h5>@post.Title</h5>
+                                <a asp-controller="BlogPosts" asp-action="Details" asp-route-id="@post.Id">READ MORE</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">No blog posts found.</p>
+                </div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="product__pagination">
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <a class="@(i == Model.CurrentPage ? "active" : "")" asp-controller="Blog" asp-action="Index" asp-route-page="@i">@i</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+<!-- Blog Section End -->

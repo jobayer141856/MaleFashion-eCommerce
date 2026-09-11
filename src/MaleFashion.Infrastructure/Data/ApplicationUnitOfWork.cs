@@ -27,6 +27,7 @@ namespace MaleFashion.Infrastructure.Data
         public ICustomerRepository CustomerRepository { get; private set; }
         // Blog & Content
         public IBlogPostRepository BlogPostRepository { get; private set; }
+        public IBlogCommentRepository BlogCommentRepository { get; private set; }
         // Feedback & Reviews
         public IProductReviewRepository ProductReviewRepository { get; private set; }
         // Promotions & Discounts

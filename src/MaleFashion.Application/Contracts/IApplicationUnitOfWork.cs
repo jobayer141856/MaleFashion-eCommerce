@@ -27,6 +27,7 @@ namespace MaleFashion.Application.Contracts
         public ICustomerRepository CustomerRepository { get; }
         // Blog & Content
         public IBlogPostRepository BlogPostRepository { get; }
+        public IBlogCommentRepository BlogCommentRepository { get; }
         // Feedback & Reviews
         public IProductReviewRepository ProductReviewRepository { get; }
         // Promotions & Discounts

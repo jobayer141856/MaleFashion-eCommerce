@@ -1,0 +1,98 @@
+﻿<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bx bx-comment-detail me-1"></i> Comments Moderation</h5>
+            <div class="d-flex gap-2">
+                <select id="statusFilter" class="form-select form-select-sm" style="width: 150px;">
+                    <option value="">All Comments</option>
+                    <option value="false" selected>Pending Review</option>
+                    <option value="true">Approved</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-datatable table-responsive">
+            <table class="table border-top" id="commentsTable">
+                <thead>
+                    <tr>
+                        <th>Blog Post</th>
+                        <th>Commenter</th>
+                        <th>Comment Text</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function() {
+            let table = $('#commentsTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '@Url.Action("GetPagedComments", "BlogComments", new { area = "Admin" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: function(d) {
+                        let filter = $('#statusFilter').val();
+                        d.statusFilter = filter === "" ? null : filter === "true";
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    { data: 0 },
+                    { data: 1 },
+                    { data: 2 },
+                    { data: 3 },
+                    {
+                        data: 4,
+                        render: function(data) {
+                            return data === 'Approved'
+                                ? '<span class="badge bg-label-success">Approved</span>'
+                                : '<span class="badge bg-label-warning">Pending</span>';
+                        }
+                    },
+                    {
+                        data: 5,
+                        orderable: false,
+                        render: function(id, type, row) {
+                            let isApproved = row[4] === 'Approved';
+                            return `
+                                        <button class="btn btn-sm btn-${isApproved ? 'outline-warning' : 'outline-success'} toggle-btn" data-id="${id}">
+                                            ${isApproved ? '<i class="bx bx-x"></i> Reject' : '<i class="bx bx-check"></i> Approve'}
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${id}">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    `;
+                        }
+                    }
+                ]
+            });
+
+            $('#statusFilter').on('change', function() {
+                table.ajax.reload();
+            });
+
+            $('#commentsTable').on('click', '.toggle-btn', function() {
+                let id = $(this).data('id');
+                $.post('@Url.Action("ToggleApproval", "BlogComments", new { area = "Admin" })', { id: id }, function() {
+                    table.ajax.reload(null, false);
+                });
+            });
+
+            $('#commentsTable').on('click', '.delete-btn', function() {
+                if (confirm('Permanently delete this comment?')) {
+                    let id = $(this).data('id');
+                    $.post('@Url.Action("Delete", "BlogComments", new { area = "Admin" })', { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() }, function() {
+                        table.ajax.reload(null, false);
+                    });
+                }
+            });
+        });
+    </script>
+}

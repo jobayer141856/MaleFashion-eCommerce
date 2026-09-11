@@ -1,8 +1,9 @@
-﻿using MaleFashion.Domain.Entities.Customers;
+﻿using MaleFashion.Domain.Entities.Carts;
+using MaleFashion.Domain.Entities.Customers;
+using MaleFashion.Domain.Enums;
 using MaleFashion.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MaleFashion.Domain.Entities.Carts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,29 +26,41 @@ namespace MaleFashion.Infrastructure.Data.Configurations.Customers
             builder.Property(c => c.Email).HasMaxLength(256).IsRequired();
             builder.Property(c => c.PhoneNumber).HasMaxLength(30);
             builder.Property(c => c.Gender).HasMaxLength(20);
+
+            // Enum configuration
+            builder.Property(c => c.Origin)
+                   .IsRequired()
+                   .HasDefaultValue(CustomerOrigin.Self);
+
             // Relationships
             builder.HasMany(c => c.Addresses)
                    .WithOne(a => a.Customer)
                    .HasForeignKey(a => a.CustomerId)
                    .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasMany(c => c.Wishlist)
                    .WithOne(w => w.Customer)
                    .HasForeignKey(w => w.CustomerId)
                    .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasMany(c => c.Orders)
                    .WithOne(o => o.Customer)
                    .HasForeignKey(o => o.CustomerId)
                    .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasMany(c => c.Carts)
                    .WithOne(ct => ct.Customer)
                    .HasForeignKey(ct => ct.CustomerId)
                    .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasMany(c => c.Reviews)
                    .WithOne(r => r.Customer)
                    .HasForeignKey(r => r.CustomerId)
                    .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasIndex(c => c.Email);
             builder.HasIndex(c => c.UserId);
+            builder.HasIndex(c => c.Origin);
         }
     }
 }

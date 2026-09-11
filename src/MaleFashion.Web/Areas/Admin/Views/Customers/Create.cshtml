@@ -1,0 +1,107 @@
+﻿@model CustomerModel
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <form asp-area="Admin" asp-controller="Customers" asp-action="Create" asp-antiforgery="true" method="post">
+
+                <!-- Personal Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">New Customer Registration</h5>
+                        <a asp-area="Admin" asp-controller="Customers" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                            <i class="bx bx-arrow-back me-1"></i> Back to List
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="FirstName">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" asp-for="FirstName" placeholder="John" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="LastName">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" asp-for="LastName" placeholder="Doe" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="Email">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" asp-for="Email" placeholder="john.doe@example.com" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="PhoneNumber">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" asp-for="PhoneNumber" placeholder="+880 1700 000000" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="Gender">Gender</label>
+                                <select class="form-select" asp-for="Gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="DateOfBirth">Date of Birth</label>
+                                <input type="date" class="form-control" asp-for="DateOfBirth" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Address Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Primary Address (Optional)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label" asp-for="StreetAddress">Street Address</label>
+                                <input type="text" class="form-control" asp-for="StreetAddress" placeholder="House 12, Road 4, Sector 7" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="ApartmentSuite">Apt / Suite</label>
+                                <input type="text" class="form-control" asp-for="ApartmentSuite" placeholder="Flat 4B" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="City">City</label>
+                                <input type="text" class="form-control" asp-for="City" placeholder="Dhaka" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="State">State / Division</label>
+                                <input type="text" class="form-control" asp-for="State" placeholder="Dhaka" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="PostalCode">Postal Code</label>
+                                <input type="text" class="form-control" asp-for="PostalCode" placeholder="1230" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" asp-for="Country">Country</label>
+                                <input type="text" class="form-control" asp-for="Country" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <button type="submit" class="btn btn-primary me-2"><i class="bx bx-save me-1"></i> Save Customer</button>
+                    <a asp-area="Admin" asp-controller="Customers" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

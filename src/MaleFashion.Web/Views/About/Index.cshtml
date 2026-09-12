@@ -1,0 +1,191 @@
+@model AboutModel
+@{
+    ViewData["Title"] = "About Us";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>About Us</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>About Us</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- About Section Begin -->
+<section class="about spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="about__pic">
+                    <img src="~/malefashion/img/about/about-us.jpg" alt="About Male Fashion">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model.Features != null)
+            {
+                foreach (var feature in Model.Features)
+                {
+                    <div class="col-lg-4 col-md-4 col-sm-6">
+                        <div class="about__item">
+                            <h4>@feature.Title</h4>
+                            <p>@feature.Description</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+<!-- About Section End -->
+
+<!-- Testimonial Section Begin -->
+@if (Model.FeaturedTestimonial != null)
+{
+    var testimonialAvatar = Model.FeaturedTestimonial.AvatarUrl?.StartsWith("malefashion") == true || Model.FeaturedTestimonial.AvatarUrl?.StartsWith("/") == true
+        ? Url.Content("~/" + Model.FeaturedTestimonial.AvatarUrl.TrimStart('/'))
+        : Url.Content("~/uploads/testimonials/" + Model.FeaturedTestimonial.AvatarUrl);
+
+    <section class="testimonial">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-6 p-0">
+                    <div class="testimonial__text">
+                        <span class="icon_quotations"></span>
+                        <p>@Model.FeaturedTestimonial.Quote</p>
+                        <div class="testimonial__author">
+                            <div class="testimonial__author__pic">
+                                <img src="@testimonialAvatar" alt="@Model.FeaturedTestimonial.AuthorName">
+                            </div>
+                            <div class="testimonial__author__text">
+                                <h5>@Model.FeaturedTestimonial.AuthorName</h5>
+                                <p>@Model.FeaturedTestimonial.AuthorProfession</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 p-0">
+                    <div class="testimonial__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/about/testimonial-pic.jpg")"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+<!-- Testimonial Section End -->
+
+<!-- Counter Section Begin -->
+<section class="counter spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="counter__item">
+                    <div class="counter__item__number">
+                        <h2 class="cn_num">@Model.Counters.ClientsCount</h2>
+                    </div>
+                    <span>Our <br />Clients</span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="counter__item">
+                    <div class="counter__item__number">
+                        <h2 class="cn_num">@Model.Counters.CategoriesCount</h2>
+                    </div>
+                    <span>Total <br />Categories</span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="counter__item">
+                    <div class="counter__item__number">
+                        <h2 class="cn_num">@Model.Counters.CountriesCount</h2>
+                    </div>
+                    <span>In <br />Country</span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="counter__item">
+                    <div class="counter__item__number">
+                        <h2 class="cn_num">@Model.Counters.HappyCustomerPercentage</h2>
+                        <strong>%</strong>
+                    </div>
+                    <span>Happy <br />Customer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Counter Section End -->
+
+<!-- Team Section Begin -->
+<section class="team spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <span>Our Team</span>
+                    <h2>Meet Our Team</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model.TeamMembers != null)
+            {
+                foreach (var member in Model.TeamMembers)
+                {
+                    var photoPath = member.PhotoUrl?.StartsWith("malefashion") == true || member.PhotoUrl?.StartsWith("/") == true
+                        ? Url.Content("~/" + member.PhotoUrl.TrimStart('/'))
+                        : Url.Content("~/uploads/team/" + member.PhotoUrl);
+
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="team__item">
+                            <img src="@photoPath" alt="@member.Name">
+                            <h4>@member.Name</h4>
+                            <span>@member.Role</span>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+<!-- Team Section End -->
+
+<!-- Client Section Begin -->
+<section class="clients spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <span>Partner</span>
+                    <h2>Happy Clients</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model.Partners != null)
+            {
+                foreach (var partner in Model.Partners)
+                {
+                    var logoPath = partner.LogoUrl?.StartsWith("malefashion") == true || partner.LogoUrl?.StartsWith("/") == true
+                        ? Url.Content("~/" + partner.LogoUrl.TrimStart('/'))
+                        : Url.Content("~/uploads/partners/" + partner.LogoUrl);
+
+                    <div class="col-lg-3 col-md-4 col-sm-4 col-6">
+                        <a href="#" class="client__item"><img src="@logoPath" alt="@partner.ClientName"></a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+<!-- Client Section End -->
+

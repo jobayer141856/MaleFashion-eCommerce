@@ -1,0 +1,73 @@
+@model MaleFashion.Web.Areas.Admin.Models.CMS.TeamMemberModel
+
+@{
+    ViewData["Title"] = "Add Team Member";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Add Team Member</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Name"></label>
+                            <input class="form-control" asp-for="Name" placeholder="e.g. John Smith" autofocus />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Role / Position -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Role"></label>
+                            <input class="form-control" asp-for="Role" placeholder="e.g. Fashion Designer, Founder & CEO" />
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+
+                        <!-- Photo Upload & Preview -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Photo"></label>
+                            <input class="form-control" asp-for="Photo" id="photoInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <span asp-validation-for="Photo" class="text-danger"></span>
+
+                            <div class="mt-2 d-none" id="photoPreviewContainer">
+                                <img id="photoPreview" src="#" alt="Preview" class="img-thumbnail rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Team Member
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            $('#photoInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    $('#photoPreview').attr('src', URL.createObjectURL(file));
+                    $('#photoPreviewContainer').removeClass('d-none');
+                } else {
+                    $('#photoPreviewContainer').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}
+

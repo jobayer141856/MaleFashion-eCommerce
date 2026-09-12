@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Users & Access Management";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css">
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">System Users & Role Access</h5>
+                        <small class="text-muted">Manage system users and their assigned roles</small>
+                    </div>
+                </div>
+                <div class="card-body table-responsive pt-0">
+                    <table id="users-table" class="table table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Assigned Roles</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 130px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(function() {
+            $("#users-table").DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: {
+                    url: "/Admin/Users/GetPagedUsers",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: d => JSON.stringify(d)
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        render: data => `<strong>${data}</strong>`
+                    },
+                    {
+                        targets: 3,
+                        render: function(data) {
+                            if (!data || data === "No Roles") {
+                                return `<span class="badge bg-label-secondary">No Roles</span>`;
+                            }
+                            var roles = data.split(', ');
+                            var badges = roles.map(r => {
+                                if (r.toLowerCase() === 'admin') return `<span class="badge bg-label-primary me-1">${r}</span>`;
+                                if (r.toLowerCase() === 'customer') return `<span class="badge bg-label-success me-1">${r}</span>`;
+                                return `<span class="badge bg-label-info me-1">${r}</span>`;
+                            });
+                            return badges.join('');
+                        }
+                    },
+                    {
+                        targets: 4,
+                        render: data => data === "Confirmed"
+                            ? `<span class="badge bg-label-success">Active</span>`
+                            : `<span class="badge bg-label-warning">Unconfirmed</span>`
+                    },
+                    {
+                        orderable: false,
+                        targets: -1,
+                        render: data => `
+                            <a class="btn btn-sm btn-outline-primary" href="/Admin/Users/ManageRoles/${data}">
+                                <i class="bx bx-shield-quarter me-1"></i> Manage Roles
+                            </a>`
+                    }
+                ]
+            });
+        });
+    </script>
+}
+

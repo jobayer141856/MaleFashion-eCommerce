@@ -1,0 +1,44 @@
+@model MaleFashion.Web.Areas.Admin.Models.Security.RoleModel
+
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-6 col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Rename Role</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Update" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Role Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Name"></label>
+                            <input class="form-control" asp-for="Name" placeholder="e.g. StoreManager, BlogEditor" autofocus />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <div class="form-text">Changing a role name will update it for all users currently assigned.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

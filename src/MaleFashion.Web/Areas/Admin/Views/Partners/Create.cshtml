@@ -1,0 +1,66 @@
+@model MaleFashion.Web.Areas.Admin.Models.CMS.PartnerClientModel
+
+@{
+    ViewData["Title"] = "Add Partner Client";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Add Partner Client</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <!-- Client Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ClientName"></label>
+                            <input class="form-control" asp-for="ClientName" placeholder="e.g. Balenciaga, Gucci, Nike" autofocus />
+                            <span asp-validation-for="ClientName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Logo Upload & Preview -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Logo"></label>
+                            <input class="form-control" asp-for="Logo" id="logoInput" type="file" accept=".jpg,.jpeg,.png,.webp,.svg" />
+                            <span asp-validation-for="Logo" class="text-danger"></span>
+
+                            <div class="mt-2 d-none" id="logoPreviewContainer">
+                                <img id="logoPreview" src="#" alt="Preview" class="img-thumbnail rounded bg-light p-2" style="max-height: 80px; object-fit: contain;" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Partner Client
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            $('#logoInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    $('#logoPreview').attr('src', URL.createObjectURL(file));
+                    $('#logoPreviewContainer').removeClass('d-none');
+                } else {
+                    $('#logoPreviewContainer').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}
+

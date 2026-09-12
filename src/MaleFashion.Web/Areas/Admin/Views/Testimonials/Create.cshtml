@@ -1,0 +1,80 @@
+@model MaleFashion.Web.Areas.Admin.Models.CMS.TestimonialModel
+
+@{
+    ViewData["Title"] = "Add Testimonial";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Add Customer Testimonial</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <!-- Author Name -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="AuthorName"></label>
+                            <input class="form-control" asp-for="AuthorName" placeholder="e.g. John Doe" autofocus />
+                            <span asp-validation-for="AuthorName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Profession / Title -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="AuthorProfession"></label>
+                            <input class="form-control" asp-for="AuthorProfession" placeholder="e.g. Fashion Blogger, Stylist" />
+                            <span asp-validation-for="AuthorProfession" class="text-danger"></span>
+                        </div>
+
+                        <!-- Quote -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Quote"></label>
+                            <textarea class="form-control" asp-for="Quote" rows="4" placeholder="Enter customer quote or review..."></textarea>
+                            <span asp-validation-for="Quote" class="text-danger"></span>
+                        </div>
+
+                        <!-- Avatar Upload & Preview -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Avatar"></label>
+                            <input class="form-control" asp-for="Avatar" id="avatarInput" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <span asp-validation-for="Avatar" class="text-danger"></span>
+
+                            <div class="mt-2 d-none" id="avatarPreviewContainer">
+                                <img id="avatarPreview" src="#" alt="Preview" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Testimonial
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            $('#avatarInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    $('#avatarPreview').attr('src', URL.createObjectURL(file));
+                    $('#avatarPreviewContainer').removeClass('d-none');
+                } else {
+                    $('#avatarPreviewContainer').addClass('d-none');
+                }
+            });
+        });
+    </script>
+}
+

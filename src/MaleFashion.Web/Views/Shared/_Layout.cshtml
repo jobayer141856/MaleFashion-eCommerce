@@ -108,10 +108,10 @@
                             <li class="@(currentController == "Shop" ? "active" : "")">
                                 <a asp-controller="Shop" asp-action="Index">Shop</a>
                             </li>
-                            <li class="@(currentController == "Pages" ? "active" : "")">
+                            <li class="@(currentController == "About" || currentController == "Pages" ? "active" : "")">
                                 <a href="#">Pages</a>
                                 <ul class="dropdown">
-                                    <li><a href="#">About Us</a></li>
+                                    <li><a asp-controller="About" asp-action="Index">About Us</a></li>
                                     <li><a href="#">Shop Details</a></li>
                                     <li><a href="#">Shopping Cart</a></li>
                                     <li><a href="#">Check Out</a></li>

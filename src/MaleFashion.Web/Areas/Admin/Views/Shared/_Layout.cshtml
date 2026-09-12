@@ -285,7 +285,28 @@
                     </li>
 
                     <!-- ============================================== -->
-                    <!-- 9. SETTINGS & ACCOUNT -->
+                    <!-- 9. SECURITY & ACCESS -->
+                    <!-- ============================================== -->
+                    <li class="menu-header small text-uppercase">
+                        <span class="menu-header-text">Security & Access</span>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Users" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-user-check"></i>
+                            <div class="text-truncate">Users & Access</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "Roles" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="Roles" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
+                            <div class="text-truncate">Role Management</div>
+                        </a>
+                    </li>
+
+                    <!-- ============================================== -->
+                    <!-- 10. SETTINGS & ACCOUNT -->
                     <!-- ============================================== -->
                     <li class="menu-header small text-uppercase">
                         <span class="menu-header-text">Settings</span>

@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts;
+using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Repositories.Blogs;
 using MaleFashion.Application.Contracts.Repositories.Carts;
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
@@ -57,6 +57,7 @@ namespace MaleFashion.Infrastructure.Extensions
             // Customer Support & Inquiries
             services.AddScoped<IContactInquiryRepository, ContactInquiryRepository>();
             services.AddScoped<INewsletterSubscriberRepository, NewsletterSubscriberRepository>();
+            services.AddScoped<IStoreLocationRepository, StoreLocationRepository>();
             // Website CMS
             services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
             services.AddScoped<IPartnerClientRepository, PartnerClientRepository>();

@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts;
+using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Repositories.Blogs;
 using MaleFashion.Application.Contracts.Repositories.Carts;
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
@@ -36,6 +36,7 @@ namespace MaleFashion.Infrastructure.Data
         // Customer Support & Marketing
         public IContactInquiryRepository ContactInquiryRepository { get; private set; }
         public INewsletterSubscriberRepository NewsletterSubscriberRepository { get; private set; }
+        public IStoreLocationRepository StoreLocationRepository { get; private set; }
         // CMS & Website Showcase
         public ITeamMemberRepository TeamMemberRepository { get; private set; }
         public IPartnerClientRepository PartnerClientRepository { get; private set; }
@@ -55,6 +56,7 @@ namespace MaleFashion.Infrastructure.Data
             IDealCountdownRepository dealCountdownRepository,
             IContactInquiryRepository contactInquiryRepository,
             INewsletterSubscriberRepository newsletterSubscriberRepository,
+            IStoreLocationRepository storeLocationRepository,
             ITeamMemberRepository teamMemberRepository,
             IPartnerClientRepository partnerClientRepository,
             ITestimonialRepository testimonialRepository) : base(dbContext)
@@ -71,6 +73,7 @@ namespace MaleFashion.Infrastructure.Data
             DealCountdownRepository = dealCountdownRepository;
             ContactInquiryRepository = contactInquiryRepository;
             NewsletterSubscriberRepository = newsletterSubscriberRepository;
+            StoreLocationRepository = storeLocationRepository;
             TeamMemberRepository = teamMemberRepository;
             PartnerClientRepository = partnerClientRepository;
             TestimonialRepository = testimonialRepository;

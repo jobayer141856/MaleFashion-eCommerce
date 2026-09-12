@@ -1,4 +1,4 @@
-﻿@{
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
@@ -121,8 +121,8 @@
                             <li class="@(currentController == "BlogPosts" ? "active" : "")">
                                 <a asp-controller="BlogPosts" asp-action="Index">Blog</a>
                             </li>
-                            <li class="@(currentController == "Contact" || currentController == "Contacts" ? "active" : "")">
-                                <a href="#">Contacts</a>
+                            <li class="@(currentController == "ContactInquiry" || currentController == "Contact" || currentController == "Contacts" ? "active" : "")">
+                                <a asp-controller="ContactInquiry" asp-action="Index">Contacts</a>
                             </li>
                         </ul>
                     </nav>
@@ -173,7 +173,7 @@
                     <div class="footer__widget">
                         <h6>Shopping</h6>
                         <ul>
-                            <li><a href="#">Contact Us</a></li>
+                            <li><a asp-controller="ContactInquiry" asp-action="Index">Contact Us</a></li>
                             <li><a href="#">Payment Methods</a></li>
                             <li><a href="#">Delivary</a></li>
                             <li><a href="#">Return & Exchanges</a></li>

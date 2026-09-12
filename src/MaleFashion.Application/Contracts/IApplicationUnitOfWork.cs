@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts.Repositories.Blogs;
+using MaleFashion.Application.Contracts.Repositories.Blogs;
 using MaleFashion.Application.Contracts.Repositories.Carts;
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
 using MaleFashion.Application.Contracts.Repositories.CMS;
@@ -36,6 +36,7 @@ namespace MaleFashion.Application.Contracts
         // Customer Support & Marketing
         public IContactInquiryRepository ContactInquiryRepository { get; }
         public INewsletterSubscriberRepository NewsletterSubscriberRepository { get; }
+        public IStoreLocationRepository StoreLocationRepository { get; }
         // CMS & Website Showcase
         public ITeamMemberRepository TeamMemberRepository { get; }
         public IPartnerClientRepository PartnerClientRepository { get; }

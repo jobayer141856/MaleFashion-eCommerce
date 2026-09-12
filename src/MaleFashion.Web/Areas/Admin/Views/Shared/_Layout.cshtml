@@ -1,4 +1,4 @@
-﻿@using MaleFashion.Infrastructure.Identity
+@using MaleFashion.Infrastructure.Identity
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -246,6 +246,13 @@
                         <a asp-area="Admin" asp-controller="ContactInquiries" asp-action="Index" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-support"></i>
                             <div class="text-truncate">Contact Messages</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item @(currentController == "StoreLocations" || currentController == "StoreLocation" ? "active" : "")">
+                        <a asp-area="Admin" asp-controller="StoreLocations" asp-action="Index" class="menu-link">
+                            <i class="menu-icon tf-icons bx bx-map-pin"></i>
+                            <div class="text-truncate">Store Locations</div>
                         </a>
                     </li>
 

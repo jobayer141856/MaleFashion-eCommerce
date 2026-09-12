@@ -1,0 +1,82 @@
+@model MaleFashion.Web.Models.ContactInquiries.ContactInquiryModel
+@{
+    ViewData["Title"] = "Contacts";
+}
+
+<!-- Map Begin -->
+<div class="map">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d111551.9926412813!2d-90.27317134641879!3d38.606612219170856!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x54eab584e432360b%3A0x1c3bb99243deb742!2sUnited%20States!5e0!3m2!1sen!2sbd!4v1597926938024!5m2!1sen!2sbd" height="500" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+</div>
+<!-- Map End -->
+
+<!-- Contact Section Begin -->
+<section class="contact spad">
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 4px; padding: 15px 20px;">
+                        <strong>Success!</strong> @TempData["SuccessMessage"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="background: none; border: none; float: right; font-size: 20px; line-height: 1;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="contact__text">
+                    <div class="section-title">
+                        <span>Information</span>
+                        <h2>Contact Us</h2>
+                        <p>As you might expect of a company that began as a high-end interiors contractor, we pay strict attention.</p>
+                    </div>
+                    <ul>
+                        @if (Model.Locations != null && Model.Locations.Count > 0)
+                        {
+                            foreach (var location in Model.Locations)
+                            {
+                                <li>
+                                    <h4>@location.Title</h4>
+                                    <p>@location.Address <br />@location.PhoneNumber</p>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="contact__form">
+                    <form asp-controller="ContactInquiry" asp-action="Index" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <input type="text" asp-for="Name" placeholder="Name" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <input type="email" asp-for="Email" placeholder="Email" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-lg-12 mb-3">
+                                <textarea asp-for="Message" placeholder="Message"></textarea>
+                                <span asp-validation-for="Message" class="text-danger small d-block mb-3"></span>
+                                <button type="submit" class="site-btn">Send Message</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Contact Section End -->
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

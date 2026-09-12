@@ -1,0 +1,77 @@
+@model MaleFashion.Web.Areas.Admin.Models.Support.StoreLocationModel
+
+@{
+    ViewData["Title"] = "Edit Store Location";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Edit Store Location</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Update" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Location Title -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Title"></label>
+                            <input class="form-control" asp-for="Title" placeholder="e.g. America, France, New York Branch" autofocus />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Address"></label>
+                            <input class="form-control" asp-for="Address" placeholder="e.g. 195 E Parker Square Dr, Parker, CO 801" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="PhoneNumber"></label>
+                            <input class="form-control" asp-for="PhoneNumber" placeholder="e.g. +43 982-314-0958" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Email"></label>
+                            <input class="form-control" asp-for="Email" placeholder="e.g. contact-usa@malefashion.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Display Order -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="DisplayOrder"></label>
+                            <input class="form-control" type="number" asp-for="DisplayOrder" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Publish & Show on Contact Page</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Update Location
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

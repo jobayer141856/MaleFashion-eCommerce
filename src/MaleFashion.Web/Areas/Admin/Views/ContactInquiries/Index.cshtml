@@ -1,0 +1,152 @@
+@{
+    ViewData["Title"] = "Contact Messages";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css">
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Customer Inquiries & Messages</h5>
+                </div>
+                <div class="card-body table-responsive pt-0">
+                    <partial name="_ModalPartial" />
+
+                    <!-- View Message Details Modal -->
+                    <div class="modal fade" id="inquiry-detail-modal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header border-bottom">
+                                    <h5 class="modal-title">Inquiry Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-2">
+                                        <strong>Sender:</strong> <span id="detail-name"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Email:</strong> <a id="detail-email" href="#" class="text-primary"></a>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Received On:</strong> <span id="detail-date" class="text-muted"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Message:</strong>
+                                        <div class="p-3 bg-light rounded mt-1 border" id="detail-message" style="white-space: pre-wrap;"></div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-top">
+                                    <form id="toggle-resolved-form" method="post" action="/Admin/ContactInquiries/ToggleResolved">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" id="toggle-id" />
+                                        <button type="submit" class="btn btn-outline-primary" id="toggle-btn">Toggle Status</button>
+                                    </form>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="inquiries-table" class="table table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">Name</th>
+                                <th style="width: 200px;">Email</th>
+                                <th>Message</th>
+                                <th style="width: 140px;">Received At</th>
+                                <th style="width: 90px;">Status</th>
+                                <th style="width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(function() {
+            var table = $("#inquiries-table").DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                order: [[3, "desc"]],
+                ajax: {
+                    url: "/Admin/ContactInquiries/GetPagedContactInquiries",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: d => JSON.stringify(d)
+                },
+                columnDefs: [
+                    {
+                        targets: 4,
+                        render: data => data === "Resolved"
+                            ? `<span class="badge bg-label-success">Resolved</span>`
+                            : `<span class="badge bg-label-warning">Pending</span>`
+                    },
+                    {
+                        orderable: false,
+                        targets: -1,
+                        render: data => `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">Actions</button>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item text-primary view-details-btn" data-id="${data}"><i class="bx bx-show me-1"></i> View Message</button></li>
+                                    <li>
+                                        <form method="post" action="/Admin/ContactInquiries/ToggleResolved" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="${data}" />
+                                            <button type="submit" class="dropdown-item text-info"><i class="bx bx-check-circle me-1"></i> Toggle Status</button>
+                                        </form>
+                                    </li>
+                                    <li><button class="dropdown-item text-danger show-bs-modal" data-id="${data}"><i class="bx bx-trash me-1"></i> Delete</button></li>
+                                </ul>
+                            </div>`
+                    }
+                ]
+            });
+
+            // View Details Modal Handler
+            $("#inquiries-table").on('click', '.view-details-btn', function() {
+                let id = $(this).data('id');
+                $.get('/Admin/ContactInquiries/GetDetails/' + id, function(data) {
+                    $('#detail-name').text(data.name);
+                    $('#detail-email').text(data.email).attr('href', 'mailto:' + data.email);
+                    $('#detail-date').text(data.submittedAt);
+                    $('#detail-message').text(data.message);
+                    $('#toggle-id').val(data.id);
+                    $('#toggle-btn').text(data.isResolved ? 'Mark as Pending' : 'Mark as Resolved');
+                    $('#inquiry-detail-modal').modal('show');
+                }).fail(function() {
+                    alert('Could not load message details.');
+                });
+            });
+
+            // Delete Modal Handler
+            $("#inquiries-table").on('click', '.show-bs-modal', function() {
+                let id = $(this).data('id');
+                let deleteModal = $("#delete-modal");
+                deleteModal.find('#modelLabel').text("Delete Message");
+                deleteModal.find('.modal-body p').html('Are you sure you want to delete this contact message?');
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/admin/contactinquiries/delete');
+                deleteModal.modal('show');
+            });
+
+            $('#delete-btn').on('click', () => $('#delete-form').submit());
+        });
+    </script>
+}
+

@@ -185,10 +185,12 @@
                         <h6>NewLetter</h6>
                         <div class="footer__newslatter">
                             <p>Be the first to know about new arrivals, look books, sales & promos!</p>
-                            <form action="#">
-                                <input type="text" placeholder="Your email" />
-                                <button type="submit"><span class="icon_mail_alt"></span></button>
+                            <form id="footer-newsletter-form" asp-controller="Newsletter" asp-action="Subscribe" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="email" id="footer-newsletter-email" name="Email" placeholder="Your email" required />
+                                <button type="submit" id="footer-newsletter-btn"><span class="icon_mail_alt"></span></button>
                             </form>
+                            <div id="footer-newsletter-feedback" class="mt-2" style="font-size: 13px; display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -228,6 +230,68 @@
     <script src="~/malefashion/js/mixitup.min.js"></script>
     <script src="~/malefashion/js/owl.carousel.min.js"></script>
     <script src="~/malefashion/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(function() {
+            $('#footer-newsletter-form').on('submit', function(e) {
+                e.preventDefault();
+                var $form = $(this);
+                var $btn = $('#footer-newsletter-btn');
+                var $emailInput = $('#footer-newsletter-email');
+                var $feedback = $('#footer-newsletter-feedback');
+                var email = $emailInput.val().trim();
+
+                if (!email) {
+                    $feedback.html('<span class="text-danger">Please enter your email.</span>').fadeIn();
+                    return;
+                }
+
+                $btn.prop('disabled', true).find('span').removeClass('icon_mail_alt').addClass('fa fa-spinner fa-spin');
+                $feedback.hide();
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: 'POST',
+                    data: $form.serialize(),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(res) {
+                        $btn.prop('disabled', false).find('span').removeClass('fa fa-spinner fa-spin').addClass('icon_mail_alt');
+                        if (res && res.success) {
+                            $emailInput.val('');
+                            $feedback.html('<span class="text-success">' + res.message + '</span>').fadeIn();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Subscribed!',
+                                text: res.message,
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            var msg = (res && res.message) ? res.message : 'Subscription failed. Please try again.';
+                            $feedback.html('<span class="text-warning">' + msg + '</span>').fadeIn();
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Notice',
+                                text: msg
+                            });
+                        }
+                    },
+                    error: function() {
+                        $btn.prop('disabled', false).find('span').removeClass('fa fa-spinner fa-spin').addClass('icon_mail_alt');
+                        var errMsg = 'Unable to subscribe at the moment. Please try again.';
+                        $feedback.html('<span class="text-danger">' + errMsg + '</span>').fadeIn();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errMsg
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

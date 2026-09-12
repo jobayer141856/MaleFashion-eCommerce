@@ -1,0 +1,205 @@
+@{
+    ViewData["Title"] = "Coupons & Discounts";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css">
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Stat Cards Overview -->
+    <div class="row mb-4">
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-purchase-tag"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(ViewBag.TotalCoupons ?? 0)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Total Coupons</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-success"><i class="bx bx-check-circle"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(ViewBag.ActiveCoupons ?? 0)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Active & Valid</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-warning"><i class="bx bx-time"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(ViewBag.ExpiredCoupons ?? 0)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Expired / Inactive</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-info"><i class="bx bx-shopping-bag"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(ViewBag.TotalRedemptions ?? 0)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Total Redemptions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coupons Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Coupons & Discounts</h5>
+                    <a asp-area="Admin" asp-controller="Coupons" asp-action="Create" class="btn btn-primary">
+                        <i class="bx bx-plus me-1"></i> Add Coupon
+                    </a>
+                </div>
+                <div class="card-body table-responsive pt-0">
+                    <partial name="_ModalPartial" />
+                    <table id="coupons-table" class="table table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Discount</th>
+                                <th>Min Spend</th>
+                                <th>Usage</th>
+                                <th>Expires On</th>
+                                <th style="width: 100px;">Status</th>
+                                <th style="width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Toggle Form -->
+<form id="toggle-form" action="/Admin/Coupons/ToggleStatus" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="toggle-id" name="id" />
+</form>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(function() {
+            var table = $("#coupons-table").DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                order: [[4, 'desc']],
+                ajax: {
+                    url: "/Admin/Coupons/GetPagedCoupons",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: d => JSON.stringify(d)
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        render: function(data) {
+                            return `<span class="badge bg-label-dark font-monospace fs-6">${data}</span>`;
+                        }
+                    },
+                    {
+                        targets: 1,
+                        render: function(data) {
+                            return `<span class="fw-bold text-success">${data}</span>`;
+                        }
+                    },
+                    {
+                        targets: 5,
+                        render: function(data) {
+                            if (data === "Active")
+                                return '<span class="badge bg-label-success">Active</span>';
+                            else if (data === "Expired")
+                                return '<span class="badge bg-label-warning">Expired</span>';
+                            else
+                                return '<span class="badge bg-label-secondary">Inactive</span>';
+                        }
+                    },
+                    {
+                        orderable: false,
+                        targets: -1,
+                        render: function(data, type, row) {
+                            var status = row[5];
+                            var toggleText = status === "Active" ? "Deactivate" : "Activate";
+                            var toggleIcon = status === "Active" ? "bx-block text-warning" : "bx-check-circle text-success";
+
+                            return `
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">Actions</button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item text-warning" href="/Admin/Coupons/Update/${data}">
+                                                <i class="bx bx-edit-alt me-1"></i> Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item toggle-btn" data-id="${data}">
+                                                <i class="bx ${toggleIcon} me-1"></i> ${toggleText}
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger show-bs-modal" data-id="${data}">
+                                                <i class="bx bx-trash me-1"></i> Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>`;
+                        }
+                    }
+                ]
+            });
+
+            // Toggle Status Handler
+            $("#coupons-table").on('click', '.toggle-btn', function() {
+                var id = $(this).data('id');
+                $('#toggle-id').val(id);
+                $('#toggle-form').submit();
+            });
+
+            // Delete Modal Handler
+            $("#coupons-table").on('click', '.show-bs-modal', function() {
+                var id = $(this).data('id');
+                var deleteModal = $("#delete-modal");
+                deleteModal.find('#modelLabel').text("Delete Coupon");
+                deleteModal.find('.modal-body p').html('Are you sure you want to delete this coupon? If already used by customers, it cannot be deleted.');
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/Admin/Coupons/Delete');
+                deleteModal.modal('show');
+            });
+
+            $('#delete-btn').on('click', function() {
+                $('#delete-form').submit();
+            });
+        });
+    </script>
+}
+

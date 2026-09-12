@@ -1,0 +1,155 @@
+@model MaleFashion.Web.Areas.Admin.Models.Promotions.DealCountdownModel
+
+@{
+    ViewData["Title"] = "Edit Flash Deal";
+    var products = ViewBag.Products as IList<MaleFashion.Domain.Entities.Catalogs.Product> ?? new List<MaleFashion.Domain.Entities.Catalogs.Product>();
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Edit Flash Deal Campaign</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Update" method="post">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Product Selection -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="ProductId"></label>
+                            <select class="form-select" asp-for="ProductId" id="productSelect">
+                                @foreach (var prod in products)
+                                {
+                                    <option value="@prod.Id" data-price="@(prod.BasePrice?.Amount ?? 0)" data-currency="@(prod.BasePrice?.Currency ?? "BDT")">
+                                        @prod.Name (SKU: @prod.Sku) - @(prod.BasePrice?.Amount ?? 0) @(prod.BasePrice?.Currency ?? "BDT")
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="ProductId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Campaign Title -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="DealTitle"></label>
+                            <input class="form-control" asp-for="DealTitle" />
+                            <span asp-validation-for="DealTitle" class="text-danger"></span>
+                        </div>
+
+                        <!-- Price Savings Info Card -->
+                        <div class="alert alert-primary mb-3" id="pricePreviewBox">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted d-block small">Regular Base Price:</span>
+                                    <span class="fw-bold fs-5" id="basePriceDisplay">0.00 BDT</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted d-block small">Flash Deal Price:</span>
+                                    <span class="fw-bold fs-5 text-danger" id="salePriceDisplay">0.00 BDT</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted d-block small">Customer Savings:</span>
+                                    <span class="badge bg-success fs-6" id="discountBadge">0% OFF</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sale Price & Currency -->
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label" asp-for="SalePrice"></label>
+                                <input class="form-control" asp-for="SalePrice" id="salePriceInput" type="number" step="0.01" min="0.01" />
+                                <small class="text-danger d-none" id="priceWarning">Sale price must be strictly lower than the regular base price.</small>
+                                <span asp-validation-for="SalePrice" class="text-danger d-block"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" asp-for="Currency"></label>
+                                <input class="form-control" asp-for="Currency" id="currencyInput" readonly />
+                                <span asp-validation-for="Currency" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Dates -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="StartDate"></label>
+                                <input class="form-control" asp-for="StartDate" type="datetime-local" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="EndDate"></label>
+                                <input class="form-control" asp-for="EndDate" type="datetime-local" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Active Switch -->
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Publish & Enable Deal Countdown</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="saveDealBtn">
+                            <i class="bx bx-save me-1"></i> Update Flash Deal
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            function updatePriceCalculations() {
+                var $selected = $('#productSelect').find('option:selected');
+                var basePrice = parseFloat($selected.data('price')) || 0;
+                var currency = $selected.data('currency') || 'BDT';
+                var salePrice = parseFloat($('#salePriceInput').val()) || 0;
+
+                $('#currencyInput').val(currency);
+
+                if (basePrice > 0) {
+                    $('#pricePreviewBox').removeClass('d-none');
+                    $('#basePriceDisplay').text(basePrice.toFixed(2) + ' ' + currency);
+                    $('#salePriceDisplay').text(salePrice.toFixed(2) + ' ' + currency);
+
+                    if (salePrice > 0 && salePrice < basePrice) {
+                        var savingAmount = basePrice - salePrice;
+                        var savingPercent = Math.round((savingAmount / basePrice) * 100);
+                        $('#discountBadge').text(savingPercent + '% OFF (Save ' + savingAmount.toFixed(2) + ')').removeClass('bg-warning bg-danger').addClass('bg-success');
+                        $('#priceWarning').addClass('d-none');
+                        $('#saveDealBtn').prop('disabled', false);
+                    } else if (salePrice >= basePrice) {
+                        $('#discountBadge').text('Invalid Price').removeClass('bg-success').addClass('bg-danger');
+                        $('#priceWarning').removeClass('d-none');
+                        $('#saveDealBtn').prop('disabled', true);
+                    } else {
+                        $('#discountBadge').text('0% OFF').removeClass('bg-danger').addClass('bg-warning');
+                        $('#priceWarning').addClass('d-none');
+                        $('#saveDealBtn').prop('disabled', false);
+                    }
+                } else {
+                    $('#pricePreviewBox').addClass('d-none');
+                    $('#priceWarning').addClass('d-none');
+                    $('#saveDealBtn').prop('disabled', false);
+                }
+            }
+
+            $('#productSelect').on('change', updatePriceCalculations);
+            $('#salePriceInput').on('input', updatePriceCalculations);
+
+            updatePriceCalculations();
+        });
+    </script>
+}
+

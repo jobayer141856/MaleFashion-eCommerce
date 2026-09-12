@@ -1,0 +1,117 @@
+@model MaleFashion.Web.Areas.Admin.Models.Promotions.CouponModel
+
+@{
+    ViewData["Title"] = "Add Coupon";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">Add Coupon & Discount</h5>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-arrow-back me-1"></i> Back to List
+                    </a>
+                </div>
+                <div class="card-body pt-4">
+                    <partial name="_ResponsePartial" />
+
+                    <form asp-action="Create" method="post">
+                        <!-- Coupon Code -->
+                        <div class="mb-3">
+                            <label class="form-label" asp-for="Code"></label>
+                            <input class="form-control text-uppercase font-monospace" asp-for="Code" placeholder="e.g. SUMMER20, FLAT500, WELCOME10" autofocus />
+                            <small class="text-muted">Codes will be automatically converted to uppercase.</small>
+                            <span asp-validation-for="Code" class="text-danger d-block"></span>
+                        </div>
+
+                        <!-- Discount Type & Value -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="DiscountType"></label>
+                                <select class="form-select" asp-for="DiscountType" id="discountTypeSelect" asp-items="Html.GetEnumSelectList<MaleFashion.Domain.Enums.DiscountType>()"></select>
+                                <span asp-validation-for="DiscountType" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="DiscountValue" id="discountValueLabel">Discount Value (%)</label>
+                                <div class="input-group">
+                                    <input class="form-control" asp-for="DiscountValue" id="discountValueInput" type="number" step="0.01" min="0.01" placeholder="e.g. 20" />
+                                    <span class="input-group-text" id="discountValueUnit">%</span>
+                                </div>
+                                <span asp-validation-for="DiscountValue" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Minimum Spend & Usage Limit -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="MinimumSpend"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">BDT</span>
+                                    <input class="form-control" asp-for="MinimumSpend" type="number" step="0.01" min="0" placeholder="Optional minimum cart subtotal" />
+                                </div>
+                                <span asp-validation-for="MinimumSpend" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="UsageLimit"></label>
+                                <input class="form-control" asp-for="UsageLimit" type="number" step="1" min="1" placeholder="Leave blank for unlimited" />
+                                <span asp-validation-for="UsageLimit" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Dates -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="StartDate"></label>
+                                <input class="form-control" asp-for="StartDate" type="datetime-local" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" asp-for="ExpirationDate"></label>
+                                <input class="form-control" asp-for="ExpirationDate" type="datetime-local" />
+                                <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Active Switch -->
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Active & Available for Customers</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save me-1"></i> Save Coupon
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function() {
+            function updateDiscountUnit() {
+                var selected = $('#discountTypeSelect').val();
+                // 0 is Percentage, 1 is FixedAmount
+                if (selected == "0" || selected == "Percentage") {
+                    $('#discountValueLabel').text("Discount Percentage (%)");
+                    $('#discountValueUnit').text("%");
+                    $('#discountValueInput').attr('max', '100');
+                } else {
+                    $('#discountValueLabel').text("Discount Amount (BDT)");
+                    $('#discountValueUnit').text("BDT");
+                    $('#discountValueInput').removeAttr('max');
+                }
+            }
+
+            $('#discountTypeSelect').on('change', updateDiscountUnit);
+            updateDiscountUnit();
+        });
+    </script>
+}
+

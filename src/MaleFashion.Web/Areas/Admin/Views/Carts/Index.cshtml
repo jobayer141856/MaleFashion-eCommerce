@@ -1,0 +1,528 @@
+@{
+    ViewData["Title"] = "Active Carts & Customer Analytics";
+    var stats = ViewBag.Stats as MaleFashion.Application.Features.Carts.DTOs.ActiveCartStatsDto ?? new MaleFashion.Application.Features.Carts.DTOs.ActiveCartStatsDto();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="~/sneat/assets/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Stat Cards Overview -->
+    <div class="row mb-4">
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-cart"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(stats.TotalActiveCarts)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Total Open Carts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-success"><i class="bx bx-dollar-circle"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">৳ @(stats.PotentialRevenue.ToString("N2"))</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Potential Cart Revenue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-info"><i class="bx bx-user-check"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0">@(stats.RegisteredCartsCount) <small class="text-muted fs-6">/ @(stats.GuestCartsCount) Guests</small></h4>
+                    </div>
+                    <p class="mb-0 text-muted">Registered vs Guests</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-3">
+            <div class="card card-border-shadow-danger h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2 pb-1">
+                        <div class="avatar me-2">
+                            <span class="avatar-initial rounded bg-label-danger"><i class="bx bx-alarm-exclamation"></i></span>
+                        </div>
+                        <h4 class="ms-1 mb-0 text-danger">@(stats.AbandonedCount)</h4>
+                    </div>
+                    <p class="mb-0 text-muted">Abandoned (> 24h)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Analytics Charts Row ("Active Charts") -->
+    <div class="row mb-4">
+        <!-- Chart 1: Cart Lifecycle Stages -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                    <div class="card-title mb-0">
+                        <h5 class="m-0 me-2"><i class="bx bx-pie-chart-alt-2 me-1 text-primary"></i> Cart Lifecycle Stages</h5>
+                        <small class="text-muted">Real-time status breakdown</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="cartLifecycleChart" style="min-height: 250px;"></div>
+                    <div class="d-flex justify-content-around text-center pt-2 border-top">
+                        <div>
+                            <span class="badge bg-label-success mb-1">Active (&lt; 2h)</span>
+                            <h6 class="mb-0 fw-bold">@(stats.ActiveRecentCount)</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-label-warning mb-1">Idle (2h-24h)</span>
+                            <h6 class="mb-0 fw-bold">@(stats.IdleCount)</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-label-danger mb-1">Abandoned (&gt; 24h)</span>
+                            <h6 class="mb-0 fw-bold">@(stats.AbandonedCount)</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2: Revenue Potential by Segment -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                    <div class="card-title mb-0">
+                        <h5 class="m-0 me-2"><i class="bx bx-bar-chart-alt-2 me-1 text-success"></i> Revenue by Customer Segment</h5>
+                        <small class="text-muted">Registered customers vs anonymous guest sessions</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="cartRevenueChart" style="min-height: 250px;"></div>
+                    <div class="d-flex justify-content-around text-center pt-2 border-top">
+                        <div>
+                            <span class="badge bg-label-primary mb-1">Registered Users</span>
+                            <h6 class="mb-0 fw-bold">৳ @(stats.RegisteredRevenue.ToString("N2"))</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-label-secondary mb-1">Guest Sessions</span>
+                            <h6 class="mb-0 fw-bold">৳ @(stats.GuestRevenue.ToString("N2"))</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Carts Table Card -->
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            <div class="card">
+                <div class="card-header border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bx bx-cart text-primary me-1"></i> Live Shopping Carts
+                    </h5>
+
+                    <!-- Filter Toolbar & Housekeeping -->
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <select id="filter-cart" class="form-select form-select-sm" style="width: auto;">
+                            <option value="all" selected>All Open Carts</option>
+                            <option value="active">Active Recently (&lt; 2h)</option>
+                            <option value="idle">Idle (2h - 24h)</option>
+                            <option value="abandoned">Abandoned (&gt; 24h)</option>
+                            <option value="registered">Registered Customers Only</option>
+                            <option value="guest">Guest Shoppers Only</option>
+                        </select>
+
+                        <button type="button" id="btn-clean-stale" class="btn btn-sm btn-outline-danger" title="Delete empty/abandoned carts older than 30 days">
+                            <i class="bx bx-trash me-1"></i> Clean Stale Carts
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive pt-3">
+                    <partial name="_ModalPartial" />
+
+                    <table id="carts-table" class="table table-bordered table-hover w-100 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Customer / Session</th>
+                                <th>Items in Cart</th>
+                                <th>Total Potential Value</th>
+                                <th>Status</th>
+                                <th>Last Activity</th>
+                                <th style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Details & Customer Inspection Modal -->
+<div class="modal fade" id="cartDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title" id="cartModalTitle"><i class="bx bx-cart me-1 text-primary"></i> Cart &amp; Customer Inspection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Customer Profile Card -->
+                <div class="card bg-light border mb-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <h6 class="fw-bold mb-1" id="modalCustomerName">Customer Name</h6>
+                                <div class="text-muted small" id="modalCustomerContact">
+                                    <span id="modalCustomerEmail" class="me-3"><i class="bx bx-envelope me-1"></i>email</span>
+                                    <span id="modalCustomerPhone"><i class="bx bx-phone me-1"></i>phone</span>
+                                </div>
+                                <div class="text-muted small mt-1" id="modalCustomerAddress">
+                                    <i class="bx bx-map me-1"></i>Address
+                                </div>
+                            </div>
+                            <span id="modalCustomerBadge" class="badge bg-label-primary">Registered</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Breakdown Table -->
+                <h6 class="fw-bold mb-2">Cart Contents</h6>
+                <div class="table-responsive border rounded mb-3">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalItemsTbody">
+                            <!-- Populated via AJAX -->
+                        </tbody>
+                        <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td colspan="3" class="text-end">Potential Order Total:</td>
+                                <td class="text-end text-primary" id="modalTotalValue">৳ 0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Applied Coupon Banner -->
+                <div id="modalCouponBanner" class="alert alert-info py-2 px-3 mb-0 d-none">
+                    <i class="bx bx-purchase-tag me-1"></i> Applied Promo Code: <strong id="modalCouponCode">CODE</strong>
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="modalEmailRecoveryBtn" href="#" class="btn btn-primary d-none">
+                    <i class="bx bx-mail-send me-1"></i> Send Recovery Reminder
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/sneat/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(function () {
+            // ==============================================
+            // 1. APEXCHARTS VISUALIZATION ("Active Charts")
+            // ==============================================
+            var activeCount = @(stats.ActiveRecentCount);
+            var idleCount = @(stats.IdleCount);
+            var abandonedCount = @(stats.AbandonedCount);
+            var totalCarts = @(stats.TotalActiveCarts);
+
+            // Donut Chart: Lifecycle Stages
+            var lifecycleOptions = {
+                chart: {
+                    type: 'donut',
+                    height: 240
+                },
+                labels: ['Active (< 2h)', 'Idle (2h-24h)', 'Abandoned (> 24h)'],
+                series: totalCarts > 0 ? [activeCount, idleCount, abandonedCount] : [0, 0, 0],
+                colors: ['#71dd37', '#ffab00', '#ff3e1d'],
+                legend: {
+                    position: 'bottom',
+                    fontSize: '12px'
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return Math.round(val) + "%";
+                    }
+                }
+            };
+            var lifecycleChart = new ApexCharts(document.querySelector("#cartLifecycleChart"), lifecycleOptions);
+            lifecycleChart.render();
+
+            // Bar Chart: Revenue by Segment
+            var regRevenue = @(stats.RegisteredRevenue);
+            var guestRevenue = @(stats.GuestRevenue);
+
+            var revenueOptions = {
+                chart: {
+                    type: 'bar',
+                    height: 240,
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        borderRadius: 4,
+                        barHeight: '50%'
+                    }
+                },
+                colors: ['#696cff', '#8592a3'],
+                series: [{
+                    name: 'Revenue (BDT)',
+                    data: [regRevenue, guestRevenue]
+                }],
+                xaxis: {
+                    categories: ['Registered Users', 'Guest Sessions'],
+                    labels: {
+                        formatter: function (val) {
+                            return '৳ ' + val.toLocaleString();
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return '৳ ' + val.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                        }
+                    }
+                }
+            };
+            var revenueChart = new ApexCharts(document.querySelector("#cartRevenueChart"), revenueOptions);
+            revenueChart.render();
+
+            // ==============================================
+            // 2. SERVER-SIDE DATATABLES
+            // ==============================================
+            var table = $('#carts-table').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [[4, 'desc']], // Order by last activity descending
+                ajax: {
+                    url: '@Url.Action("GetPagedCarts", "Carts", new { area = "Admin" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: function (d) {
+                        d.cartFilter = $('#filter-cart').val();
+                        return JSON.stringify(d);
+                    }
+                },
+                columnDefs: [
+                    { targets: 0, orderable: false },
+                    { targets: 1, orderable: false },
+                    { targets: 2, orderable: false },
+                    { targets: 3, orderable: false },
+                    { targets: 4, orderable: true },
+                    {
+                        targets: 5,
+                        orderable: false,
+                        render: function (id, type, row) {
+                            return `
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary view-details-btn" data-id="${id}" title="Inspect Cart">
+                                        <i class="bx bx-show"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger delete-cart-btn" data-id="${id}" title="Delete Cart">
+                                        <i class="bx bx-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ]
+            });
+
+            // Filter Change Handler
+            $('#filter-cart').on('change', function () {
+                table.ajax.reload();
+            });
+
+            // ==============================================
+            // 3. CART DETAILS MODAL & CUSTOMER INSPECTION
+            // ==============================================
+            $('#carts-table').on('click', '.view-details-btn', function () {
+                var id = $(this).data('id');
+
+                $.getJSON('@Url.Action("GetDetails", "Carts", new { area = "Admin" })', { id: id }, function (res) {
+                    if (res.success && res.cart) {
+                        var cart = res.cart;
+
+                        $('#modalCustomerName').text(cart.customerName);
+                        if (cart.isRegistered) {
+                            $('#modalCustomerEmail').html('<i class="bx bx-envelope me-1"></i>' + cart.customerEmail).show();
+                            if (cart.customerPhone) {
+                                $('#modalCustomerPhone').html('<i class="bx bx-phone me-1"></i>' + cart.customerPhone).show();
+                            } else {
+                                $('#modalCustomerPhone').hide();
+                            }
+                            if (cart.customerAddress) {
+                                $('#modalCustomerAddress').html('<i class="bx bx-map me-1"></i>' + cart.customerAddress).show();
+                            } else {
+                                $('#modalCustomerAddress').hide();
+                            }
+                            $('#modalCustomerBadge').removeClass('bg-label-secondary').addClass('bg-label-primary').text('Registered Customer');
+
+                            // Configure email recovery button
+                            var emailSubject = encodeURIComponent("You left items in your cart at Male Fashion!");
+                            var emailBody = encodeURIComponent("Hello " + cart.customerName + ",\n\nWe noticed you left some great items in your shopping cart. Come back soon and complete your purchase!\n\nBest regards,\nMale Fashion Team");
+                            $('#modalEmailRecoveryBtn').attr('href', 'mailto:' + cart.customerEmail + '?subject=' + emailSubject + '&body=' + emailBody).removeClass('d-none');
+                        } else {
+                            $('#modalCustomerEmail').html('<i class="bx bx-desktop me-1"></i>Session: ' + cart.sessionId).show();
+                            $('#modalCustomerPhone').hide();
+                            $('#modalCustomerAddress').hide();
+                            $('#modalCustomerBadge').removeClass('bg-label-primary').addClass('bg-label-secondary').text('Guest Shopper');
+                            $('#modalEmailRecoveryBtn').addClass('d-none');
+                        }
+
+                        // Populate items table
+                        var itemsHtml = '';
+                        cart.items.forEach(function (item) {
+                            var variantHtml = item.variantDetails ? '<small class="text-muted d-block">' + item.variantDetails + '</small>' : '';
+                            itemsHtml += `
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="${item.imageUrl}" class="rounded me-2 border" style="width:40px;height:40px;object-fit:cover;" />
+                                            <div>
+                                                <span class="fw-semibold">${item.productName}</span>
+                                                ${variantHtml}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>৳ ${item.unitPrice.toFixed(2)}</td>
+                                    <td class="text-center"><span class="badge bg-label-secondary">${item.quantity}</span></td>
+                                    <td class="text-end fw-semibold">৳ ${item.lineTotal.toFixed(2)}</td>
+                                </tr>
+                            `;
+                        });
+                        $('#modalItemsTbody').html(itemsHtml);
+                        $('#modalTotalValue').text('৳ ' + cart.totalValue.toFixed(2));
+
+                        // Coupon banner
+                        if (cart.appliedCouponCode) {
+                            $('#modalCouponCode').text(cart.appliedCouponCode);
+                            $('#modalCouponBanner').removeClass('d-none');
+                        } else {
+                            $('#modalCouponBanner').addClass('d-none');
+                        }
+
+                        $('#cartDetailsModal').modal('show');
+                    } else {
+                        Swal.fire('Error', res.message || 'Unable to load cart details.', 'error');
+                    }
+                });
+            });
+
+            // ==============================================
+            // 4. DELETE CART (SweetAlert2)
+            // ==============================================
+            $('#carts-table').on('click', '.delete-cart-btn', function () {
+                var id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Delete this cart?',
+                    text: 'Are you sure you want to remove this shopping cart session? This cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#8592a3',
+                    confirmButtonText: 'Yes, Delete It!'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '@Url.Action("Delete", "Carts", new { area = "Admin" })',
+                            type: 'POST',
+                            data: {
+                                id: id,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            success: function (res) {
+                                if (res.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: res.message,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Unable to delete cart.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // ==============================================
+            // 5. CLEAN UP STALE CARTS
+            // ==============================================
+            $('#btn-clean-stale').on('click', function () {
+                Swal.fire({
+                    title: 'Clean Stale Carts?',
+                    text: 'This will remove all abandoned or empty carts older than 30 days to optimize database performance.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#696cff',
+                    cancelButtonColor: '#8592a3',
+                    confirmButtonText: 'Yes, Clean Up'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '@Url.Action("ClearStale", "Carts", new { area = "Admin" })',
+                            type: 'POST',
+                            data: {
+                                days: 30,
+                                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            success: function (res) {
+                                if (res.success) {
+                                    Swal.fire('Success', res.message, 'success');
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Clean up request failed.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+

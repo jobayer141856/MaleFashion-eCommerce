@@ -29,7 +29,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin") || User.IsInRole("OrderManager") || User.IsInRole("CatalogManager") || User.IsInRole("BlogEditor") || User.IsInRole("SupportStaff")))
             {
                 return RedirectToAction("Index", "Home", new { area = "Admin" });
             }
@@ -44,7 +44,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
         {
             returnUrl ??= Url.Action("Index", "Home", new { area = "Admin" });
 
-            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin") || User.IsInRole("OrderManager") || User.IsInRole("CatalogManager") || User.IsInRole("BlogEditor") || User.IsInRole("SupportStaff")))
             {
                 if (Url.IsLocalUrl(returnUrl))
                 {
@@ -78,11 +78,19 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                     return View(model);
                 }
 
-                // Verify the user has the "Admin" or "SuperAdmin" role
-                var isAdmin = await _userManager.IsInRoleAsync(user, "Admin") || await _userManager.IsInRoleAsync(user, "SuperAdmin");
-                if (!isAdmin)
+                // Verify the user has an administrative or operational role
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var isStaffOrAdmin = userRoles.Any(r =>
+                    r.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                    r.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) ||
+                    r.Equals("OrderManager", StringComparison.OrdinalIgnoreCase) ||
+                    r.Equals("CatalogManager", StringComparison.OrdinalIgnoreCase) ||
+                    r.Equals("BlogEditor", StringComparison.OrdinalIgnoreCase) ||
+                    r.Equals("SupportStaff", StringComparison.OrdinalIgnoreCase));
+
+                if (!isStaffOrAdmin)
                 {
-                    ModelState.AddModelError(string.Empty, "Access denied. Only administrators can sign in here.");
+                    ModelState.AddModelError(string.Empty, "Access denied. Only authorized staff and administrators can sign in here.");
                     return View(model);
                 }
 
@@ -145,7 +153,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
         #region Change Password
 
         [HttpGet]
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,OrderManager,CatalogManager,BlogEditor,SupportStaff")]
         public async Task<IActionResult> ChangePassword()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -158,7 +166,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "Admin,SuperAdmin,OrderManager,CatalogManager,BlogEditor,SupportStaff")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(AdminChangePasswordModel model)
         {

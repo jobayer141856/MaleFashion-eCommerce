@@ -19,7 +19,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,OrderManager")]
     public class CartsController : Controller
     {
         private readonly IMediator _mediator;

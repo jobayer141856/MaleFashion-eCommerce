@@ -18,7 +18,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Reviews
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,SupportStaff")]
     public class ReviewsController : Controller
     {
         private readonly IMediator _mediator;

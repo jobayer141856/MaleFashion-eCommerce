@@ -39,6 +39,106 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var allRoles = await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
+            var model = new AdminCreateUserModel
+            {
+                Roles = allRoles.Select(r => new RoleCheckboxItem
+                {
+                    RoleId = r.Id,
+                    RoleName = r.Name ?? string.Empty,
+                    IsSelected = false,
+                    IsDisabled = false
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(AdminCreateUserModel model)
+        {
+            var allRoles = await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
+
+            if (!ModelState.IsValid)
+            {
+                var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
+                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                {
+                    RoleId = r.Id,
+                    RoleName = r.Name ?? string.Empty,
+                    IsSelected = selectedNames.Contains(r.Name ?? string.Empty),
+                    IsDisabled = false
+                }).ToList();
+
+                return View(model);
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email.Trim());
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(nameof(model.Email), "A user with this email address already exists.");
+                var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
+                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                {
+                    RoleId = r.Id,
+                    RoleName = r.Name ?? string.Empty,
+                    IsSelected = selectedNames.Contains(r.Name ?? string.Empty),
+                    IsDisabled = false
+                }).ToList();
+                return View(model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email.Trim(),
+                Email = model.Email.Trim(),
+                FirstName = model.FirstName.Trim(),
+                LastName = model.LastName.Trim(),
+                PhoneNumber = model.PhoneNumber?.Trim(),
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(model.PhoneNumber)
+            };
+
+            var createResult = await _userManager.CreateAsync(user, model.Password);
+            if (!createResult.Succeeded)
+            {
+                foreach (var error in createResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
+                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                {
+                    RoleId = r.Id,
+                    RoleName = r.Name ?? string.Empty,
+                    IsSelected = selectedNames.Contains(r.Name ?? string.Empty),
+                    IsDisabled = false
+                }).ToList();
+                return View(model);
+            }
+
+            var selectedRoles = model.Roles?
+                .Where(r => r.IsSelected)
+                .Select(r => r.RoleName)
+                .ToList() ?? new List<string>();
+
+            if (selectedRoles.Any())
+            {
+                await _userManager.AddToRolesAsync(user, selectedRoles);
+            }
+
+            TempData.Put(Constants.ResponseTempKey, new ResponseModel
+            {
+                Message = $"User '{user.Email}' was successfully created with assigned roles.",
+                Type = ResponseTypes.Success
+            });
+
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpPost]
         public async Task<JsonResult> GetPagedUsers([FromBody] UserListModel model)
         {
@@ -130,8 +230,9 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
                     IsSelected = userRoles.Contains(r.Name ?? string.Empty),
-                    // Prevent self-lockout: disable unchecking Admin on yourself
-                    IsDisabled = string.Equals(r.Name, "Admin", StringComparison.OrdinalIgnoreCase) &&
+                    // Prevent self-lockout: disable unchecking Admin or SuperAdmin on yourself
+                    IsDisabled = (string.Equals(r.Name, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                                  string.Equals(r.Name, "SuperAdmin", StringComparison.OrdinalIgnoreCase)) &&
                                  string.Equals(user.Id.ToString(), currentUserId, StringComparison.OrdinalIgnoreCase)
                 }).ToList()
             };
@@ -163,11 +264,12 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             // Self-lockout safeguard
             if (string.Equals(user.Id.ToString(), currentUserId, StringComparison.OrdinalIgnoreCase))
             {
-                if (currentRoles.Contains("Admin") && !selectedRoles.Contains("Admin"))
+                if ((currentRoles.Contains("Admin") && !selectedRoles.Contains("Admin")) ||
+                    (currentRoles.Contains("SuperAdmin") && !selectedRoles.Contains("SuperAdmin")))
                 {
                     TempData.Put(Constants.ResponseTempKey, new ResponseModel
                     {
-                        Message = "Security protection: You cannot remove the 'Admin' role from your own active account.",
+                        Message = "Security protection: You cannot remove the 'Admin' or 'SuperAdmin' role from your own active account.",
                         Type = ResponseTypes.Danger
                     });
                     return RedirectToAction(nameof(ManageRoles), new { id = model.UserId });

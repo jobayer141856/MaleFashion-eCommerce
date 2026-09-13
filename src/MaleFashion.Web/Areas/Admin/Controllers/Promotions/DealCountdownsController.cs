@@ -21,7 +21,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Promotions
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,CatalogManager")]
     public class DealCountdownsController : Controller
     {
         private readonly IMediator _mediator;

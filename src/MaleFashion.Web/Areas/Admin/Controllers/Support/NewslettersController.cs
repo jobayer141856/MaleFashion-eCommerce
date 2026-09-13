@@ -20,7 +20,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Support
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,SupportStaff")]
     public class NewslettersController : Controller
     {
         private readonly IMediator _mediator;

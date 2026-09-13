@@ -17,7 +17,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,CatalogManager")]
     public class CategoriesController : Controller
     {
         private readonly ILogger<CategoriesController> _logger;

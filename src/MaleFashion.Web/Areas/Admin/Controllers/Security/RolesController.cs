@@ -1,3 +1,4 @@
+using MaleFashion.Domain.Enums;
 using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Infrastructure.Identity;
@@ -26,6 +27,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
         private static readonly HashSet<string> SystemRoles = new(StringComparer.OrdinalIgnoreCase)
         {
+            "SuperAdmin",
             "Admin",
             "Customer"
         };
@@ -45,9 +47,11 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             return View();
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new RoleModel());
+            var model = new RoleModel();
+            await PopulateAvailableRolesAsync(model);
+            return View(model);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -55,15 +59,24 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
         {
             if (!ModelState.IsValid)
             {
-                TempData.Put(Constants.ResponseTempKey, new ResponseModel
-                {
-                    Message = "Please enter a valid role name.",
-                    Type = ResponseTypes.Danger
-                });
+                await PopulateAvailableRolesAsync(model);
                 return View(model);
             }
 
             var roleName = model.Name.Trim();
+
+            // Validate that role exists in ApplicationRoleType enum
+            if (!Enum.TryParse<ApplicationRoleType>(roleName, true, out var roleType))
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = $"Invalid role selection: '{roleName}'.",
+                    Type = ResponseTypes.Danger
+                });
+                await PopulateAvailableRolesAsync(model);
+                return View(model);
+            }
+
             if (await _roleManager.RoleExistsAsync(roleName))
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
@@ -71,6 +84,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                     Message = $"A role with the name '{roleName}' already exists.",
                     Type = ResponseTypes.Danger
                 });
+                await PopulateAvailableRolesAsync(model);
                 return View(model);
             }
 
@@ -98,7 +112,27 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                 Type = ResponseTypes.Danger
             });
 
+            await PopulateAvailableRolesAsync(model);
             return View(model);
+        }
+
+        private async Task PopulateAvailableRolesAsync(RoleModel model)
+        {
+            var existingRoles = await _roleManager.Roles
+                .Select(r => r.Name!)
+                .ToListAsync();
+
+            var availableRoles = Enum.GetValues<ApplicationRoleType>()
+                .Where(r => !existingRoles.Contains(r.ToString(), StringComparer.OrdinalIgnoreCase))
+                .Select(r => new RoleOptionItem
+                {
+                    Value = r.ToString(),
+                    DisplayName = r.GetDisplayName(),
+                    Description = r.GetDescription()
+                })
+                .ToList();
+
+            model.AvailableRoles = availableRoles;
         }
 
         public async Task<IActionResult> Update(Guid id)

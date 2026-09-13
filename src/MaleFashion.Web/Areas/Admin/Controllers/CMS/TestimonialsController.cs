@@ -21,7 +21,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,BlogEditor")]
     public class TestimonialsController : Controller
     {
         private readonly ILogger<TestimonialsController> _logger;

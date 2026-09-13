@@ -18,7 +18,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,BlogEditor")]
     public class BlogPostsController : Controller
     {
         private readonly ILogger<BlogPostsController> _logger;

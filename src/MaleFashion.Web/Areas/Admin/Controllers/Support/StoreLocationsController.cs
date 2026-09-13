@@ -21,7 +21,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Support
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,SupportStaff")]
     public class StoreLocationsController : Controller
     {
         private readonly ILogger<StoreLocationsController> _logger;

@@ -22,7 +22,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin,OrderManager")]
     public class CustomersController : Controller
     {
         private readonly ILogger<CustomersController> _logger;

@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator;
+using Cortex.Mediator;
 using MaleFashion.Application.Features.Blogs.Commands;
 using MaleFashion.Application.Features.Blogs.Queries;
 using MaleFashion.Web.Areas.Admin.Models.Blogs;
@@ -13,7 +13,7 @@ using System.Web;
 
 namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
 {
-    [Area("Admin"), Authorize(Roles = "Admin,SuperAdmin")]
+    [Area("Admin"), Authorize(Roles = "Admin,SuperAdmin,BlogEditor")]
     public class BlogCommentsController : Controller
     {
         private readonly IMediator _mediator;

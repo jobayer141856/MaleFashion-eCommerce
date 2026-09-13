@@ -31,10 +31,10 @@ namespace MaleFashion.Web.Areas.Admin.Conventions
                 return;
             }
 
-            // Require an authenticated user in Admin or SuperAdmin role
+            // Require an authenticated user in any valid administrative or operational role
             var policy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .RequireRole("Admin", "SuperAdmin")
+                .RequireRole("Admin", "SuperAdmin", "OrderManager", "CatalogManager", "BlogEditor", "SupportStaff")
                 .Build();
 
             controller.Filters.Add(new AuthorizeFilter(policy));

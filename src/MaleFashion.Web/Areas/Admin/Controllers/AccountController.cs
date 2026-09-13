@@ -74,7 +74,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid credentials.");
+                    ModelState.AddModelError(string.Empty, "Invalid email or password. If you forgot your password or need assistance, please contact your system administrator.");
                     return View(model);
                 }
 
@@ -90,7 +90,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
                 if (!isStaffOrAdmin)
                 {
-                    ModelState.AddModelError(string.Empty, "Access denied. Only authorized staff and administrators can sign in here.");
+                    ModelState.AddModelError(string.Empty, "Access denied. Only authorized staff and administrative accounts can sign in here. Please contact your administrator.");
                     return View(model);
                 }
 
@@ -107,11 +107,11 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
                 if (result.IsLockedOut)
                 {
-                    ModelState.AddModelError(string.Empty, "Account locked out.");
+                    ModelState.AddModelError(string.Empty, "This account is temporarily locked due to multiple failed sign-in attempts. Please contact your system administrator.");
                     return View(model);
                 }
 
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "Invalid email or password. If you forgot your password or need assistance, please contact your system administrator.");
             }
 
             return View(model);

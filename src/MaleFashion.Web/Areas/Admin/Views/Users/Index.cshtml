@@ -1,5 +1,9 @@
+@using MaleFashion.Infrastructure.Identity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "Users & Access Management";
+    ViewData["Title"] = "Staff & Access Management";
+    var currentUserId = UserManager.GetUserId(User) ?? string.Empty;
 }
 
 @section Styles {
@@ -14,14 +18,15 @@
             <div class="card">
                 <div class="card-header border-bottom d-flex justify-content-between align-items-center py-3">
                     <div>
-                        <h5 class="card-title mb-0">System Users & Role Access</h5>
-                        <small class="text-muted">Manage system users and their assigned roles</small>
+                        <h5 class="card-title mb-0">Internal Staff & Role Access</h5>
+                        <small class="text-muted">Manage internal employees, operational roles, and administrative access</small>
                     </div>
                     <a asp-action="Create" class="btn btn-primary">
-                        <i class="bx bx-user-plus me-1"></i> Create Staff User
+                        <i class="bx bx-user-plus me-1"></i> Add Staff Member
                     </a>
                 </div>
-                <div class="card-body table-responsive pt-0">
+                <div class="card-body table-responsive pt-3">
+                    <partial name="_ModalPartial" />
                     <table id="users-table" class="table table-bordered table-hover w-100">
                         <thead>
                             <tr>
@@ -30,7 +35,7 @@
                                 <th>Phone</th>
                                 <th>Assigned Roles</th>
                                 <th style="width: 100px;">Status</th>
-                                <th style="width: 130px;">Actions</th>
+                                <th style="width: 250px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -70,6 +75,7 @@
                             }
                             var roles = data.split(', ');
                             var badges = roles.map(r => {
+                                if (r.toLowerCase() === 'superadmin') return `<span class="badge bg-label-danger me-1">${r}</span>`;
                                 if (r.toLowerCase() === 'admin') return `<span class="badge bg-label-primary me-1">${r}</span>`;
                                 if (r.toLowerCase() === 'customer') return `<span class="badge bg-label-success me-1">${r}</span>`;
                                 return `<span class="badge bg-label-info me-1">${r}</span>`;
@@ -86,12 +92,55 @@
                     {
                         orderable: false,
                         targets: -1,
-                        render: data => `
-                            <a class="btn btn-sm btn-outline-primary" href="/Admin/Users/ManageRoles/${data}">
-                                <i class="bx bx-shield-quarter me-1"></i> Manage Roles
-                            </a>`
+                        render: function(data, type, row) {
+                            const currentUserId = '@currentUserId';
+                            const isCurrentUser = data.toLowerCase() === currentUserId.toLowerCase();
+                            const isTargetSuperAdmin = (row[3] || '').indexOf('SuperAdmin') !== -1;
+                            const currentUserIsSuperAdmin = @(User.IsInRole("SuperAdmin") ? "true" : "false");
+                            const escapedName = (row[0] + (row[1] && row[1] !== '—' ? ' (' + row[1] + ')' : '')).replace(/"/g, '&quot;');
+
+                            let resetPassHtml = '';
+                            if (isTargetSuperAdmin && !currentUserIsSuperAdmin) {
+                                resetPassHtml = `<button class="btn btn-xs btn-outline-secondary disabled" disabled title="Only SuperAdmin can reset SuperAdmin password"><i class="bx bx-key me-1"></i> Reset</button>`;
+                            } else {
+                                resetPassHtml = `<a class="btn btn-xs btn-outline-warning" href="/Admin/Users/ResetPassword/${data}" title="Reset Password"><i class="bx bx-key me-1"></i> Reset</a>`;
+                            }
+
+                            let deleteActionHtml = '';
+                            if (isCurrentUser) {
+                                deleteActionHtml = `<button class="btn btn-xs btn-outline-secondary disabled" disabled title="You cannot delete your own active account"><i class="bx bx-user-check me-1"></i> You</button>`;
+                            } else if (isTargetSuperAdmin && !currentUserIsSuperAdmin) {
+                                deleteActionHtml = `<button class="btn btn-xs btn-outline-secondary disabled" disabled title="Only SuperAdmin can delete SuperAdmin accounts"><i class="bx bx-lock-alt me-1"></i> Protected</button>`;
+                            } else {
+                                deleteActionHtml = `<button class="btn btn-xs btn-outline-danger show-bs-modal" data-id="${data}" data-name="${escapedName}" title="Delete User"><i class="bx bx-trash me-1"></i> Delete</button>`;
+                            }
+
+                            return `
+                                <div class="d-inline-flex gap-1">
+                                    <a class="btn btn-xs btn-outline-primary" href="/Admin/Users/ManageRoles/${data}" title="Manage Roles">
+                                        <i class="bx bx-shield-quarter me-1"></i> Roles
+                                    </a>
+                                    ${resetPassHtml}
+                                    ${deleteActionHtml}
+                                </div>`;
+                        }
                     }
                 ]
+            });
+
+            $("#users-table").on('click', '.show-bs-modal', function() {
+                let id = $(this).data('id');
+                let name = $(this).data('name');
+                let deleteModal = $("#delete-modal");
+                deleteModal.find('#modelLabel').text("Delete Staff Account");
+                deleteModal.find('.modal-body p').html(`Are you sure you want to permanently delete the staff account <strong>${name}</strong>?<br/><small class="text-danger mt-1 d-block"><i class="bx bx-error-circle me-1"></i>This action cannot be undone.</small>`);
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/Admin/Users/Delete');
+                deleteModal.modal('show');
+            });
+
+            $('#delete-btn').on('click', function() {
+                $('#delete-form').submit();
             });
         });
     </script>

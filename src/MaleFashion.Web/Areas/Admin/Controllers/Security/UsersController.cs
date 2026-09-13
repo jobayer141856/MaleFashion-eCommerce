@@ -1,4 +1,5 @@
 using MaleFashion.Domain.Utilities;
+using MaleFashion.Infrastructure.Data;
 using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Infrastructure.Identity;
 using MaleFashion.Web.Areas.Admin.Models;
@@ -22,15 +23,18 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
+            ApplicationDbContext context,
             ILogger<UsersController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _context = context;
             _logger = logger;
         }
 
@@ -42,10 +46,14 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var allRoles = await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
+            var staffRoles = await _roleManager.Roles
+                .Where(r => r.NormalizedName != "CUSTOMER")
+                .OrderBy(r => r.Name)
+                .ToListAsync();
+
             var model = new AdminCreateUserModel
             {
-                Roles = allRoles.Select(r => new RoleCheckboxItem
+                Roles = staffRoles.Select(r => new RoleCheckboxItem
                 {
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
@@ -60,12 +68,15 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminCreateUserModel model)
         {
-            var allRoles = await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
+            var staffRoles = await _roleManager.Roles
+                .Where(r => r.NormalizedName != "CUSTOMER")
+                .OrderBy(r => r.Name)
+                .ToListAsync();
 
             if (!ModelState.IsValid)
             {
                 var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
-                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                model.Roles = staffRoles.Select(r => new RoleCheckboxItem
                 {
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
@@ -81,7 +92,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 ModelState.AddModelError(nameof(model.Email), "A user with this email address already exists.");
                 var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
-                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                model.Roles = staffRoles.Select(r => new RoleCheckboxItem
                 {
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
@@ -110,7 +121,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
                 var selectedNames = model.Roles?.Where(r => r.IsSelected).Select(r => r.RoleName).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new();
-                model.Roles = allRoles.Select(r => new RoleCheckboxItem
+                model.Roles = staffRoles.Select(r => new RoleCheckboxItem
                 {
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
@@ -132,7 +143,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
             TempData.Put(Constants.ResponseTempKey, new ResponseModel
             {
-                Message = $"User '{user.Email}' was successfully created with assigned roles.",
+                Message = $"Staff member '{user.Email}' was successfully created with assigned roles.",
                 Type = ResponseTypes.Success
             });
 
@@ -144,7 +155,37 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
         {
             try
             {
+                // Get all non-customer role IDs (administrative/operational roles)
+                var staffRoleIds = await _context.Roles
+                    .Where(r => r.NormalizedName != "CUSTOMER")
+                    .Select(r => r.Id)
+                    .ToListAsync();
+
+                var staffUserIds = _context.UserRoles
+                    .Where(ur => staffRoleIds.Contains(ur.RoleId))
+                    .Select(ur => ur.UserId);
+
+                var customerRole = await _roleManager.FindByNameAsync("Customer");
+                Guid? customerRoleId = customerRole?.Id;
+
                 var query = _userManager.Users.AsNoTracking();
+
+                if (customerRoleId.HasValue)
+                {
+                    var customerUserIds = _context.UserRoles
+                        .Where(ur => ur.RoleId == customerRoleId.Value)
+                        .Select(ur => ur.UserId);
+
+                    // Include users who have at least one staff role, OR newly created staff who do NOT have the Customer role
+                    // Excludes pure storefront customers
+                    query = query.Where(u => staffUserIds.Contains(u.Id) || !customerUserIds.Contains(u.Id));
+                }
+                else
+                {
+                    query = query.Where(u => staffUserIds.Contains(u.Id));
+                }
+
+                var total = await query.CountAsync();
 
                 if (!string.IsNullOrWhiteSpace(model.Search.Value))
                 {
@@ -157,7 +198,6 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                         (u.PhoneNumber != null && u.PhoneNumber.Contains(search)));
                 }
 
-                var total = await _userManager.Users.CountAsync();
                 var totalDisplay = await query.CountAsync();
 
                 var users = await query
@@ -197,7 +237,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get users list");
+                _logger.LogError(ex, "Failed to get staff users list");
                 return Json(DataTables.EmptyResult);
             }
         }
@@ -209,13 +249,17 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = "User not found.",
+                    Message = "Staff user not found.",
                     Type = ResponseTypes.Danger
                 });
                 return RedirectToAction(nameof(Index));
             }
 
-            var allRoles = await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
+            var staffRoles = await _roleManager.Roles
+                .Where(r => r.NormalizedName != "CUSTOMER")
+                .OrderBy(r => r.Name)
+                .ToListAsync();
+
             var userRoles = await _userManager.GetRolesAsync(user);
             var currentUserId = _userManager.GetUserId(User);
 
@@ -225,7 +269,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 FullName = $"{user.FirstName} {user.LastName}".Trim(),
-                Roles = allRoles.Select(r => new RoleCheckboxItem
+                Roles = staffRoles.Select(r => new RoleCheckboxItem
                 {
                     RoleId = r.Id,
                     RoleName = r.Name ?? string.Empty,
@@ -248,7 +292,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = "User not found.",
+                    Message = "Staff user not found.",
                     Type = ResponseTypes.Danger
                 });
                 return RedirectToAction(nameof(Index));
@@ -276,8 +320,18 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                 }
             }
 
-            var rolesToAdd = selectedRoles.Except(currentRoles, StringComparer.OrdinalIgnoreCase).ToList();
-            var rolesToRemove = currentRoles.Except(selectedRoles, StringComparer.OrdinalIgnoreCase).ToList();
+            // Only manage administrative staff roles, preserving any non-staff roles
+            var staffRoles = await _roleManager.Roles
+                .Where(r => r.NormalizedName != "CUSTOMER")
+                .Select(r => r.Name!)
+                .ToListAsync();
+
+            var managedCurrentRoles = currentRoles
+                .Where(r => staffRoles.Contains(r, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            var rolesToAdd = selectedRoles.Except(managedCurrentRoles, StringComparer.OrdinalIgnoreCase).ToList();
+            var rolesToRemove = managedCurrentRoles.Except(selectedRoles, StringComparer.OrdinalIgnoreCase).ToList();
 
             if (rolesToAdd.Any())
             {
@@ -311,9 +365,212 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
             TempData.Put(Constants.ResponseTempKey, new ResponseModel
             {
-                Message = $"Roles successfully updated for user '{user.Email}'.",
+                Message = $"Staff roles successfully updated for user '{user.Email}'.",
                 Type = ResponseTypes.Success
             });
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "User not found.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var isTargetSuperAdmin = roles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase);
+            var currentUserIsSuperAdmin = User.IsInRole("SuperAdmin");
+
+            // Privilege escalation safeguard: only SuperAdmin can reset a SuperAdmin's password
+            if (isTargetSuperAdmin && !currentUserIsSuperAdmin)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Access Denied: Only Super Administrators can reset passwords for accounts with the SuperAdmin role.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            var fullName = $"{user.FirstName} {user.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(fullName)) fullName = user.UserName ?? "User";
+
+            var model = new AdminResetUserPasswordModel
+            {
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                FullName = fullName,
+                RolesSummary = roles.Any() ? string.Join(", ", roles) : "No Roles",
+                IsTargetSuperAdmin = isTargetSuperAdmin
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(AdminResetUserPasswordModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId.ToString());
+            if (user == null)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "User not found.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var isTargetSuperAdmin = roles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase);
+            var currentUserIsSuperAdmin = User.IsInRole("SuperAdmin");
+
+            // Privilege escalation safeguard
+            if (isTargetSuperAdmin && !currentUserIsSuperAdmin)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Access Denied: Only Super Administrators can reset passwords for accounts with the SuperAdmin role.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var fullName = $"{user.FirstName} {user.LastName}".Trim();
+                if (string.IsNullOrWhiteSpace(fullName)) fullName = user.UserName ?? "User";
+                model.FullName = fullName;
+                model.Email = user.Email ?? string.Empty;
+                model.RolesSummary = roles.Any() ? string.Join(", ", roles) : "No Roles";
+                model.IsTargetSuperAdmin = isTargetSuperAdmin;
+                return View(model);
+            }
+
+            // Generate reset token and apply new password
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (!resetResult.Succeeded)
+            {
+                foreach (var error in resetResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                var fullName = $"{user.FirstName} {user.LastName}".Trim();
+                if (string.IsNullOrWhiteSpace(fullName)) fullName = user.UserName ?? "User";
+                model.FullName = fullName;
+                model.Email = user.Email ?? string.Empty;
+                model.RolesSummary = roles.Any() ? string.Join(", ", roles) : "No Roles";
+                model.IsTargetSuperAdmin = isTargetSuperAdmin;
+                return View(model);
+            }
+
+            // Invalidate existing sessions so target user must log in with the new password
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            _logger.LogInformation("Administrator '{AdminEmail}' reset password for user '{TargetEmail}'.",
+                User.Identity?.Name, user.Email);
+
+            TempData.Put(Constants.ResponseTempKey, new ResponseModel
+            {
+                Message = $"Password for user '{user.Email}' was successfully reset. The user can now sign in with the new credentials.",
+                Type = ResponseTypes.Success
+            });
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "User account not found.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            var currentUserId = _userManager.GetUserId(User);
+
+            // 1. Self-deletion safeguard
+            if (string.Equals(user.Id.ToString(), currentUserId, StringComparison.OrdinalIgnoreCase))
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Security protection: You cannot delete your own active administrator account.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            var isTargetSuperAdmin = targetRoles.Contains("SuperAdmin", StringComparer.OrdinalIgnoreCase);
+            var currentUserIsSuperAdmin = User.IsInRole("SuperAdmin");
+
+            // 2. Privilege escalation safeguard: only SuperAdmin can delete a SuperAdmin
+            if (isTargetSuperAdmin && !currentUserIsSuperAdmin)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Access Denied: Only Super Administrators can delete an account with the SuperAdmin role.",
+                    Type = ResponseTypes.Danger
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 3. Sole SuperAdmin safeguard: cannot delete the last SuperAdmin
+            if (isTargetSuperAdmin)
+            {
+                var superAdmins = await _userManager.GetUsersInRoleAsync("SuperAdmin");
+                if (superAdmins.Count <= 1)
+                {
+                    TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                    {
+                        Message = "Security protection: Cannot delete the last remaining SuperAdmin account in the system.",
+                        Type = ResponseTypes.Danger
+                    });
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            var userEmail = user.Email;
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Administrator '{AdminEmail}' deleted staff account '{TargetEmail}' (ID: {TargetId}).",
+                    User.Identity?.Name, userEmail, user.Id);
+
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = $"Staff account '{userEmail}' was successfully deleted.",
+                    Type = ResponseTypes.Success
+                });
+            }
+            else
+            {
+                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("Failed to delete staff account '{TargetEmail}': {Errors}", userEmail, errors);
+
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = $"Failed to delete staff account: {errors}",
+                    Type = ResponseTypes.Danger
+                });
+            }
 
             return RedirectToAction(nameof(Index));
         }

@@ -24,6 +24,10 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Ordering
         public async Task<(IList<Order> Items, int Total, int TotalDisplay)> GetPagedOrders(GetAllOrdersByPagingQuery query, CancellationToken cancellationToken)
         {
             var sortText = string.IsNullOrWhiteSpace(query.SortText) ? "OrderDate desc" : query.SortText;
+            if (sortText.Contains("TotalAmount") && !sortText.Contains("TotalAmount.Amount"))
+            {
+                sortText = sortText.Replace("TotalAmount", "TotalAmount.Amount");
+            }
 
             return await GetDynamicAsync(
                 o => (string.IsNullOrWhiteSpace(query.SearchText) ||

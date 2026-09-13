@@ -21,9 +21,15 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Promotions
 
         public async Task<(IList<DealCountdown>, int, int)> GetPagedDealCountdowns(GetAllDealCountdownsByPagingQuery query, CancellationToken cancellationToken)
         {
+            var sortText = string.IsNullOrWhiteSpace(query.SortText) ? "EndDate desc" : query.SortText;
+            if (sortText.Contains("SalePrice") && !sortText.Contains("SalePrice.Amount"))
+            {
+                sortText = sortText.Replace("SalePrice", "SalePrice.Amount");
+            }
+
             return await GetDynamicAsync(
                 x => query.SearchText == null || x.DealTitle.Contains(query.SearchText) || (x.Product != null && x.Product.Name.Contains(query.SearchText)),
-                query.SortText,
+                sortText,
                 q => q.Include(x => x.Product).ThenInclude(p => p.Images),
                 query.PageIndex,
                 query.PageSize,

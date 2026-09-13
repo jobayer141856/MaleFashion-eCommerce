@@ -236,7 +236,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Promotions
                     PageIndex = model.PageIndex,
                     PageSize = model.PageSize,
                     SearchText = model.Search.Value ?? string.Empty,
-                    SortText = model.FormatSortExpression("DealTitle", "Product.Name", "SalePrice", "EndDate", "IsActive", "Id")
+                    SortText = model.FormatSortExpression("Product.Name", "DealTitle", "SalePrice.Amount", "EndDate", "IsActive", "Id")
                 };
 
                 var (items, total, totalDisplay) = await _mediator.SendQueryAsync<GetAllDealCountdownsByPagingQuery,

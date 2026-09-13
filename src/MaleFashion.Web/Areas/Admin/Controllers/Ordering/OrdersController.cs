@@ -79,7 +79,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
                     PageIndex = model.PageIndex,
                     PageSize = model.PageSize,
                     SearchText = model.Search.Value ?? string.Empty,
-                    SortText = model.FormatSortExpression("OrderNumber", "OrderDate", "TotalAmount", "Status", "Id"),
+                    SortText = model.FormatSortExpression("OrderNumber", "Customer.FirstName", "OrderDate", "Id", "TotalAmount.Amount", "PaymentStatus", "Status", "Id"),
                     StatusFilter = model.StatusFilter,
                     PaymentStatusFilter = model.PaymentStatusFilter,
                     PaymentMethodFilter = model.PaymentMethodFilter

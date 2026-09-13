@@ -12,6 +12,7 @@ using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Catalogs;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class ProductsController : Controller
     {
         private readonly ILogger<ProductsController> _logger;

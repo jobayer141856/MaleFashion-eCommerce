@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator;
+using Cortex.Mediator;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Exceptions;
 using MaleFashion.Application.Features.Catalogs.Brands.Commands;
@@ -9,13 +9,14 @@ using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Catalogs;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Web;
 
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 {
-  
         [Area("Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public class BrandsController : Controller
         {
             private readonly ILogger<BrandsController> _logger;

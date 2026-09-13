@@ -29,16 +29,31 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
+            {
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
+            return RedirectToAction(nameof(Login));
         }
 
         #region Login & Logout
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string? returnUrl = null)
         {
-            var model = new LoginModel();
             returnUrl ??= Url.Action("Index", "Home", new { area = "Admin" });
+
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
+            {
+                if (Url.IsLocalUrl(returnUrl))
+                {
+                    return LocalRedirect(returnUrl);
+                }
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            }
+
+            var model = new LoginModel();
 
             // Clear any existing external cookies
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -48,6 +63,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -62,8 +78,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                     return View(model);
                 }
 
-                // Verify the user has the "Admin" role
-                var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+                // Verify the user has the "Admin" or "SuperAdmin" role
+                var isAdmin = await _userManager.IsInRoleAsync(user, "Admin") || await _userManager.IsInRoleAsync(user, "SuperAdmin");
                 if (!isAdmin)
                 {
                     ModelState.AddModelError(string.Empty, "Access denied. Only administrators can sign in here.");
@@ -74,7 +90,11 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("Admin user logged in.");
-                    return LocalRedirect(model.ReturnUrl);
+                    if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                    {
+                        return LocalRedirect(model.ReturnUrl);
+                    }
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
                 }
 
                 if (result.IsLockedOut)
@@ -110,6 +130,14 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
             await _signInManager.SignOutAsync();
             _logger.LogInformation("Admin user logged out via GET.");
             return RedirectToAction(nameof(Login));
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied(string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
         }
 
         #endregion

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace MaleFashion.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class HomeController : Controller
     {
         private readonly IMediator _mediator;

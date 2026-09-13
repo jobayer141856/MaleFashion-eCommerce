@@ -3,6 +3,7 @@ using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Infrastructure.Identity;
 using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class RolesController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;

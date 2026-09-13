@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator;
+using Cortex.Mediator;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Features.Blogs.Commands;
 using MaleFashion.Application.Features.Blogs.Queries;
@@ -18,6 +18,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class BlogPostsController : Controller
     {
         private readonly ILogger<BlogPostsController> _logger;

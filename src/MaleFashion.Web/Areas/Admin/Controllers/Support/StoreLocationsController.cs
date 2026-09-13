@@ -8,6 +8,7 @@ using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Support;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,6 +21,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Support
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class StoreLocationsController : Controller
     {
         private readonly ILogger<StoreLocationsController> _logger;

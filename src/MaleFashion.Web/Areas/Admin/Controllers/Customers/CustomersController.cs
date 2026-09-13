@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator;
+using Cortex.Mediator;
 using MaleFashion.Application.Exceptions;
 using MaleFashion.Application.Features.Customers.Commands;
 using MaleFashion.Application.Features.Customers.Queries;
@@ -10,6 +10,7 @@ using MaleFashion.Infrastructure.Identity;
 using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Customers;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,6 +22,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class CustomersController : Controller
     {
         private readonly ILogger<CustomersController> _logger;

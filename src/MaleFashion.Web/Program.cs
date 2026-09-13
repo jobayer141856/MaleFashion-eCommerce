@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
+using MaleFashion.Web.Areas.Admin.Conventions;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,10 +34,48 @@ try
 
     #region Identity Configuration
     builder.Services.AddIdentity();
+
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                var returnUrl = context.Request.Path + context.Request.QueryString;
+                context.Response.Redirect($"/Admin/Account/Login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+            else
+            {
+                context.Response.Redirect(context.RedirectUri);
+            }
+            return Task.CompletedTask;
+        };
+
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                var returnUrl = context.Request.Path + context.Request.QueryString;
+                context.Response.Redirect($"/Admin/Account/AccessDenied?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            }
+            else
+            {
+                context.Response.Redirect(context.RedirectUri);
+            }
+            return Task.CompletedTask;
+        };
+    });
     #endregion
 
 
-    builder.Services.AddControllersWithViews();
+    builder.Services.AddControllersWithViews(options =>
+    {
+        options.Conventions.Add(new AdminAreaAuthorizationConvention());
+    });
 
     #region Serilog Configuration
     builder.Host.UseSerilog((context, lc) =>
@@ -104,6 +143,7 @@ try
     app.UseHttpsRedirection();
     app.UseRouting();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapStaticAssets();

@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator;
+using Cortex.Mediator;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Exceptions;
 using MaleFashion.Application.Features.Catalogs.Categories.Commands;
@@ -17,6 +17,7 @@ using System.Web;
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class CategoriesController : Controller
     {
         private readonly ILogger<CategoriesController> _logger;

@@ -2,9 +2,11 @@ using Cortex.Mediator;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Exceptions;
 using MaleFashion.Application.Features.Catalogs.Products.Commands;
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Application.Features.Catalogs.Products.Queries;
 using MaleFashion.Domain.Entities;
 using MaleFashion.Domain.Entities.Catalogs;
+using MaleFashion.Domain.Entities.Promotions;
 using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Extensions;
 using MaleFashion.Web.Areas.Admin.Models;
@@ -40,8 +42,25 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
             _fileStorageService = fileStorageService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
+            try
+            {
+                var stats = await _mediator.SendQueryAsync<GetProductCatalogStatsQuery, ProductCatalogStatsDto>(
+                    new GetProductCatalogStatsQuery(), cancellationToken);
+                ViewBag.CatalogStats = stats;
+
+                var activeCoupons = await _mediator.SendQueryAsync<GetActiveStoreCouponsQuery, List<Coupon>>(
+                    new GetActiveStoreCouponsQuery(), cancellationToken);
+                ViewBag.ActiveCoupons = activeCoupons;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load product catalog metrics.");
+                ViewBag.CatalogStats = new ProductCatalogStatsDto();
+                ViewBag.ActiveCoupons = new List<Coupon>();
+            }
+
             return View();
         }
 
@@ -369,16 +388,23 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
         }
 
         [HttpPost]
-        public async Task<JsonResult> GetPagedProducts([FromBody] ProductListModel model)
+        public async Task<JsonResult> GetPagedProducts([FromBody] ProductListModel model, CancellationToken cancellationToken)
         {
             try
             {
                 var query = _mapper.Map<GetAllProductsByPagingQuery>(model);
                 query.SearchText = model.Search.Value;
-                query.SortText = model.FormatSortExpression("Name", "Name", "Sku", "Category.Name", "Brand.Name", "BasePrice.Amount", "IsActive", "Id");
+                query.SortText = model.FormatSortExpression("Name", "Name", "Category.Name", "Name", "BasePrice.Amount", "IsActive", "Id");
+                query.StockFilter = model.StockFilter;
 
                 var (items, total, totalDisplay) = await _mediator.SendQueryAsync<GetAllProductsByPagingQuery,
-                    (IList<Product>, int, int)>(query);
+                    (IList<Product>, int, int)>(query, cancellationToken);
+
+                var productIds = items.Select(x => x.Id).ToList();
+                var activeDeals = await _mediator.SendQueryAsync<GetActiveDealsForProductsQuery,
+                    Dictionary<Guid, ProductActiveDealDto>>(new GetActiveDealsForProductsQuery { ProductIds = productIds }, cancellationToken);
+
+                var now = DateTime.UtcNow;
 
                 var response = new
                 {
@@ -386,16 +412,68 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                     recordsFiltered = totalDisplay,
                     data = (from item in items
                             let primaryImg = item.Images.FirstOrDefault(i => i.IsPrimary) ?? item.Images.FirstOrDefault()
+                            let imgSrc = primaryImg != null && !string.IsNullOrEmpty(primaryImg.ImageUrl)
+                                ? $"/uploads/products/{HttpUtility.HtmlEncode(primaryImg.ImageUrl)}"
+                                : "/sneat/assets/img/elements/1.jpg"
+                            let nameAndSkuHtml = $@"<div>
+                                <a href='/Admin/Products/Update/{item.Id}' class='fw-semibold text-heading d-block'>{HttpUtility.HtmlEncode(item.Name)}</a>
+                                <small class='text-muted'><i class='bx bx-barcode me-1'></i>SKU: <code>{HttpUtility.HtmlEncode(item.Sku)}</code></small>
+                            </div>"
+                            let catAndBrandHtml = $@"<div>
+                                <span class='badge bg-label-primary mb-1'>{HttpUtility.HtmlEncode(item.Category?.Name ?? "Uncategorized")}</span>
+                                <div class='small text-muted'><i class='bx bx-purchase-tag-alt me-1'></i>{HttpUtility.HtmlEncode(item.Brand?.Name ?? "No Brand")}</div>
+                            </div>"
+                            let totalStock = item.Variants != null && item.Variants.Count > 0 ? item.Variants.Sum(v => v.StockQuantity) : 0
+                            let lowStockCount = item.Variants != null ? item.Variants.Count(v => v.StockQuantity <= v.lowStockQuantity && v.StockQuantity > 0) : 0
+                            let variantCount = item.Variants?.Count ?? 0
+                            let stockBadge = variantCount == 0
+                                ? "<span class='badge bg-label-secondary'>No Variants</span>"
+                                : totalStock == 0
+                                    ? "<span class='badge bg-label-danger'><i class='bx bx-x-circle me-1'></i>0 units (Out of Stock)</span>"
+                                    : lowStockCount > 0
+                                        ? $"<span class='badge bg-label-warning text-dark'><i class='bx bx-error-circle me-1'></i>{totalStock} units</span> <span class='badge bg-danger text-white ms-1' title='Low stock'>{lowStockCount} Low</span>"
+                                        : $"<span class='badge bg-label-success'><i class='bx bx-check-circle me-1'></i>{totalStock} units</span>"
+                            let stockHtml = $@"<div>
+                                <div>{stockBadge}</div>
+                                <button type='button' class='btn btn-xs btn-outline-primary mt-1 view-variants-btn' data-id='{item.Id}' data-name='{HttpUtility.HtmlEncode(item.Name)}'>
+                                    <i class='bx bx-layer me-1'></i>{variantCount} Variants
+                                </button>
+                            </div>"
+                            let deal = activeDeals != null && activeDeals.ContainsKey(item.Id) ? activeDeals[item.Id] : null
+                            let hasSalePrice = item.SalePrice != null && item.SalePrice.Amount < item.BasePrice.Amount
+                            let priceHtml = deal != null
+                                ? $@"<div>
+                                    <del class='text-muted small'>৳{item.BasePrice.Amount:N2}</del>
+                                    <span class='fw-bold text-danger ms-1'>৳{deal.SalePrice:N2}</span>
+                                    <span class='badge bg-label-danger ms-1'>-{deal.DiscountPercent:F0}%</span>
+                                    <div class='mt-1'>
+                                        <span class='badge bg-danger text-white' title='Flash Deal: {HttpUtility.HtmlEncode(deal.DealTitle)}'>
+                                            <i class='bx bxs-zap me-1'></i>{HttpUtility.HtmlEncode(deal.DealTitle)}
+                                        </span>
+                                    </div>
+                                    <small class='text-danger d-block mt-1' style='font-size: 0.75rem;'>
+                                        <i class='bx bx-time-five me-1'></i>Ends {(int)Math.Max(1, Math.Ceiling((deal.EndDate - now).TotalDays))}d ({deal.EndDate:MMM dd})
+                                    </small>
+                                </div>"
+                                : hasSalePrice
+                                    ? $@"<div>
+                                        <del class='text-muted small'>৳{item.BasePrice.Amount:N2}</del>
+                                        <span class='fw-bold text-success ms-1'>৳{item.SalePrice!.Amount:N2}</span>
+                                        <span class='badge bg-label-success ms-1'>-{Math.Round(((item.BasePrice.Amount - item.SalePrice.Amount) / item.BasePrice.Amount) * 100, 0):F0}%</span>
+                                        <div class='mt-1'>
+                                            <span class='badge bg-label-info'><i class='bx bx-tag me-1'></i>Regular Sale</span>
+                                        </div>
+                                    </div>"
+                                    : $@"<div>
+                                        <span class='fw-semibold text-dark'>৳{item.BasePrice.Amount:N2}</span>
+                                    </div>"
                             select new string[]
                             {
-                                primaryImg != null && !string.IsNullOrEmpty(primaryImg.ImageUrl)
-                                    ? $"/uploads/products/{HttpUtility.HtmlEncode(primaryImg.ImageUrl)}"
-                                    : "/sneat/assets/img/elements/1.jpg",
-                                HttpUtility.HtmlEncode(item.Name),
-                                HttpUtility.HtmlEncode(item.Sku),
-                                HttpUtility.HtmlEncode(item.Category?.Name ?? "N/A"),
-                                HttpUtility.HtmlEncode(item.Brand?.Name ?? "N/A"),
-                                $"৳{item.BasePrice.Amount:N2}",
+                                imgSrc,
+                                nameAndSkuHtml,
+                                catAndBrandHtml,
+                                stockHtml,
+                                priceHtml,
                                 item.IsActive ? "Active" : "Inactive",
                                 item.Id.ToString()
                             }).ToArray()
@@ -407,6 +485,62 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
             {
                 _logger.LogError(ex, "Failed to get product list");
                 return Json(DataTables.EmptyResult);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetVariants(Guid id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var variants = await _mediator.SendQueryAsync<GetProductVariantsWithStockQuery, IList<ProductVariantStockDto>>(
+                    new GetProductVariantsWithStockQuery { ProductId = id }, cancellationToken);
+
+                return Json(new { success = true, data = variants });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch variants for product {ProductId}", id);
+                return Json(new { success = false, message = "Failed to load variants." });
+            }
+        }
+
+        public class QuickStockUpdateRequest
+        {
+            public Guid VariantId { get; set; }
+            public int NewStockQuantity { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickUpdateStock([FromBody] QuickStockUpdateRequest request, CancellationToken cancellationToken)
+        {
+            if (request.NewStockQuantity < 0)
+            {
+                return Json(new { success = false, message = "Stock quantity cannot be negative." });
+            }
+
+            try
+            {
+                var command = new ProductVariantQuickUpdateStockCommand
+                {
+                    VariantId = request.VariantId,
+                    NewStockQuantity = request.NewStockQuantity
+                };
+
+                var result = await _mediator.SendCommandAsync(command, cancellationToken);
+                if (result)
+                {
+                    return Json(new { success = true, message = $"Stock successfully updated to {request.NewStockQuantity} units." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Variant not found." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to quick update stock for variant {VariantId}", request.VariantId);
+                return Json(new { success = false, message = "Failed to update stock." });
             }
         }
 

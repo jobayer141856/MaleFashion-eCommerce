@@ -9,6 +9,7 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Queries
     {
         public string? SearchText { get; set; }
         public string? SortText { get; set; }
+        public string? StockFilter { get; set; }
     }
 }
 

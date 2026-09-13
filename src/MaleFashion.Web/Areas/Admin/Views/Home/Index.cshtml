@@ -1,543 +1,704 @@
-﻿@model HomeModel
+@model MaleFashion.Application.Features.Dashboard.DTOs.AdminDashboardDto
+@{
+    ViewData["Title"] = "Executive Command Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/sneat/assets/vendor/libs/apex-charts/apex-charts.css" />
+    <style>
+        .kpi-card {
+            transition: all 0.25s ease-in-out;
+            border-left: 4px solid transparent !important;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1.25rem rgba(67, 89, 113, 0.12) !important;
+        }
+        .kpi-card.border-primary { border-left-color: #696cff !important; }
+        .kpi-card.border-success { border-left-color: #71dd37 !important; }
+        .kpi-card.border-warning { border-left-color: #ffab00 !important; }
+        .kpi-card.border-info    { border-left-color: #03c3ec !important; }
+
+        .progress-bar-custom {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .feed-item {
+            transition: background 0.15s ease-in-out;
+        }
+        .feed-item:hover {
+            background-color: rgba(67, 89, 113, 0.03);
+        }
+    </style>
+}
 
 <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="row">
-        <div class="col-xxl-8 mb-6 order-0">
-            <div class="card">
-                <div class="d-flex align-items-start row">
-                    <div class="col-sm-7">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary mb-3">Congratulations John! 🎉</h5>
-                            <p class="mb-6">
-                                You have done 72% more sales today.<br />Check your new badge in your profile.
-                            </p>
+    <!-- Executive Welcome & Store Pulse Banner -->
+    <div class="card mb-4 bg-primary text-white overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #696cff 0%, #4044b3 100%);">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h4 class="text-white fw-bold mb-1">
+                        <i class="bx bx-tachometer me-2"></i>Male Fashion Executive Command Center
+                    </h4>
+                    <p class="text-white-50 mb-0">
+                        Real-time operational pulse across sales, order fulfillment, customer carts, and inventory health.
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-white text-primary px-3 py-2 shadow-xs">
+                        <i class="bx bx-calendar me-1"></i>@(DateTime.UtcNow.ToString("dddd, MMMM dd, yyyy"))
+                    </span>
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-light">
+                        <i class="bx bx-package me-1"></i>Process Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                            <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+    <!-- 4 Primary KPI Executive Cards -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Gross Revenue -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card border-primary h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-semibold text-muted d-block">Gross Revenue</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded bg-label-primary">
+                                <i class="bx bx-dollar-circle fs-4"></i>
+                            </span>
                         </div>
                     </div>
-                    <div class="col-sm-5 text-center text-sm-left">
-                        <div class="card-body pb-0 px-0 px-md-6">
-                            <img src="~/sneat/assets/img/illustrations/man-with-laptop.png"
-                                 height="175"
-                                 alt="View Badge User" />
-                        </div>
+                    <h3 class="card-title mb-1 fw-bold text-dark">৳ @(Model.TotalRevenue.ToString("N2"))</h3>
+                    <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top">
+                        <small class="text-muted">Today: <strong>৳ @(Model.TodayRevenue.ToString("N2"))</strong></small>
+                        @if (Model.RevenueGrowthPercentage >= 0)
+                        {
+                            <span class="badge bg-label-success" title="30-day growth rate">
+                                <i class="bx bx-up-arrow-alt"></i> +@(Model.RevenueGrowthPercentage)%
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-label-danger" title="30-day growth rate">
+                                <i class="bx bx-down-arrow-alt"></i> @(Model.RevenueGrowthPercentage)%
+                            </span>
+                        }
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xxl-4 col-lg-12 col-md-4 order-1">
-            <div class="row">
-                <div class="col-lg-6 col-md-12 col-6 mb-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="card-title d-flex align-items-start justify-content-between mb-4">
-                                <div class="avatar flex-shrink-0">
-                                    <img src="~/sneat/assets/img/icons/unicons/chart-success.png"
-                                         alt="chart success"
-                                         class="rounded" />
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0"
-                                            type="button"
-                                            id="cardOpt3"
-                                            data-bs-toggle="dropdown"
-                                            aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <i class="icon-base bx bx-dots-vertical-rounded text-body-secondary"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
-                                        <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="mb-1">Profit</p>
-                            <h4 class="card-title mb-3">$12,628</h4>
-                            <small class="text-success fw-medium"><i class="icon-base bx bx-up-arrow-alt"></i> +72.80%</small>
+
+        <!-- 2. Order Performance & Volume -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card border-success h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-semibold text-muted d-block">Total Orders</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded bg-label-success">
+                                <i class="bx bx-shopping-bag fs-4"></i>
+                            </span>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-6 col-md-12 col-6 mb-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="card-title d-flex align-items-start justify-content-between mb-4">
-                                <div class="avatar flex-shrink-0">
-                                    <img src="~/sneat/assets/img/icons/unicons/wallet-info.png"
-                                         alt="wallet info"
-                                         class="rounded" />
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0"
-                                            type="button"
-                                            id="cardOpt6"
-                                            data-bs-toggle="dropdown"
-                                            aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <i class="icon-base bx bx-dots-vertical-rounded text-body-secondary"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
-                                        <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="mb-1">Sales</p>
-                            <h4 class="card-title mb-3">$4,679</h4>
-                            <small class="text-success fw-medium"><i class="icon-base bx bx-up-arrow-alt"></i> +28.42%</small>
-                        </div>
+                    <h3 class="card-title mb-1 fw-bold text-dark">@(Model.TotalOrders.ToString("N0"))</h3>
+                    <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top">
+                        <small class="text-muted">Today: <strong>@(Model.TodayOrdersCount) orders</strong></small>
+                        <span class="badge bg-label-primary">AOV: ৳ @(Model.AverageOrderValue.ToString("N0"))</span>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Total Revenue -->
-        <div class="col-12 col-xxl-8 order-2 order-md-3 order-xxl-2 mb-6 total-revenue">
-            <div class="card">
-                <div class="row row-bordered g-0">
-                    <div class="col-lg-8">
-                        <div class="card-header d-flex align-items-center justify-content-between">
-                            <div class="card-title mb-0">
-                                <h5 class="m-0 me-2">Total Revenue</h5>
-                            </div>
-                            <div class="dropdown">
-                                <button class="btn p-0"
-                                        type="button"
-                                        id="totalRevenue"
-                                        data-bs-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false">
-                                    <i class="icon-base bx bx-dots-vertical-rounded icon-lg text-body-secondary"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalRevenue">
-                                    <a class="dropdown-item" href="javascript:void(0);">Select All</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
-                                    <a class="dropdown-item" href="javascript:void(0);">Share</a>
-                                </div>
-                            </div>
+
+        <!-- 3. Fulfillment Pipeline Bottleneck -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card border-warning h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-semibold text-muted d-block">Unfulfilled Orders</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded bg-label-warning">
+                                <i class="bx bx-time-five fs-4"></i>
+                            </span>
                         </div>
-                        <div id="totalRevenueChart" class="px-3"></div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="card-body px-xl-9 py-12 d-flex align-items-center flex-column">
-                            <div class="text-center mb-6">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-outline-primary">
-                                        <script>
-                                                                                    document.write(new Date().getFullYear() - 1);
-                                        </script>
-                                    </button>
-                                    <button type="button"
-                                            class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="javascript:void(0);">2021</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">2020</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">2019</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div id="growthChart"></div>
-                            <div class="text-center fw-medium my-6">62% Company Growth</div>
-
-                            <div class="d-flex gap-11 justify-content-between">
-                                <div class="d-flex">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded-2 bg-label-primary">
-                                            <i class="icon-base bx bx-dollar icon-lg text-primary"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <small>
-                                            <script>
-                                                                                            document.write(new Date().getFullYear() - 1);
-                                            </script>
-                                        </small>
-                                        <h6 class="mb-0">$32.5k</h6>
-                                    </div>
-                                </div>
-                                <div class="d-flex">
-                                    <div class="avatar me-2">
-                                        <span class="avatar-initial rounded-2 bg-label-info">
-                                            <i class="icon-base bx bx-wallet icon-lg text-info"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex flex-column">
-                                        <small>
-                                            <script>
-                                                                                            document.write(new Date().getFullYear() - 2);
-                                            </script>
-                                        </small>
-                                        <h6 class="mb-0">$41.2k</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <h3 class="card-title mb-1 fw-bold text-warning">@(Model.UnfulfilledOrdersCount.ToString("N0"))</h3>
+                    <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top">
+                        <small class="text-muted">@(Model.PendingOrders) Pending | @(Model.ProcessingOrders) Proc.</small>
+                        <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="badge bg-warning text-dark text-decoration-none">
+                            Fulfill <i class="bx bx-chevron-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        <!--/ Total Revenue -->
-        <div class="col-12 col-md-8 col-lg-12 col-xxl-4 order-3 order-md-2 profile-report">
-            <div class="row">
-                <div class="col-6 mb-6 payments">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="card-title d-flex align-items-start justify-content-between mb-4">
-                                <div class="avatar flex-shrink-0">
-                                    <img src="~/sneat/assets/img/icons/unicons/paypal.png" alt="paypal" class="rounded" />
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0"
-                                            type="button"
-                                            id="cardOpt4"
-                                            data-bs-toggle="dropdown"
-                                            aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <i class="icon-base bx bx-dots-vertical-rounded text-body-secondary"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt4">
-                                        <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="mb-1">Payments</p>
-                            <h4 class="card-title mb-3">$2,456</h4>
-                            <small class="text-danger fw-medium"><i class="icon-base bx bx-down-arrow-alt"></i> -14.82%</small>
+
+        <!-- 4. Active Carts & Cart Recovery -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card kpi-card border-info h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-semibold text-muted d-block">Active Shopping Carts</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded bg-label-info">
+                                <i class="bx bx-cart fs-4"></i>
+                            </span>
                         </div>
                     </div>
-                </div>
-                <div class="col-6 mb-6 transactions">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="card-title d-flex align-items-start justify-content-between mb-4">
-                                <div class="avatar flex-shrink-0">
-                                    <img src="~/sneat/assets/img/icons/unicons/cc-primary.png" alt="Credit Card" class="rounded" />
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn p-0"
-                                            type="button"
-                                            id="cardOpt1"
-                                            data-bs-toggle="dropdown"
-                                            aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <i class="icon-base bx bx-dots-vertical-rounded text-body-secondary"></i>
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="cardOpt1">
-                                        <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                        <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="mb-1">Transactions</p>
-                            <h4 class="card-title mb-3">$14,857</h4>
-                            <small class="text-success fw-medium"><i class="icon-base bx bx-up-arrow-alt"></i> +28.14%</small>
-                        </div>
+                    <h3 class="card-title mb-1 fw-bold text-info">@(Model.ActiveCartsCount.ToString("N0"))</h3>
+                    <div class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top">
+                        <small class="text-muted">Potential: <strong>৳ @(Model.CartPotentialRevenue.ToString("N0"))</strong></small>
+                        <a asp-area="Admin" asp-controller="Carts" asp-action="Index" class="badge bg-info text-white text-decoration-none">
+                            Inspect <i class="bx bx-chevron-right"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="col-12 mb-6 profile-report">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center flex-sm-row flex-column gap-10 flex-wrap">
-                                <div class="d-flex flex-sm-column flex-row align-items-start justify-content-between">
-                                    <div class="card-title mb-6">
-                                        <h5 class="text-nowrap mb-1">Profile Report</h5>
-                                        <span class="badge bg-label-warning">YEAR 2022</span>
-                                    </div>
-                                    <div class="mt-sm-auto">
-                                        <span class="text-success text-nowrap fw-medium"><i class="icon-base bx bx-up-arrow-alt"></i> 68.2%</span>
-                                        <h4 class="mb-0">$84,686k</h4>
-                                    </div>
-                                </div>
-                                <div id="profileReportChart"></div>
-                            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Row: Interactive Charts -->
+    <div class="row g-4 mb-4">
+        <!-- Sales & Revenue Velocity (ApexCharts) -->
+        <div class="col-lg-8">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-line-chart text-primary me-2"></i>Sales & Revenue Velocity
+                        </h5>
+                        <p class="text-muted mb-0 small">Daily gross revenue and order volume trends over the last 7 days.</p>
+                    </div>
+                    <div class="badge bg-label-primary px-3 py-2">
+                        <i class="bx bx-check-circle me-1"></i>Live Data Synchronized
+                    </div>
+                </div>
+                <div class="card-body pt-3">
+                    <div id="revenueVelocityChart" style="min-height: 320px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Fulfillment Lifecycle Funnel (ApexCharts Donut) -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-pie-chart-alt text-success me-2"></i>Order Fulfillment Funnel
+                        </h5>
+                        <p class="text-muted mb-0 small">Lifecycle distribution of all customer orders.</p>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center pt-3">
+                    <div id="orderStatusDonutChart" style="min-height: 250px;"></div>
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted"><i class="bx bxs-circle text-success me-1"></i>Delivered</small>
+                            <span class="fw-semibold">@(Model.DeliveredOrders)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted"><i class="bx bxs-circle text-info me-1"></i>Shipped</small>
+                            <span class="fw-semibold">@(Model.ShippedOrders)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted"><i class="bx bxs-circle text-primary me-1"></i>Processing</small>
+                            <span class="fw-semibold">@(Model.ProcessingOrders)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted"><i class="bx bxs-circle text-warning me-1"></i>Pending</small>
+                            <span class="fw-semibold">@(Model.PendingOrders)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="bx bxs-circle text-danger me-1"></i>Cancelled</small>
+                            <span class="fw-semibold">@(Model.CancelledOrders)</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <!-- Order Statistics -->
-        <div class="col-md-6 col-lg-4 col-xl-4 order-0 mb-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between">
-                    <div class="card-title mb-0">
-                        <h5 class="mb-1 me-2">Order Statistics</h5>
-                        <p class="card-subtitle">42.82k Total Sales</p>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn text-body-secondary p-0"
-                                type="button"
-                                id="orederStatistics"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false">
-                            <i class="icon-base bx bx-dots-vertical-rounded icon-lg"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="orederStatistics">
-                            <a class="dropdown-item" href="javascript:void(0);">Select All</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Refresh</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Share</a>
-                        </div>
+
+    <!-- Category Contribution & Inventory/Moderation Radar Row -->
+    <div class="row g-4 mb-4">
+        <!-- Category Sales Share -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-category-alt text-info me-2"></i>Category Sales Contribution
+                        </h5>
+                        <p class="text-muted mb-0 small">Revenue breakdown by product categories from customer purchases.</p>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-6">
-                        <div class="d-flex flex-column align-items-center gap-1">
-                            <h3 class="mb-1">8,258</h3>
-                            <small>Total Orders</small>
+                <div class="card-body pt-3">
+                    @if (Model.CategorySales != null && Model.CategorySales.Count > 0)
+                    {
+                        var colors = new[] { "primary", "success", "info", "warning", "danger" };
+                        int idx = 0;
+                        foreach (var cat in Model.CategorySales)
+                        {
+                            var color = colors[idx % colors.Length];
+                            idx++;
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-semibold text-dark">
+                                        <i class="bx bx-folder me-1 text-@color"></i>@cat.CategoryName
+                                    </span>
+                                    <div>
+                                        <span class="fw-bold text-dark">৳ @(cat.TotalSales.ToString("N2"))</span>
+                                        <small class="text-muted ms-1">(@(cat.Percentage)%)</small>
+                                    </div>
+                                </div>
+                                <div class="progress progress-bar-custom bg-light">
+                                    <div class="progress-bar bg-@color" role="progressbar" style="width: @(cat.Percentage)%;" aria-valuenow="@(cat.Percentage)" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">@(cat.ItemsCount) units sold</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="bx bx-package fs-1 d-block mb-2 text-secondary"></i>
+                            <span>No completed category sales recorded yet.</span>
                         </div>
-                        <div id="orderStatisticsChart"></div>
-                    </div>
-                    <ul class="p-0 m-0">
-                        <li class="d-flex align-items-center mb-5">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-primary">
-                                    <i class="icon-base bx bx-mobile-alt"></i>
-                                </span>
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">Electronic</h6>
-                                    <small>Mobile, Earbuds, TV</small>
-                                </div>
-                                <div class="user-progress">
-                                    <h6 class="mb-0">82.5k</h6>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-5">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-success">
-                                    <i class="icon-base bx bx-closet"></i>
-                                </span>
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">Fashion</h6>
-                                    <small>T-shirt, Jeans, Shoes</small>
-                                </div>
-                                <div class="user-progress">
-                                    <h6 class="mb-0">23.8k</h6>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-5">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-info">
-                                    <i class="icon-base bx bx-home-alt"></i>
-                                </span>
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">Decor</h6>
-                                    <small>Fine Art, Dining</small>
-                                </div>
-                                <div class="user-progress">
-                                    <h6 class="mb-0">849k</h6>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="icon-base bx bx-football"></i>
-                                </span>
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">Sports</h6>
-                                    <small>Football, Cricket Kit</small>
-                                </div>
-                                <div class="user-progress">
-                                    <h6 class="mb-0">99</h6>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    }
                 </div>
             </div>
         </div>
-        <!--/ Order Statistics -->
-        <!-- Expense Overview -->
-        <div class="col-md-6 col-lg-4 order-1 mb-6">
-            <div class="card h-100">
-                <div class="card-header nav-align-top">
-                    <ul class="nav nav-pills flex-wrap row-gap-2" role="tablist">
-                        <li class="nav-item">
-                            <button type="button"
-                                    class="nav-link active"
-                                    role="tab"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#navs-tabs-line-card-income"
-                                    aria-controls="navs-tabs-line-card-income"
-                                    aria-selected="true">
-                                Income
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab">Expenses</button>
-                        </li>
-                        <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab">Profit</button>
-                        </li>
-                    </ul>
+
+        <!-- Inventory Health, Promotions & Action Alerts Radar -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-shield-quarter text-warning me-2"></i>Inventory & Action Radar
+                        </h5>
+                        <p class="text-muted mb-0 small">Critical operational indicators needing immediate store management.</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="tab-content p-0">
-                        <div class="tab-pane fade show active" id="navs-tabs-line-card-income" role="tabpanel">
-                            <div class="d-flex mb-6">
-                                <div class="avatar flex-shrink-0 me-3">
-                                    <img src="~/sneat/assets/img/icons/unicons/wallet.png" alt="User" />
+                <div class="card-body pt-3">
+                    <div class="row g-3">
+                        <!-- Low Stock Card -->
+                        <div class="col-6">
+                            <div class="border rounded p-3 bg-light h-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-label-warning"><i class="bx bx-error-circle me-1"></i>Low Stock</span>
+                                    <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="btn btn-xs btn-outline-warning">Inspect</a>
                                 </div>
-                                <div>
-                                    <p class="mb-0">Total Balance</p>
+                                <h4 class="mb-1 text-warning fw-bold">@(Model.LowStockAlertCount)</h4>
+                                <small class="text-muted d-block">Variants below alert threshold</small>
+                            </div>
+                        </div>
+
+                        <!-- Out of Stock Card -->
+                        <div class="col-6">
+                            <div class="border rounded p-3 bg-light h-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-label-danger"><i class="bx bx-x-circle me-1"></i>Depleted</span>
+                                    <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="btn btn-xs btn-outline-danger">Restock</a>
+                                </div>
+                                <h4 class="mb-1 text-danger fw-bold">@(Model.OutOfStockCount)</h4>
+                                <small class="text-muted d-block">Products completely out of stock</small>
+                            </div>
+                        </div>
+
+                        <!-- Live Promotions -->
+                        <div class="col-6">
+                            <div class="border rounded p-3 bg-light h-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-label-primary"><i class="bx bxs-zap me-1"></i>Promotions</span>
+                                    <a asp-area="Admin" asp-controller="DealCountdowns" asp-action="Index" class="btn btn-xs btn-outline-primary">Deals</a>
+                                </div>
+                                <h4 class="mb-1 text-primary fw-bold">@(Model.ActiveDealsCount + Model.ActiveCouponsCount)</h4>
+                                <small class="text-muted d-block">@(Model.ActiveDealsCount) Deals & @(Model.ActiveCouponsCount) Coupons live</small>
+                            </div>
+                        </div>
+
+                        <!-- Moderation & Inquiries -->
+                        <div class="col-6">
+                            <div class="border rounded p-3 bg-light h-100">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-label-info"><i class="bx bx-message-square-detail me-1"></i>Pending</span>
+                                    <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="btn btn-xs btn-outline-info">Moderate</a>
+                                </div>
+                                <h4 class="mb-1 text-info fw-bold">@(Model.PendingReviewsCount + Model.UnreadInquiriesCount)</h4>
+                                <small class="text-muted d-block">@(Model.PendingReviewsCount) Reviews & @(Model.UnreadInquiriesCount) Inquiries pending</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Units Overview Footer -->
+                    <div class="alert alert-secondary mt-3 mb-0 py-2 d-flex justify-content-between align-items-center">
+                        <small class="text-dark">
+                            <i class="bx bx-layer me-1 text-primary"></i><strong>Catalog Inventory:</strong> @(Model.TotalProducts) products / @(Model.TotalStockUnits.ToString("N0")) units in stock.
+                        </small>
+                        <span class="badge bg-label-success">
+                            <i class="bx bx-star me-1"></i>@(Model.AverageRating) Avg Rating
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row: Recent Live Orders & Top Selling Products -->
+    <div class="row g-4 mb-4">
+        <!-- Recent Live Customer Orders -->
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-receipt text-primary me-2"></i>Recent Live Customer Orders
+                        </h5>
+                        <p class="text-muted mb-0 small">Latest orders placed by shoppers on the storefront.</p>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-xs btn-outline-primary">
+                        View All Orders
+                    </a>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentOrders != null && Model.RecentOrders.Count > 0)
+                            {
+                                foreach (var order in Model.RecentOrders)
+                                {
+                                    var statusBadge = order.Status switch
+                                    {
+                                        "Delivered" => "bg-label-success",
+                                        "Shipped" => "bg-label-info",
+                                        "Processing" => "bg-label-primary",
+                                        "Pending" => "bg-label-warning",
+                                        "Cancelled" => "bg-label-danger",
+                                        _ => "bg-label-secondary"
+                                    };
+
+                                    var paymentBadge = order.PaymentStatus == "Paid" ? "bg-label-success" : "bg-label-warning";
+
+                                    <tr class="feed-item">
+                                        <td>
+                                            <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id" class="fw-bold text-primary">
+                                                #@order.OrderNumber
+                                            </a>
+                                            <small class="text-muted d-block">@order.OrderDate.ToString("MMM dd, HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-dark d-block">@order.CustomerName</span>
+                                            <small class="text-muted">@order.ItemsCount item(s)</small>
+                                        </td>
+                                        <td>
+                                            <strong class="text-dark">৳ @(order.TotalAmount.ToString("N2"))</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge @paymentBadge">@order.PaymentStatus</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @statusBadge">@order.Status</span>
+                                        </td>
+                                        <td>
+                                            <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="View Details">
+                                                <i class="bx bx-chevron-right"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        No recent customer orders found.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performing Products -->
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bx bx-trophy text-warning me-2"></i>Top Performing Products
+                        </h5>
+                        <p class="text-muted mb-0 small">Highest sales volume and revenue generators.</p>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="btn btn-xs btn-outline-primary">
+                        Catalog
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @if (Model.TopSellingProducts != null && Model.TopSellingProducts.Count > 0)
+                        {
+                            foreach (var prod in Model.TopSellingProducts)
+                            {
+                                var imgUrl = !string.IsNullOrEmpty(prod.ImageUrl)
+                                    ? $"/uploads/products/{prod.ImageUrl}"
+                                    : "/sneat/assets/img/elements/1.jpg";
+
+                                var stockBadge = prod.CurrentStock > 10
+                                    ? "bg-label-success"
+                                    : prod.CurrentStock > 0
+                                        ? "bg-label-warning"
+                                        : "bg-label-danger";
+
+                                <li class="list-group-item d-flex align-items-center justify-content-between p-3 feed-item">
                                     <div class="d-flex align-items-center">
-                                        <h6 class="mb-0 me-1">$459.10</h6>
-                                        <small class="text-success fw-medium">
-                                            <i class="icon-base bx bx-chevron-up icon-lg"></i>
-                                            42.9%
-                                        </small>
+                                        <img src="@imgUrl" alt="Product" class="rounded border me-3" style="width: 46px; height: 46px; object-fit: cover;" onerror="this.src='/sneat/assets/img/elements/1.jpg'" />
+                                        <div>
+                                            <span class="fw-semibold text-dark d-block">@prod.ProductName</span>
+                                            <small class="text-muted">
+                                                <span class="badge bg-label-secondary me-1">@prod.CategoryName</span>
+                                                <code>@prod.Sku</code>
+                                            </small>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div id="incomeChart"></div>
-                            <div class="d-flex align-items-center justify-content-center mt-6 gap-3">
-                                <div class="flex-shrink-0">
-                                    <div id="expensesOfWeek"></div>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Income this week</h6>
-                                    <small>$39k less than last week</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--/ Expense Overview -->
-        <!-- Transactions -->
-        <div class="col-md-6 col-lg-4 order-2 mb-6">
-            <div class="card h-100">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Transactions</h5>
-                    <div class="dropdown">
-                        <button class="btn text-body-secondary p-0"
-                                type="button"
-                                id="transactionID"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false">
-                            <i class="icon-base bx bx-dots-vertical-rounded icon-lg"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="transactionID">
-                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body pt-4">
-                    <ul class="p-0 m-0">
-                        <li class="d-flex align-items-center mb-6">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/paypal.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Paypal</small>
-                                    <h6 class="fw-normal mb-0">Send money</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">+82.6</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-6">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/wallet.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Wallet</small>
-                                    <h6 class="fw-normal mb-0">Mac'D</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">+270.69</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-6">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/chart.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Transfer</small>
-                                    <h6 class="fw-normal mb-0">Refund</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">+637.91</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-6">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/cc-primary.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Credit Card</small>
-                                    <h6 class="fw-normal mb-0">Ordered Food</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">-838.71</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center mb-6">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/wallet.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Wallet</small>
-                                    <h6 class="fw-normal mb-0">Starbucks</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">+203.33</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="d-flex align-items-center">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <img src="~/sneat/assets/img/icons/unicons/cc-warning.png" alt="User" class="rounded" />
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="d-block">Mastercard</small>
-                                    <h6 class="fw-normal mb-0">Ordered Food</h6>
-                                </div>
-                                <div class="user-progress d-flex align-items-center gap-2">
-                                    <h6 class="fw-normal mb-0">-92.45</h6>
-                                    <span class="text-body-secondary">USD</span>
-                                </div>
-                            </div>
-                        </li>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-dark d-block">@(prod.UnitsSold) sold</span>
+                                        <small class="text-success fw-semibold">৳ @(prod.TotalRevenue.ToString("N0"))</small>
+                                        <span class="badge @stockBadge ms-1 d-block mt-1">@prod.CurrentStock in stock</span>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-center py-4 text-muted">
+                                No sales data recorded yet.
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </div>
-        <!--/ Transactions -->
     </div>
+
+    <!-- Quick Action Admin Bar -->
+    <div class="card shadow-sm border">
+        <div class="card-body py-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span class="fw-semibold text-dark">
+                    <i class="bx bx-bolt-circle text-warning me-1"></i>Quick Actions:
+                </span>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                        <i class="bx bx-plus me-1"></i>Add Product
+                    </a>
+                    <a asp-area="Admin" asp-controller="DealCountdowns" asp-action="Create" class="btn btn-sm btn-outline-danger">
+                        <i class="bx bxs-zap me-1"></i>New Flash Deal
+                    </a>
+                    <a asp-area="Admin" asp-controller="Coupons" asp-action="Create" class="btn btn-sm btn-outline-success">
+                        <i class="bx bxs-discount me-1"></i>New Coupon
+                    </a>
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-warning">
+                        <i class="bx bx-package me-1"></i>Manage Orders
+                    </a>
+                    <a asp-area="Admin" asp-controller="Carts" asp-action="Index" class="btn btn-sm btn-outline-info">
+                        <i class="bx bx-cart me-1"></i>Active Carts
+                    </a>
+                    <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bx bx-star me-1"></i>Moderate Reviews
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- ApexCharts JS -->
+    <script src="~/sneat/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <script>
+        $(function () {
+            // ==============================================
+            // 1. ApexCharts: Sales & Revenue Velocity Trend
+            // ==============================================
+            var revLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueChartLabels));
+            var revData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueChartData));
+            var ordData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.OrdersChartData));
+
+            var velocityOptions = {
+                series: [
+                    {
+                        name: "Gross Revenue (৳)",
+                        type: "area",
+                        data: revData
+                    },
+                    {
+                        name: "Orders Placed",
+                        type: "line",
+                        data: ordData
+                    }
+                ],
+                chart: {
+                    height: 310,
+                    type: "line",
+                    toolbar: { show: false },
+                    zoom: { enabled: false }
+                },
+                stroke: {
+                    curve: "smooth",
+                    width: [2, 3]
+                },
+                fill: {
+                    type: ["gradient", "solid"],
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.45,
+                        opacityTo: 0.05,
+                        stops: [0, 90, 100]
+                    }
+                },
+                colors: ["#696cff", "#ffab00"],
+                xaxis: {
+                    categories: revLabels,
+                    labels: {
+                        style: {
+                            colors: "#a1acb8",
+                            fontSize: "12px"
+                        }
+                    },
+                    axisBorder: { show: false }
+                },
+                yaxis: [
+                    {
+                        title: {
+                            text: "Revenue (৳)",
+                            style: { color: "#696cff" }
+                        },
+                        labels: {
+                            formatter: function (val) {
+                                return "৳" + val.toLocaleString();
+                            },
+                            style: { colors: "#a1acb8" }
+                        }
+                    },
+                    {
+                        opposite: true,
+                        title: {
+                            text: "Orders Count",
+                            style: { color: "#ffab00" }
+                        },
+                        labels: {
+                            formatter: function (val) {
+                                return val.toFixed(0);
+                            },
+                            style: { colors: "#a1acb8" }
+                        }
+                    }
+                ],
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    y: {
+                        formatter: function (y, { seriesIndex }) {
+                            if (seriesIndex === 0) {
+                                return "৳" + y.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                            }
+                            return y + " orders";
+                        }
+                    }
+                },
+                legend: {
+                    position: "top",
+                    horizontalAlign: "right"
+                },
+                grid: {
+                    borderColor: "#f1f1f1",
+                    padding: { top: 10, bottom: 0 }
+                }
+            };
+
+            var velocityChart = new ApexCharts(document.querySelector("#revenueVelocityChart"), velocityOptions);
+            velocityChart.render();
+
+            // ==============================================
+            // 2. ApexCharts: Order Status Lifecycle Funnel
+            // ==============================================
+            var deliveredCount = @(Model.DeliveredOrders);
+            var shippedCount = @(Model.ShippedOrders);
+            var processingCount = @(Model.ProcessingOrders);
+            var pendingCount = @(Model.PendingOrders);
+            var cancelledCount = @(Model.CancelledOrders);
+
+            var totalOrders = deliveredCount + shippedCount + processingCount + pendingCount + cancelledCount;
+
+            var donutSeries = totalOrders > 0 
+                ? [deliveredCount, shippedCount, processingCount, pendingCount, cancelledCount]
+                : [1];
+
+            var donutLabels = totalOrders > 0
+                ? ["Delivered", "Shipped", "Processing", "Pending", "Cancelled"]
+                : ["No Orders Yet"];
+
+            var donutColors = totalOrders > 0
+                ? ["#71dd37", "#03c3ec", "#696cff", "#ffab00", "#ff3e1d"]
+                : ["#e0e0e0"];
+
+            var donutOptions = {
+                series: donutSeries,
+                labels: donutLabels,
+                chart: {
+                    type: "donut",
+                    height: 250
+                },
+                colors: donutColors,
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: "70%",
+                            labels: {
+                                show: true,
+                                value: {
+                                    fontSize: "1.5rem",
+                                    fontWeight: "bold",
+                                    formatter: function (val) {
+                                        return totalOrders > 0 ? val : 0;
+                                    }
+                                },
+                                total: {
+                                    show: true,
+                                    label: "Total Orders",
+                                    fontSize: "0.85rem",
+                                    formatter: function () {
+                                        return totalOrders;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                legend: { show: false },
+                stroke: { width: 2 }
+            };
+
+            var donutChart = new ApexCharts(document.querySelector("#orderStatusDonutChart"), donutOptions);
+            donutChart.render();
+        });
+    </script>
+}
 </div>

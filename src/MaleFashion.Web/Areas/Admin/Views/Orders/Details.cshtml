@@ -1,0 +1,334 @@
+@model MaleFashion.Web.Areas.Admin.Models.Ordering.OrderDetailsViewModel
+@{
+    ViewData["Title"] = $"Order #{Model.OrderNumber}";
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Header with Actions -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Orders /</span> #@Model.OrderNumber
+            </h4>
+            <div class="text-muted small">
+                <span><i class="bx bx-calendar me-1"></i> Placed on @Model.OrderDate.ToString("MMMM dd, yyyy 'at' hh:mm tt")</span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a asp-area="Admin" asp-controller="Orders" asp-action="Invoice" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-secondary">
+                <i class="bx bx-printer me-1"></i> Print Invoice
+            </a>
+
+            <!-- Quick Status Change Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bx bx-sync me-1"></i> Update Status
+                </button>
+                <ul class="dropdown-menu">
+                    <li><h6 class="dropdown-header">Fulfillment Status</h6></li>
+                    <li><a class="dropdown-item status-update-link" href="#" data-status="Processing">Processing</a></li>
+                    <li><a class="dropdown-item status-update-link" href="#" data-status="Shipped">Shipped</a></li>
+                    <li><a class="dropdown-item status-update-link" href="#" data-status="Delivered">Delivered</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">Payment Status</h6></li>
+                    <li><a class="dropdown-item payment-update-link" href="#" data-status="Paid">Mark as Paid</a></li>
+                    <li><a class="dropdown-item payment-update-link" href="#" data-status="Refunded">Mark as Refunded</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger cancel-link" href="#">Cancel Order</a></li>
+                </ul>
+            </div>
+
+            <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bx bx-arrow-back me-1"></i> Back to Orders
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Items & Timeline -->
+        <div class="col-lg-8 mb-4">
+            <!-- Order Items Card -->
+            <div class="card mb-4">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bx bx-package me-1 text-primary"></i> Order Items (@Model.Items.Count)</h5>
+                    <div>
+                        @{
+                            var statusBadgeClass = Model.Status switch
+                            {
+                                OrderStatus.Pending => "bg-label-warning",
+                                OrderStatus.Processing => "bg-label-info",
+                                OrderStatus.Shipped => "bg-label-primary",
+                                OrderStatus.Delivered => "bg-label-success",
+                                OrderStatus.Cancelled => "bg-label-danger",
+                                _ => "bg-label-secondary"
+                            };
+                        }
+                        <span class="badge @statusBadgeClass fs-6">@Model.Status</span>
+                    </div>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@item.ImageUrl" class="rounded me-3 border" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.ProductName" />
+                                            <div>
+                                                <h6 class="mb-0 fw-semibold">@item.ProductName</h6>
+                                                @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                                {
+                                                    <small class="text-muted d-block">Variant: @item.VariantInfo</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>৳ @item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-label-secondary fs-6">@item.Quantity</span>
+                                    </td>
+                                    <td class="text-end fw-bold text-dark">৳ @item.TotalPrice.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customer Notes Card (if present) -->
+            @if (!string.IsNullOrWhiteSpace(Model.OrderNotes))
+            {
+                <div class="card mb-4 border-start border-primary border-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-2"><i class="bx bx-note me-1 text-primary"></i> Order Notes &amp; Comments</h6>
+                        <p class="mb-0 text-muted" style="white-space: pre-wrap;">@Model.OrderNotes</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Addresses Section -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header pb-2">
+                            <h6 class="card-title mb-0"><i class="bx bx-map me-1 text-danger"></i> Shipping Address</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0 text-muted">@Model.ShippingAddressFormatted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header pb-2">
+                            <h6 class="card-title mb-0"><i class="bx bx-receipt me-1 text-info"></i> Billing Address</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0 text-muted">@Model.BillingAddressFormatted</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Customer & Financial Summary -->
+        <div class="col-lg-4">
+            <!-- Customer Card -->
+            <div class="card mb-4">
+                <div class="card-header border-bottom">
+                    <h5 class="card-title mb-0"><i class="bx bx-user me-1 text-primary"></i> Customer Details</h5>
+                </div>
+                <div class="card-body pt-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-md me-3">
+                            <span class="avatar-initial rounded-circle bg-label-primary fs-5">
+                                @(Model.CustomerName.Length >= 2 ? Model.CustomerName.Substring(0, 2).ToUpper() : "CU")
+                            </span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">@Model.CustomerName</h6>
+                            <span class="badge @(Model.IsGuest ? "bg-label-secondary" : "bg-label-primary")">
+                                @(Model.IsGuest ? "Guest Shopper" : "Registered Customer")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bx bx-envelope text-muted me-2"></i>
+                            <span class="text-truncate">@Model.CustomerEmail</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bx bx-phone text-muted me-2"></i>
+                                <span>@Model.CustomerPhone</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary Card -->
+            <div class="card mb-4">
+                <div class="card-header border-bottom">
+                    <h5 class="card-title mb-0"><i class="bx bx-calculator me-1 text-success"></i> Payment Summary</h5>
+                </div>
+                <div class="card-body pt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal:</span>
+                        <span class="fw-semibold">৳ @Model.Subtotal.ToString("N2")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Shipping Fee:</span>
+                        <span class="fw-semibold">৳ @Model.ShippingCost.ToString("N2")</span>
+                    </div>
+
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Coupon Discount (@Model.CouponCode):</span>
+                            <span class="fw-bold">- ৳ @Model.DiscountAmount.ToString("N2")</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between border-top pt-2 mt-2 mb-3">
+                        <span class="fw-bold fs-6">Grand Total:</span>
+                        <span class="fw-bold fs-5 text-primary">৳ @Model.TotalAmount.ToString("N2") @Model.Currency</span>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Payment Method:</span>
+                            <span class="badge bg-label-info">
+                                @if (Model.PaymentMethod == PaymentMethod.Cash)
+                                {
+                                    <i class="bx bx-money me-1"></i><span>Cash on Delivery</span>
+                                }
+                                else
+                                {
+                                    <i class="bx bxl-stripe me-1"></i><span>Stripe Gateway</span>
+                                }
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Payment Status:</span>
+                            @{
+                                var payBadgeClass = Model.PaymentStatus switch
+                                {
+                                    PaymentStatus.Paid => "bg-label-success",
+                                    PaymentStatus.Pending => "bg-label-warning",
+                                    PaymentStatus.Failed => "bg-label-danger",
+                                    PaymentStatus.Refunded => "bg-label-info",
+                                    _ => "bg-label-secondary"
+                                };
+                            }
+                            <span class="badge @payBadgeClass">@Model.PaymentStatus</span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.TransactionId))
+                        {
+                            <div class="mt-2 p-2 bg-light rounded small text-break">
+                                <span class="text-muted d-block">Transaction Ref:</span>
+                                <code class="text-dark">@Model.TransactionId</code>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(function () {
+            var orderId = '@Model.Id';
+
+            // Update Fulfillment Status
+            $('.status-update-link').on('click', function (e) {
+                e.preventDefault();
+                var newStatus = $(this).data('status');
+
+                $.post('@Url.Action("UpdateStatus", "Orders", new { area = "Admin" })', { id: orderId, status: newStatus }, function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            });
+
+            // Update Payment Status
+            $('.payment-update-link').on('click', function (e) {
+                e.preventDefault();
+                var newStatus = $(this).data('status');
+
+                $.post('@Url.Action("UpdatePaymentStatus", "Orders", new { area = "Admin" })', { id: orderId, paymentStatus: newStatus }, function (res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function () {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            });
+
+            // Cancel Order
+            $('.cancel-link').on('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Cancel this Order?',
+                    text: 'This will update the order to Cancelled and restore product stock quantity.',
+                    input: 'text',
+                    inputPlaceholder: 'Cancellation reason',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffab00',
+                    confirmButtonText: 'Yes, Cancel Order'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("Cancel", "Orders", new { area = "Admin" })', { id: orderId, reason: result.value }, function (res) {
+                            if (res.success) {
+                                Swal.fire('Cancelled', res.message, 'success').then(function () {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+

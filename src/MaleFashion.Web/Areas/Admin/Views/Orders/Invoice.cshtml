@@ -1,0 +1,196 @@
+@model MaleFashion.Web.Areas.Admin.Models.Ordering.OrderDetailsViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice - #@Model.OrderNumber - Male Fashion</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+        }
+
+        .invoice-card {
+            background: #fff;
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid #eceef1;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .invoice-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        @@media print {
+            body {
+                background: #fff;
+                margin: 0;
+            }
+
+            .invoice-card {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Print Control Bar -->
+    <div class="container text-center my-3 no-print">
+        <button onclick="window.print()" class="btn btn-primary me-2">
+            <i class="bx bx-printer me-1"></i> Print Invoice
+        </button>
+        <button onclick="window.close()" class="btn btn-outline-secondary">
+            Close
+        </button>
+    </div>
+
+    <div class="invoice-card">
+        <!-- Invoice Header -->
+        <div class="invoice-header d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="invoice-title mb-1">MALE FASHION</h2>
+                <p class="text-muted mb-0 small">Modern Apparel &amp; Lifestyle Store</p>
+                <p class="text-muted mb-0 small">Dhaka, Bangladesh | support@malefashion.com</p>
+            </div>
+            <div class="text-end">
+                <h4 class="text-primary fw-bold mb-1">INVOICE</h4>
+                <div class="text-muted small"><strong>Invoice #:</strong> INV-@Model.OrderNumber</div>
+                <div class="text-muted small"><strong>Order Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy")</div>
+                <div class="text-muted small">
+                    <strong>Payment:</strong> @Model.PaymentMethod (@Model.PaymentStatus)
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing & Shipping Details -->
+        <div class="row mb-4">
+            <div class="col-6">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Billed To:</h6>
+                <h6 class="fw-bold mb-1">@Model.CustomerName</h6>
+                <div class="text-muted small">@Model.CustomerEmail</div>
+                @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                {
+                    <div class="text-muted small">@Model.CustomerPhone</div>
+                }
+                <div class="text-muted small mt-1">@Model.BillingAddressFormatted</div>
+            </div>
+            <div class="col-6 text-end">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">Shipped To:</h6>
+                <h6 class="fw-bold mb-1">@Model.CustomerName</h6>
+                <div class="text-muted small">@Model.ShippingAddressFormatted</div>
+            </div>
+        </div>
+
+        <!-- Order Items Table -->
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 50%;">Description</th>
+                        <th class="text-end" style="width: 15%;">Unit Price</th>
+                        <th class="text-center" style="width: 10%;">Qty</th>
+                        <th class="text-end" style="width: 20%;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int idx = 1; }
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@(idx++)</td>
+                            <td>
+                                <strong>@item.ProductName</strong>
+                                @if (!string.IsNullOrEmpty(item.VariantInfo))
+                                {
+                                    <small class="text-muted d-block">Variant: @item.VariantInfo</small>
+                                }
+                            </td>
+                            <td class="text-end">৳ @item.UnitPrice.ToString("N2")</td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-end">৳ @item.TotalPrice.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary & Totals -->
+        <div class="row">
+            <div class="col-7">
+                @if (!string.IsNullOrWhiteSpace(Model.OrderNotes))
+                {
+                    <h6 class="small text-muted fw-bold">Customer Notes:</h6>
+                    <p class="small text-muted mb-0">@Model.OrderNotes</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.TransactionId))
+                {
+                    <p class="small text-muted mt-2 mb-0"><strong>Transaction ID:</strong> @Model.TransactionId</p>
+                }
+            </div>
+            <div class="col-5">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td class="text-muted">Subtotal:</td>
+                        <td class="text-end fw-semibold">৳ @Model.Subtotal.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Shipping Fee:</td>
+                        <td class="text-end fw-semibold">৳ @Model.ShippingCost.ToString("N2")</td>
+                    </tr>
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <tr class="text-success">
+                            <td>Discount (@Model.CouponCode):</td>
+                            <td class="text-end fw-bold">- ৳ @Model.DiscountAmount.ToString("N2")</td>
+                        </tr>
+                    }
+                    <tr class="border-top">
+                        <td class="fw-bold fs-6 pt-2">Grand Total:</td>
+                        <td class="text-end fw-bold fs-6 text-primary pt-2">৳ @Model.TotalAmount.ToString("N2") @Model.Currency</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Invoice Footer -->
+        <div class="border-top pt-3 mt-4 text-center text-muted small">
+            <p class="mb-0">Thank you for shopping with Male Fashion!</p>
+            <p class="mb-0">If you have any questions regarding this invoice, please reach out to support@malefashion.com</p>
+        </div>
+    </div>
+</body>
+</html>

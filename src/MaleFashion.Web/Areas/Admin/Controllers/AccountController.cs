@@ -1,6 +1,10 @@
-﻿using MaleFashion.Infrastructure.Identity;
+using MaleFashion.Domain.Utilities;
+using MaleFashion.Infrastructure.Extensions;
+using MaleFashion.Infrastructure.Identity;
+using MaleFashion.Web.Areas.Admin.Models;
 using MaleFashion.Web.Areas.Admin.Models.Account;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +31,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
         {
             return View();
         }
+
+        #region Login & Logout
 
         [HttpGet]
         public async Task<IActionResult> Login(string? returnUrl = null)
@@ -82,5 +88,92 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout(string? returnUrl = null)
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("Admin user logged out successfully.");
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("Admin user logged out via GET.");
+            return RedirectToAction(nameof(Login));
+        }
+
+        #endregion
+
+        #region Change Password
+
+        [HttpGet]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> ChangePassword()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            return View(new AdminChangePasswordModel());
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(AdminChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (result.Succeeded)
+            {
+                await _signInManager.RefreshSignInAsync(user);
+                _logger.LogInformation("Admin user successfully updated their password.");
+
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Your password has been changed successfully.",
+                    Type = ResponseTypes.Success
+                });
+
+                return RedirectToAction(nameof(ChangePassword));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            TempData.Put(Constants.ResponseTempKey, new ResponseModel
+            {
+                Message = "Failed to change password. Please check the errors below.",
+                Type = ResponseTypes.Danger
+            });
+
+            return View(model);
+        }
+
+        #endregion
     }
 }

@@ -12,6 +12,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Customers
     {
         Task<(IList<Customer>, int, int)> GetPagedCustomers(GetAllCustomersByPagingQuery query, CancellationToken cancellationToken);
         Task<Customer?> GetCustomerDetailsById(Guid id, CancellationToken cancellationToken);
+        Task<Customer?> GetCustomerByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<bool> IsDuplicateEmail(string email, Guid? id, CancellationToken cancellationToken);
     }
 }

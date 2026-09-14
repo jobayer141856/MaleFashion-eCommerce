@@ -1,4 +1,4 @@
-﻿@using MaleFashion.Infrastructure.Identity
+@using MaleFashion.Infrastructure.Identity
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
@@ -25,7 +25,7 @@
     <div class="mb-3 px-2">
         <small class="text-muted d-block">Hello,</small>
         <h6 class="font-weight-bold text-dark mb-1">@userDisplayName</h6>
-        <span class="badge-verified"><i class="fa fa-check-circle mr-1"></i> Verified Account</span>
+        <span class="badge-verified"><i class="fa fa-check-circle mr-1"></i> Customer Account</span>
     </div>
 
     <!-- Navigation Menu -->
@@ -36,33 +36,43 @@
                 <i class="fa fa-user-o mr-2"></i> Manage My Account
             </a>
             <ul class="sub-nav list-unstyled pl-4 mt-1">
-                <li><a asp-controller="Manage" asp-action="Index" class="@(activeItem == "MyProfile" ? "active-link" : "")">My Profile</a></li>
-                <li><a href="#" class="@(activeItem == "AddressBook" ? "active-link" : "")">Address Book</a></li>
+                <li><a asp-controller="Manage" asp-action="EditProfile" class="@(activeItem == "MyProfile" ? "active-link" : "")">My Profile</a></li>
+                <li><a asp-controller="Manage" asp-action="AddressBook" class="@(activeItem == "AddressBook" ? "active-link" : "")">Address Book</a></li>
+                <li><a asp-controller="Manage" asp-action="ChangePassword" class="@(activeItem == "ChangePassword" ? "active-link" : "")">Change Password</a></li>
                 <li><a asp-controller="Manage" asp-action="TwoFactorAuthentication" class="@(activeItem == "TwoFactor" ? "active-link" : "")">Two-Factor Auth (2FA)</a></li>
             </ul>
         </div>
 
         <!-- Voucher Center -->
         <div class="nav-group mb-2">
-            <span class="nav-heading text-secondary"><i class="fa fa-ticket mr-2"></i> Voucher Center</span>
+            <a asp-controller="Manage" asp-action="Vouchers" class="nav-heading @(activeItem == "MyVoucher" ? "active-heading" : "")">
+                <i class="fa fa-ticket mr-2"></i> Voucher Center
+            </a>
             <ul class="sub-nav list-unstyled pl-4 mt-1">
-                <li><a href="#">My Voucher</a></li>
+                <li><a asp-controller="Manage" asp-action="Vouchers" class="@(activeItem == "MyVoucher" ? "active-link" : "")">My Vouchers</a></li>
             </ul>
         </div>
 
         <!-- Orders -->
         <div class="nav-group mb-2">
-            <span class="nav-heading text-secondary"><i class="fa fa-shopping-bag mr-2"></i> My Orders</span>
+            <a asp-controller="Manage" asp-action="Orders" class="nav-heading @(activeItem == "MyOrders" ? "active-heading" : "")">
+                <i class="fa fa-shopping-bag mr-2"></i> My Orders
+            </a>
             <ul class="sub-nav list-unstyled pl-4 mt-1">
-                <li><a href="#">My Returns</a></li>
-                <li><a href="#">My Cancellation</a></li>
+                <li><a asp-controller="Manage" asp-action="Orders" class="@(activeItem == "MyOrders" ? "active-link" : "")">All Orders</a></li>
+                <li><a asp-controller="Manage" asp-action="Returns" class="@(activeItem == "MyReturns" ? "active-link" : "")">My Returns</a></li>
+                <li><a asp-controller="Manage" asp-action="Cancellations" class="@(activeItem == "MyCancellation" ? "active-link" : "")">My Cancellation</a></li>
             </ul>
         </div>
 
         <!-- Wishlist & Reviews -->
         <div class="nav-group mb-2">
-            <a href="#" class="nav-heading text-secondary d-block"><i class="fa fa-star-o mr-2"></i> My Reviews</a>
-            <a href="#" class="nav-heading text-secondary d-block mt-2"><i class="fa fa-heart-o mr-2"></i> My Wishlist</a>
+            <a asp-controller="Manage" asp-action="Reviews" class="nav-heading @(activeItem == "MyReviews" ? "active-heading" : "")">
+                <i class="fa fa-star-o mr-2"></i> My Reviews
+            </a>
+            <a asp-controller="Manage" asp-action="Wishlist" class="nav-heading @(activeItem == "MyWishlist" ? "active-heading" : "") mt-2">
+                <i class="fa fa-heart-o mr-2"></i> My Wishlist
+            </a>
         </div>
 
         <!-- Logout -->
@@ -124,4 +134,5 @@
         font-size: 13px;
         text-decoration: none !important;
     }
+</style>
 </style>

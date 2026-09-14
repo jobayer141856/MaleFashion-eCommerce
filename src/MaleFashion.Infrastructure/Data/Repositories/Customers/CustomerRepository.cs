@@ -50,6 +50,23 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Customers
             return list.FirstOrDefault();
         }
 
+        public async Task<Customer?> GetCustomerByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var list = await GetAsync(
+                x => x.UserId == userId,
+                x => x.Include(c => c.Addresses)
+                      .Include(c => c.Orders)
+                           .ThenInclude(o => o.OrderItems)
+                      .Include(c => c.Wishlist)
+                           .ThenInclude(w => w.Product)
+                                .ThenInclude(p => p.Images)
+                      .Include(c => c.Reviews)
+                           .ThenInclude(r => r.Product),
+                cancellationToken);
+
+            return list.FirstOrDefault();
+        }
+
         public async Task<bool> IsDuplicateEmail(string email, Guid? id, CancellationToken cancellationToken)
         {
             var cleanEmail = email.Trim().ToLowerInvariant();

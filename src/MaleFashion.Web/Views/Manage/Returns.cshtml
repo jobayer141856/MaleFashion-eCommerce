@@ -1,0 +1,81 @@
+@model List<MaleFashion.Web.Models.Account.Manage.CustomerOrderSummaryViewModel>
+@{
+    ViewData["Title"] = "My Returns";
+    ViewData["ActiveMenu"] = "MyReturns";
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar (Col 3) -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="_ManageSidebar" />
+            </div>
+
+            <!-- Main Content (Col 9) -->
+            <div class="col-lg-9 col-md-8">
+                <div class="main-dashboard-card p-4 shadow-sm bg-white">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div>
+                            <h4 class="font-weight-bold mb-0 text-dark">My Returns</h4>
+                            <small class="text-muted">Track return requests and returned parcel shipments</small>
+                        </div>
+                        <a asp-action="Orders" class="btn btn-sm btn-outline-secondary font-weight-bold">
+                            <i class="fa fa-shopping-bag mr-1"></i> All Orders
+                        </a>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="orders-list">
+                            @foreach (var order in Model)
+                            {
+                                <div class="order-item-card border rounded p-3 mb-3 bg-white">
+                                    <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                                        <div>
+                                            <strong class="text-dark">Order #@order.OrderNumber</strong>
+                                            <span class="text-muted small ml-2"><i class="fa fa-calendar-o mr-1"></i> @order.OrderDate.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                        <span class="badge badge-warning px-2 py-1">Return / Replacement</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-2">
+                                        <div>
+                                            <p class="mb-0 text-dark small font-weight-bold">
+                                                @order.TotalItems item(s): <span class="font-weight-normal text-muted">@string.Join(", ", order.ItemNames)</span>
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="font-weight-bold text-dark d-block">৳ @order.TotalAmount.ToString("N2")</span>
+                                            <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-xs btn-outline-dark mt-1" style="font-size: 11px;">
+                                                Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fa fa-undo fa-3x text-muted mb-3 d-block"></i>
+                            <h6 class="font-weight-bold text-dark">No Return Requests Found</h6>
+                            <p class="text-muted small">You currently have no return or refund claims.</p>
+                            <a asp-controller="ContactInquiry" asp-action="Index" class="btn btn-sm btn-outline-secondary font-weight-bold">
+                                Contact Customer Support
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-dashboard-card, .order-item-card {
+        border-radius: 4px;
+        border: 1px solid #f0f0f0;
+    }
+</style>
+

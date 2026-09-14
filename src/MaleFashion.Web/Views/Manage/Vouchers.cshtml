@@ -1,0 +1,107 @@
+@model List<MaleFashion.Web.Models.Account.Manage.CustomerVoucherViewModel>
+@{
+    ViewData["Title"] = "Voucher Center";
+    ViewData["ActiveMenu"] = "MyVoucher";
+}
+
+<div class="manage-account-wrapper py-4" style="background-color: #f7f7fa; min-height: 80vh;">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar (Col 3) -->
+            <div class="col-lg-3 col-md-4">
+                <partial name="_ManageSidebar" />
+            </div>
+
+            <!-- Main Content (Col 9) -->
+            <div class="col-lg-9 col-md-8">
+                <div class="main-dashboard-card p-4 shadow-sm bg-white">
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                        <div>
+                            <h4 class="font-weight-bold mb-0 text-dark">Voucher Center</h4>
+                            <small class="text-muted">Available discount coupons and promotional offers for your orders</small>
+                        </div>
+                        <a asp-action="Index" class="btn btn-sm btn-outline-secondary font-weight-bold">
+                            <i class="fa fa-arrow-left mr-1"></i> Dashboard
+                        </a>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="row">
+                            @foreach (var voucher in Model)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="voucher-card p-3 border rounded shadow-sm position-relative @(voucher.IsActive ? "border-danger" : "bg-light text-muted")">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="badge badge-danger mb-2" style="background-color: #e53637;">
+                                                    @(voucher.DiscountType == MaleFashion.Domain.Enums.DiscountType.Percentage ? $"{voucher.DiscountValue:0.#}% OFF" : $"৳{voucher.DiscountValue:N0} OFF")
+                                                </span>
+                                                <h5 class="font-weight-bold mb-1 text-dark">Code: @voucher.Code</h5>
+                                                <small class="text-muted d-block">
+                                                    @if (voucher.MinimumSpend.HasValue && voucher.MinimumSpend.Value > 0)
+                                                    {
+                                                        <span>Min. Spend: ৳ @voucher.MinimumSpend.Value.ToString("N0")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>No minimum spend required</span>
+                                                    }
+                                                </small>
+                                                <small class="text-muted d-block mt-1">
+                                                    <i class="fa fa-clock-o mr-1"></i> Valid till: @voucher.ExpirationDate.ToString("MMM dd, yyyy")
+                                                </small>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold btn-copy-code"
+                                                        data-code="@voucher.Code" title="Copy coupon code">
+                                                    <i class="fa fa-clone mr-1"></i> Copy
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fa fa-ticket fa-3x text-muted mb-3 d-block"></i>
+                            <h6 class="font-weight-bold text-dark">No Vouchers Available Right Now</h6>
+                            <p class="text-muted small">Stay tuned! Seasonal promotions and coupon discounts will appear here.</p>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-danger font-weight-bold" style="background-color: #e53637; border-color: #e53637;">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-dashboard-card, .voucher-card {
+        border-radius: 4px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('.btn-copy-code').on('click', function () {
+                var code = $(this).data('code');
+                var btn = $(this);
+                navigator.clipboard.writeText(code).then(function () {
+                    var originalHtml = btn.html();
+                    btn.html('<i class="fa fa-check text-success mr-1"></i> Copied!');
+                    setTimeout(function () {
+                        btn.html(originalHtml);
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+}
+

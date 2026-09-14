@@ -81,6 +81,16 @@ namespace MaleFashion.Web.Controllers.Account
                     return View(model);
                 }
 
+                // Security Check: Only retail customers can sign in through the storefront customer portal
+                var userRoles = await _userManager.GetRolesAsync(user);
+                var isCustomer = userRoles.Contains("Customer", StringComparer.OrdinalIgnoreCase);
+
+                if (!isCustomer)
+                {
+                    ModelState.AddModelError(string.Empty, "This login portal is reserved for retail customers. Administrative staff should sign in through the Admin Portal.");
+                    return View(model);
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);

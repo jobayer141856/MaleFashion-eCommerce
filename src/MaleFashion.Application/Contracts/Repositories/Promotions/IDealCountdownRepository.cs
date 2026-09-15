@@ -14,6 +14,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Promotions
         Task<(IList<DealCountdown>, int, int)> GetPagedDealCountdowns(GetAllDealCountdownsByPagingQuery query, CancellationToken cancellationToken);
         Task<DealCountdown?> GetDealCountdownWithProductById(Guid id, CancellationToken cancellationToken);
         Task<(int Total, int Live, int Upcoming, int Expired)> GetDealStatsAsync(CancellationToken cancellationToken);
+        Task<DealCountdown?> GetActiveDealOfTheWeekAsync(CancellationToken cancellationToken);
     }
 }
 

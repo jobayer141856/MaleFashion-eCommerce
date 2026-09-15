@@ -55,6 +55,30 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Promotions
 
             return (total, live, upcoming, expired);
         }
+
+        public async Task<DealCountdown?> GetActiveDealOfTheWeekAsync(CancellationToken cancellationToken)
+        {
+            var now = DateTime.UtcNow;
+            var liveDeal = await _context.Set<DealCountdown>()
+                .AsNoTracking()
+                .Where(x => x.IsActive && (!x.StartDate.HasValue || x.StartDate <= now) && x.EndDate >= now)
+                .Include(x => x.Product)
+                .ThenInclude(p => p.Images)
+                .OrderBy(x => x.EndDate)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (liveDeal != null)
+                return liveDeal;
+
+            // Fallback to any active deal (e.g. upcoming or most recently updated)
+            return await _context.Set<DealCountdown>()
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .Include(x => x.Product)
+                .ThenInclude(p => p.Images)
+                .OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }
 

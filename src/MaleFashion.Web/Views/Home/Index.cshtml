@@ -1,100 +1,61 @@
-﻿@{
+@model MaleFashion.Application.Features.Home.DTOs.HomePageOverviewDto
+@{
     ViewData["Title"] = "Home";
 }
 
 <!-- Hero Section Begin -->
 <section class="hero">
     <div class="hero__slider owl-carousel">
-        <div class="hero__items set-bg" data-setbg="@Url.Content("~/malefashion/img/hero/hero-1.jpg")">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-5 col-lg-7 col-md-8">
-                        <div class="hero__text">
-                            <h6>Summer Collection</h6>
-                            <h2>Fall - Winter Collections 2030</h2>
-                            <p>
-                                A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.
-                            </p>
-                            <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                            <div class="hero__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-pinterest"></i></a>
-                                <a href="#"><i class="fa fa-instagram"></i></a>
+        @foreach (var slide in Model.HeroSlides)
+        {
+            <div class="hero__items set-bg" data-setbg="@Url.Content(slide.ImageUrl)">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-5 col-lg-7 col-md-8">
+                            <div class="hero__text">
+                                <h6>@slide.Subtitle</h6>
+                                <h2>@slide.Title</h2>
+                                <p>@slide.Description</p>
+                                <a href="@slide.TargetUrl" class="primary-btn">@slide.ButtonText <span class="arrow_right"></span></a>
+                                <div class="hero__social">
+                                    <a href="#" target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
+                                    <a href="#" target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
+                                    <a href="#" target="_blank" rel="noopener"><i class="fa fa-pinterest"></i></a>
+                                    <a href="#" target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="hero__items set-bg" data-setbg="@Url.Content("~/malefashion/img/hero/hero-2.jpg")">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-5 col-lg-7 col-md-8">
-                        <div class="hero__text">
-                            <h6>Summer Collection</h6>
-                            <h2>Fall - Winter Collections 2030</h2>
-                            <p>
-                                A specialist label creating luxury essentials. Ethically crafted with an unwavering
-                                commitment to exceptional quality.
-                            </p>
-                            <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
-                            <div class="hero__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-pinterest"></i></a>
-                                <a href="#"><i class="fa fa-instagram"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </section>
 <!-- Hero Section End -->
+
 <!-- Banner Section Begin -->
 <section class="banner spad">
     <div class="container">
         <div class="row">
-            <div class="col-lg-7 offset-lg-4">
-                <div class="banner__item">
-                    <div class="banner__item__pic">
-                        <img src="~/malefashion/img/banner/banner-1.jpg" alt="" />
-                    </div>
-                    <div class="banner__item__text">
-                        <h2>Clothing Collections 2030</h2>
-                        <a href="#">Shop now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="banner__item banner__item--middle">
-                    <div class="banner__item__pic">
-                        <img src="~/malefashion/img/banner/banner-2.jpg" alt="" />
-                    </div>
-                    <div class="banner__item__text">
-                        <h2>Accessories</h2>
-                        <a href="#">Shop now</a>
+            @foreach (var banner in Model.Banners)
+            {
+                <div class="@banner.ColumnClass">
+                    <div class="banner__item @banner.CssModifier">
+                        <div class="banner__item__pic">
+                            <img src="@Url.Content(banner.ImageUrl)" alt="@banner.Title" />
+                        </div>
+                        <div class="banner__item__text">
+                            <h2>@banner.Title</h2>
+                            <a href="@banner.TargetUrl">Shop now</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-7">
-                <div class="banner__item banner__item--last">
-                    <div class="banner__item__pic">
-                        <img src="~/malefashion/img/banner/banner-3.jpg" alt="" />
-                    </div>
-                    <div class="banner__item__text">
-                        <h2>Shoes Spring 2030</h2>
-                        <a href="#">Shop now</a>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </section>
 <!-- Banner Section End -->
+
 <!-- Product Section Begin -->
 <section class="product spad">
     <div class="container">
@@ -108,220 +69,91 @@
             </div>
         </div>
         <div class="row product__filter">
-            <!-- Product 1 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-1.jpg")">
-                        <span class="label">New</span>
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Piqué Biker Jacket</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$67.24</h5>
-                        <div class="product__color__select">
-                            <label for="pc-1"><input type="radio" id="pc-1" /></label>
-                            <label class="active black" for="pc-2"><input type="radio" id="pc-2" /></label>
-                            <label class="grey" for="pc-3"><input type="radio" id="pc-3" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                var labelClass = product.HasDiscount ? "sale" : "";
 
-            <!-- Product 2 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix hot-sales">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-2.jpg")">
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Piqué Biker Jacket</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
+                <div class="col-lg-3 col-md-6 col-sm-6 @product.MixItUpClasses">
+                    <div class="product__item @labelClass">
+                        <div class="product__item__pic set-bg" data-setbg="@Url.Content(product.PrimaryImageUrl)">
+                            @if (product.HasDiscount)
+                            {
+                                <span class="label">Sale</span>
+                            }
+                            else if (product.IsNewArrival)
+                            {
+                                <span class="label">New</span>
+                            }
+                            <ul class="product__hover">
+                                <li>
+                                    <a href="javascript:void(0);" class="btn-add-wishlist" data-product-id="@product.Id" data-product-name="@product.Name" title="Add to Wishlist">
+                                        <img src="@Url.Content("~/malefashion/img/icon/heart.png")" alt="Wishlist" />
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0);" class="btn-compare" title="Compare">
+                                        <img src="@Url.Content("~/malefashion/img/icon/compare.png")" alt="Compare" />
+                                        <span>Compare</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" title="View Details">
+                                        <img src="@Url.Content("~/malefashion/img/icon/search.png")" alt="Details" />
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
-                        <h5>$67.24</h5>
-                        <div class="product__color__select">
-                            <label for="pc-4"><input type="radio" id="pc-4" /></label>
-                            <label class="active black" for="pc-5"><input type="radio" id="pc-5" /></label>
-                            <label class="grey" for="pc-6"><input type="radio" id="pc-6" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product 3 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                <div class="product__item sale">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-3.jpg")">
-                        <span class="label">Sale</span>
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Multi-pocket Chest Bag</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$43.48</h5>
-                        <div class="product__color__select">
-                            <label for="pc-7"><input type="radio" id="pc-7" /></label>
-                            <label class="active black" for="pc-8"><input type="radio" id="pc-8" /></label>
-                            <label class="grey" for="pc-9"><input type="radio" id="pc-9" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product 4 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix hot-sales">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-4.jpg")">
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Diagonal Textured Cap</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$60.9</h5>
-                        <div class="product__color__select">
-                            <label for="pc-10"><input type="radio" id="pc-10" /></label>
-                            <label class="active black" for="pc-11"><input type="radio" id="pc-11" /></label>
-                            <label class="grey" for="pc-12"><input type="radio" id="pc-12" /></label>
+                        <div class="product__item__text">
+                            <h6>@product.Name</h6>
+                            <a href="javascript:void(0);" class="add-cart btn-add-cart" data-product-id="@product.Id" data-product-name="@product.Name">+ Add To Cart</a>
+                            <div class="rating">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (product.Rating >= i)
+                                    {
+                                        <i class="fa fa-star text-warning"></i>
+                                    }
+                                    else if (product.Rating >= (i - 0.5))
+                                    {
+                                        <i class="fa fa-star-half-o text-warning"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-star-o"></i>
+                                    }
+                                }
+                            </div>
+                            <h5>
+                                $@product.DisplayPrice.ToString("0.00")
+                                @if (product.HasDiscount)
+                                {
+                                    <span class="text-muted small ml-1" style="text-decoration: line-through; font-size: 13px; font-weight: normal;">
+                                        $@product.BasePrice.ToString("0.00")
+                                    </span>
+                                }
+                            </h5>
+                            @if (product.AvailableColors.Count > 0)
+                            {
+                                <div class="product__color__select">
+                                    @for (int cIndex = 0; cIndex < product.AvailableColors.Count; cIndex++)
+                                    {
+                                        var colorHex = product.AvailableColors[cIndex];
+                                        var inputId = $"pc-{product.Id.ToString().Substring(0, 8)}-{cIndex}";
+                                        <label for="@inputId" class="@(cIndex == 0 ? "active" : "")" style="background-color: @colorHex; border: 1px solid #ddd;">
+                                            <input type="radio" id="@inputId" name="color-@product.Id" />
+                                        </label>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Product 5 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-5.jpg")">
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Lether Backpack</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$31.37</h5>
-                        <div class="product__color__select">
-                            <label for="pc-13"><input type="radio" id="pc-13" /></label>
-                            <label class="active black" for="pc-14"><input type="radio" id="pc-14" /></label>
-                            <label class="grey" for="pc-15"><input type="radio" id="pc-15" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product 6 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix hot-sales">
-                <div class="product__item sale">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-6.jpg")">
-                        <span class="label">Sale</span>
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Ankle Boots</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$98.49</h5>
-                        <div class="product__color__select">
-                            <label for="pc-16"><input type="radio" id="pc-16" /></label>
-                            <label class="active black" for="pc-17"><input type="radio" id="pc-17" /></label>
-                            <label class="grey" for="pc-18"><input type="radio" id="pc-18" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product 7 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix new-arrivals">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-7.jpg")">
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>T-shirt Contrast Pocket</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$49.66</h5>
-                        <div class="product__color__select">
-                            <label for="pc-19"><input type="radio" id="pc-19" /></label>
-                            <label class="active black" for="pc-20"><input type="radio" id="pc-20" /></label>
-                            <label class="grey" for="pc-21"><input type="radio" id="pc-21" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product 8 -->
-            <div class="col-lg-3 col-md-6 col-sm-6 mix hot-sales">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/product/product-8.jpg")">
-                        <ul class="product__hover">
-                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/compare.png" alt="" /> <span>Compare</span></a></li>
-                            <li><a href="#"><img src="~/malefashion/img/icon/search.png" alt="" /></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6>Basic Flowing Scarf</h6>
-                        <a href="#" class="add-cart">+ Add To Cart</a>
-                        <div class="rating">
-                            <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i>
-                        </div>
-                        <h5>$26.28</h5>
-                        <div class="product__color__select">
-                            <label for="pc-22"><input type="radio" id="pc-22" /></label>
-                            <label class="active black" for="pc-23"><input type="radio" id="pc-23" /></label>
-                            <label class="grey" for="pc-24"><input type="radio" id="pc-24" /></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </section>
 <!-- Product Section End -->
+
 <!-- Categories Section Begin -->
 <section class="categories spad">
     <div class="container">
@@ -333,62 +165,62 @@
             </div>
             <div class="col-lg-4">
                 <div class="categories__hot__deal">
-                    <img src="~/malefashion/img/product-sale.png" alt="" />
+                    <img src="@Url.Content(Model.DealOfTheWeek.ImageUrl)" alt="@Model.DealOfTheWeek.Title" />
                     <div class="hot__deal__sticker">
                         <span>Sale Of</span>
-                        <h5>$29.99</h5>
+                        <h5>$@Model.DealOfTheWeek.SalePrice.ToString("0.00")</h5>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 offset-lg-1">
                 <div class="categories__deal__countdown">
-                    <span>Deal Of The Week</span>
-                    <h2>Multi-pocket Chest Bag Black</h2>
-                    <div class="categories__deal__countdown__timer" id="countdown">
+                    <span>@Model.DealOfTheWeek.SectionHeading</span>
+                    <h2>@Model.DealOfTheWeek.Title</h2>
+                    <div class="categories__deal__countdown__timer" id="countdown" data-countdown="@Model.DealOfTheWeek.EndDate.ToString("yyyy/MM/dd HH:mm:ss")">
                         <div class="cd-item">
-                            <span>3</span>
+                            <span>0</span>
                             <p>Days</p>
                         </div>
                         <div class="cd-item">
-                            <span>1</span>
+                            <span>0</span>
                             <p>Hours</p>
                         </div>
                         <div class="cd-item">
-                            <span>50</span>
+                            <span>0</span>
                             <p>Minutes</p>
                         </div>
                         <div class="cd-item">
-                            <span>18</span>
+                            <span>0</span>
                             <p>Seconds</p>
                         </div>
                     </div>
-                    <a href="#" class="primary-btn">Shop now</a>
+                    <a href="@Model.DealOfTheWeek.TargetUrl" class="primary-btn">Shop now</a>
                 </div>
             </div>
         </div>
     </div>
 </section>
 <!-- Categories Section End -->
+
 <!-- Instagram Section Begin -->
 <section class="instagram spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
                 <div class="instagram__pic">
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-1.jpg")"></div>
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-2.jpg")"></div>
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-3.jpg")"></div>
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-4.jpg")"></div>
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-5.jpg")"></div>
-                    <div class="instagram__pic__item set-bg" data-setbg="@Url.Content("~/malefashion/img/instagram/instagram-6.jpg")"></div>
+                    @foreach (var insta in Model.InstagramPosts)
+                    {
+                        <div class="instagram__pic__item set-bg" data-setbg="@Url.Content(insta.ImageUrl)">
+                            <a href="@insta.TargetUrl" style="display: block; width: 100%; height: 100%;"></a>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="col-lg-4">
                 <div class="instagram__text">
                     <h2>Instagram</h2>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua.
+                        Explore trendsetting styles, behind-the-scenes designs, and seasonal highlights from our community.
                     </p>
                     <h3>#Male_Fashion</h3>
                 </div>
@@ -397,6 +229,7 @@
     </div>
 </section>
 <!-- Instagram Section End -->
+
 <!-- Latest Blog Section Begin -->
 <section class="latest spad">
     <div class="container">
@@ -409,37 +242,89 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/blog/blog-1.jpg")"></div>
-                    <div class="blog__item__text">
-                        <span><img src="~/malefashion/img/icon/calendar.png" alt="" /> 16 February 2020</span>
-                        <h5>What Curling Irons Are The Best Ones</h5>
-                        <a href="#">Read More</a>
+            @foreach (var blog in Model.LatestBlogs)
+            {
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="blog__item">
+                        <div class="blog__item__pic set-bg" data-setbg="@Url.Content(blog.ImageUrl)"></div>
+                        <div class="blog__item__text">
+                            <span><img src="@Url.Content("~/malefashion/img/icon/calendar.png")" alt="" /> @blog.PublishedDate.ToString("dd MMMM yyyy")</span>
+                            <h5>@blog.Title</h5>
+                            <a href="@blog.TargetUrl">Read More</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/blog/blog-2.jpg")"></div>
-                    <div class="blog__item__text">
-                        <span><img src="~/malefashion/img/icon/calendar.png" alt="" /> 21 February 2020</span>
-                        <h5>Eternity Bands Do Last Forever</h5>
-                        <a href="#">Read More</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="blog__item">
-                    <div class="blog__item__pic set-bg" data-setbg="@Url.Content("~/malefashion/img/blog/blog-3.jpg")"></div>
-                    <div class="blog__item__text">
-                        <span><img src="~/malefashion/img/icon/calendar.png" alt="" /> 28 February 2020</span>
-                        <h5>The Health Benefits Of Sunglasses</h5>
-                        <a href="#">Read More</a>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </section>
+<!-- Latest Blog Section End -->
+
+@section Scripts {
+    <script>
+        $(function () {
+            // 1. Dynamic Countdown Timer
+            var $countdown = $("#countdown");
+            if ($countdown.length > 0) {
+                var targetDate = $countdown.data("countdown");
+                if (targetDate) {
+                    $countdown.countdown(targetDate, function (event) {
+                        $(this).html(
+                            event.strftime(
+                                "<div class='cd-item'><span>%D</span> <p>Days</p> </div>" +
+                                "<div class='cd-item'><span>%H</span> <p>Hours</p> </div>" +
+                                "<div class='cd-item'><span>%M</span> <p>Minutes</p> </div>" +
+                                "<div class='cd-item'><span>%S</span> <p>Seconds</p> </div>"
+                            )
+                        );
+                    });
+                }
+            }
+
+            // 2. Interactive Quick Wishlist Feedback
+            $(document).on("click", ".btn-add-wishlist", function (e) {
+                e.preventDefault();
+                var productName = $(this).data("product-name") || "Item";
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Added to Wishlist!',
+                    text: productName + ' has been saved to your wishlist.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
+
+            // 3. Interactive Quick Add to Cart Feedback
+            $(document).on("click", ".btn-add-cart", function (e) {
+                e.preventDefault();
+                var productName = $(this).data("product-name") || "Item";
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Added to Cart!',
+                    text: productName + ' was added to your cart.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
+
+            // 4. Compare feature notification
+            $(document).on("click", ".btn-compare", function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Compare',
+                    text: 'Product comparison feature will be available soon!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
+        });
+    </script>
+}
 <!-- Latest Blog Section End -->

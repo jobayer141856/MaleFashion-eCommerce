@@ -1,14 +1,44 @@
+using Cortex.Mediator;
+using MaleFashion.Application.Features.Home.DTOs;
+using MaleFashion.Application.Features.Home.Queries;
 using MaleFashion.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MaleFashion.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IMediator _mediator;
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(
+            IMediator mediator,
+            ILogger<HomeController> logger)
         {
-            return View();
+            _mediator = mediator;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var overview = await _mediator.SendQueryAsync<GetHomePageOverviewQuery, HomePageOverviewDto>(
+                    new GetHomePageOverviewQuery(), cancellationToken);
+
+                return View(overview);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load Home page overview.");
+                return View(new HomePageOverviewDto());
+            }
         }
 
         public IActionResult Privacy()
@@ -23,3 +53,4 @@ namespace MaleFashion.Web.Controllers
         }
     }
 }
+

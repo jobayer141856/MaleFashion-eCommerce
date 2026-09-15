@@ -62,6 +62,7 @@ namespace MaleFashion.Infrastructure.Extensions
             services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
             services.AddScoped<IPartnerClientRepository, PartnerClientRepository>();
             services.AddScoped<ITestimonialRepository, TestimonialRepository>();
+            services.AddScoped<IHeroSlideRepository, HeroSlideRepository>();
             return services;
         }
 

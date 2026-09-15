@@ -41,6 +41,7 @@ namespace MaleFashion.Infrastructure.Data
         public ITeamMemberRepository TeamMemberRepository { get; private set; }
         public IPartnerClientRepository PartnerClientRepository { get; private set; }
         public ITestimonialRepository TestimonialRepository { get; private set; }
+        public IHeroSlideRepository HeroSlideRepository { get; private set; }
 
         public ApplicationUnitOfWork(
             ApplicationDbContext dbContext,
@@ -59,7 +60,8 @@ namespace MaleFashion.Infrastructure.Data
             IStoreLocationRepository storeLocationRepository,
             ITeamMemberRepository teamMemberRepository,
             IPartnerClientRepository partnerClientRepository,
-            ITestimonialRepository testimonialRepository) : base(dbContext)
+            ITestimonialRepository testimonialRepository,
+            IHeroSlideRepository heroSlideRepository) : base(dbContext)
         {
             CategoryRepository = categoryRepository;
             ProductRepository = productRepository;
@@ -77,6 +79,7 @@ namespace MaleFashion.Infrastructure.Data
             TeamMemberRepository = teamMemberRepository;
             PartnerClientRepository = partnerClientRepository;
             TestimonialRepository = testimonialRepository;
+            HeroSlideRepository = heroSlideRepository;
         }
     }
 }

@@ -240,6 +240,21 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 .OrderBy(c => c.ExpirationDate)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<IList<Product>> GetFeaturedHomeProductsAsync(int take, CancellationToken cancellationToken)
+        {
+            return await _context.Set<Product>()
+                .AsNoTracking()
+                .Where(p => p.IsActive)
+                .Include(p => p.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Variants)
+                .OrderByDescending(p => p.IsNewArrival || p.IsHotSale)
+                .ThenByDescending(p => p.Rating)
+                .ThenByDescending(p => p.CreatedAt)
+                .Take(take > 0 ? take : 8)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
 

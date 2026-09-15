@@ -141,6 +141,91 @@ namespace MaleFashion.Infrastructure.Data.Migrations
                     b.ToTable("BlogTags", (string)null);
                 });
 
+            modelBuilder.Entity("MaleFashion.Domain.Entities.CMS.HeroSlide", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ButtonText")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Subtitle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("TargetUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HeroSlides", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            ButtonText = "Shop now",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "A specialist label creating luxury essentials. Ethically crafted with an unwavering commitment to exceptional quality.",
+                            DisplayOrder = 1,
+                            ImageUrl = "malefashion/img/hero/hero-1.jpg",
+                            IsActive = true,
+                            Subtitle = "Summer Collection",
+                            TargetUrl = "/Shop",
+                            Title = "Fall - Winter Collections 2030"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            ButtonText = "Shop now",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "A specialist label creating luxury essentials. Ethically crafted with an unwavering commitment to exceptional quality.",
+                            DisplayOrder = 2,
+                            ImageUrl = "malefashion/img/hero/hero-2.jpg",
+                            IsActive = true,
+                            Subtitle = "Summer Collection",
+                            TargetUrl = "/Shop",
+                            Title = "Fall - Winter Collections 2030"
+                        });
+                });
+
             modelBuilder.Entity("MaleFashion.Domain.Entities.CMS.PartnerClient", b =>
                 {
                     b.Property<Guid>("Id")

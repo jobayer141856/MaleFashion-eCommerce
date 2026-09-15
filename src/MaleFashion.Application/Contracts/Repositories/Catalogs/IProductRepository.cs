@@ -21,6 +21,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Catalogs
         Task<bool> UpdateVariantStockAsync(Guid variantId, int newQuantity, CancellationToken cancellationToken);
         Task<Dictionary<Guid, ProductActiveDealDto>> GetActiveDealsForProductIdsAsync(List<Guid> productIds, CancellationToken cancellationToken);
         Task<List<Coupon>> GetActiveStoreCouponsAsync(CancellationToken cancellationToken);
+        Task<IList<Product>> GetFeaturedHomeProductsAsync(int take, CancellationToken cancellationToken);
     }
 }
 

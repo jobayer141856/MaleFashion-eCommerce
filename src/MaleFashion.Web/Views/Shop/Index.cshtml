@@ -1,0 +1,339 @@
+@model MaleFashion.Web.Models.Shop.ShopIndexModel
+@{
+    ViewData["Title"] = "Shop";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Shop</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>Shop</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- Shop Section Begin -->
+<section class="shop spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="shop__sidebar">
+                    <!-- Search Form -->
+                    <div class="shop__sidebar__search">
+                        <form method="get" asp-action="Index">
+                            <input type="hidden" name="CategoryId" value="@Model.CategoryId" />
+                            <input type="hidden" name="BrandId" value="@Model.BrandId" />
+                            <input type="hidden" name="PriceFrom" value="@Model.PriceFrom" />
+                            <input type="hidden" name="PriceTo" value="@Model.PriceTo" />
+                            <input type="hidden" name="Size" value="@Model.Size" />
+                            <input type="hidden" name="Color" value="@Model.Color" />
+                            <input type="hidden" name="TagName" value="@Model.TagName" />
+                            <input type="hidden" name="OrderBy" value="@Model.OrderBy" />
+                            <input type="text" name="SearchText" value="@Model.SearchText" placeholder="Search...">
+                            <button type="submit"><span class="icon_search"></span></button>
+                        </form>
+                    </div>
+
+                    <div class="shop__sidebar__accordion">
+                        <div class="accordion" id="accordionExample">
+                            <!-- Categories -->
+                            <div class="card">
+                                <div class="card-heading">
+                                    <a data-toggle="collapse" data-target="#collapseOne">Categories</a>
+                                </div>
+                                <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="shop__sidebar__categories">
+                                            <ul class="nice-scroll">
+                                                <li>
+                                                    <a href="@Url.Action("Index", new { SearchText = Model.SearchText, OrderBy = Model.OrderBy })"
+                                                       class="@(!Model.CategoryId.HasValue ? "font-weight-bold text-dark" : "")">All Categories</a>
+                                                </li>
+                                                @foreach (var cat in Model.Categories)
+                                                {
+                                                    <li>
+                                                        <a href="@Url.Action("Index", new { CategoryId = cat.Id, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                           class="@(Model.CategoryId == cat.Id ? "font-weight-bold text-dark" : "")">
+                                                            @cat.Name (@cat.ProductCount)
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Branding -->
+                            <div class="card">
+                                <div class="card-heading">
+                                    <a data-toggle="collapse" data-target="#collapseTwo">Branding</a>
+                                </div>
+                                <div id="collapseTwo" class="collapse show" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="shop__sidebar__brand">
+                                            <ul>
+                                                <li>
+                                                    <a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                       class="@(!Model.BrandId.HasValue ? "font-weight-bold text-dark" : "")">All Brands</a>
+                                                </li>
+                                                @foreach (var brand in Model.Brands)
+                                                {
+                                                    <li>
+                                                        <a href="@Url.Action("Index", new { BrandId = brand.Id, CategoryId = Model.CategoryId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                           class="@(Model.BrandId == brand.Id ? "font-weight-bold text-dark" : "")">
+                                                            @brand.Name
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Price Filter -->
+                            <div class="card">
+                                <div class="card-heading">
+                                    <a data-toggle="collapse" data-target="#collapseThree">Filter Price (BDT)</a>
+                                </div>
+                                <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="shop__sidebar__price">
+                                            <ul>
+                                                <li><a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = 0, PriceTo = 500, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })" class="@(Model.PriceFrom == 0 && Model.PriceTo == 500 ? "font-weight-bold text-dark" : "")">BDT 0.00 - BDT 500.00</a></li>
+                                                <li><a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = 500, PriceTo = 1000, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })" class="@(Model.PriceFrom == 500 && Model.PriceTo == 1000 ? "font-weight-bold text-dark" : "")">BDT 500.00 - BDT 1000.00</a></li>
+                                                <li><a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = 1000, PriceTo = 2000, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })" class="@(Model.PriceFrom == 1000 && Model.PriceTo == 2000 ? "font-weight-bold text-dark" : "")">BDT 1000.00 - BDT 2000.00</a></li>
+                                                <li><a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = 2000, PriceTo = 3000, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })" class="@(Model.PriceFrom == 2000 && Model.PriceTo == 3000 ? "font-weight-bold text-dark" : "")">BDT 2000.00 - BDT 3000.00</a></li>
+                                                <li><a href="@Url.Action("Index", new { CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = 3000, PriceTo = (decimal?)null, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })" class="@(Model.PriceFrom == 3000 && !Model.PriceTo.HasValue ? "font-weight-bold text-dark" : "")">BDT 3000.00+</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Size Filter -->
+                            <div class="card">
+                                <div class="card-heading">
+                                    <a data-toggle="collapse" data-target="#collapseFour">Size</a>
+                                </div>
+                                <div id="collapseFour" class="collapse show" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="shop__sidebar__size">
+                                            @foreach (var sz in Model.Sizes)
+                                            {
+                                                <a href="@Url.Action("Index", new { Size = sz, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                   class="badge @(string.Equals(Model.Size, sz, StringComparison.OrdinalIgnoreCase) ? "badge-dark text-white" : "badge-light text-dark") p-2 m-1">
+                                                    @sz.ToUpper()
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tags Filter -->
+                            <div class="card">
+                                <div class="card-heading">
+                                    <a data-toggle="collapse" data-target="#collapseSix">Tags</a>
+                                </div>
+                                <div id="collapseSix" class="collapse show" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="shop__sidebar__tags">
+                                            @foreach (var tag in Model.Tags)
+                                            {
+                                                <a href="@Url.Action("Index", new { TagName = tag, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                   class="@(string.Equals(Model.TagName, tag, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+                                                    @tag
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="col-lg-9">
+                <div class="shop__product__option">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="shop__product__option__left">
+                                <p>Showing @Model.StartRecord–@Model.EndRecord of @Model.TotalDisplay results</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="shop__product__option__right">
+                                <p>Sort by:</p>
+                                <select id="sortSelect" onchange="location = this.value;">
+                                    <option value="@Url.Action("Index", new { OrderBy = "Newest", CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, SearchText = Model.SearchText })" selected="@(Model.OrderBy == "Newest")">Newest Arrivals</option>
+                                    <option value="@Url.Action("Index", new { OrderBy = "PriceAsc", CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, SearchText = Model.SearchText })" selected="@(Model.OrderBy == "PriceAsc")">Price: Low To High</option>
+                                    <option value="@Url.Action("Index", new { OrderBy = "PriceDesc", CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, SearchText = Model.SearchText })" selected="@(Model.OrderBy == "PriceDesc")">Price: High To Low</option>
+                                    <option value="@Url.Action("Index", new { OrderBy = "Rating", CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName, SearchText = Model.SearchText })" selected="@(Model.OrderBy == "Rating")">Customer Rating</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        @foreach (var item in Model.Products)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <div class="product__item @(item.IsOnSale ? "sale" : "")">
+                                    @{
+                                        var itemImgUrl = ProductImageHelper.GetProductImageUrl(item.ImageUrl);
+                                    }
+                                    <div class="product__item__pic set-bg" data-setbg="@Url.Content(itemImgUrl)" style="background-image: url('@Url.Content(itemImgUrl)');">
+                                        @if (item.IsOnSale)
+                                        {
+                                            <span class="label">Sale</span>
+                                        }
+                                        else if (item.IsNewArrival)
+                                        {
+                                            <span class="label">New</span>
+                                        }
+                                        <!-- Hover Action Icons (Compare Removed!) -->
+                                        <ul class="product__hover">
+                                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="Wishlist"></a></li>
+                                            <li><a asp-controller="Shop" asp-action="Details" asp-route-id="@item.Id"><img src="~/malefashion/img/icon/search.png" alt="Quick View"></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6 style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", "Shop", new { id = item.Id })'">@item.Name</h6>
+                                        <a href="javascript:void(0);" class="add-cart btn-add-to-cart" data-product-id="@item.Id" data-product-name="@item.Name">+ Add To Cart</a>
+                                        <div class="rating">
+                                            @for (int s = 1; s <= 5; s++)
+                                            {
+                                                if (item.Rating >= s)
+                                                {
+                                                    <i class="fa fa-star text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa fa-star-o text-warning"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <h5>
+                                            BDT @item.EffectivePrice.ToString("N2")
+                                            @if (item.IsOnSale)
+                                            {
+                                                <span class="text-muted" style="text-decoration: line-through; font-size: 0.85em; margin-left: 6px;">
+                                                    BDT @item.BasePrice.ToString("N2")
+                                                </span>
+                                            }
+                                        </h5>
+                                        @if (item.ColorList.Any())
+                                        {
+                                            <div class="product__color__select">
+                                                @foreach (var colorHex in item.ColorList)
+                                                {
+                                                    <label style="background-color: @colorHex; border: 1px solid #ccc; border-radius: 50%; width: 14px; height: 14px; display: inline-block; margin-right: 4px;"></label>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5">
+                            <h4>No products found matching your search criteria.</h4>
+                            <p class="text-muted">Try clearing some filters or searching for another keyword.</p>
+                            <a asp-action="Index" class="primary-btn mt-3">Reset All Filters</a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="product__pagination">
+                                @for (int p = 1; p <= Model.TotalPages; p++)
+                                {
+                                    if (p == Model.PageIndex)
+                                    {
+                                        <a class="active" href="#">@p</a>
+                                    }
+                                    else if (p == 1 || p == Model.TotalPages || (p >= Model.PageIndex - 2 && p <= Model.PageIndex + 2))
+                                    {
+                                        <a href="@Url.Action("Index", new { PageIndex = p, PageSize = Model.PageSize, OrderBy = Model.OrderBy, SearchText = Model.SearchText, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, TagName = Model.TagName })">@p</a>
+                                    }
+                                    else if (p == Model.PageIndex - 3 || p == Model.PageIndex + 3)
+                                    {
+                                        <span>...</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Shop Section End -->
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Quick Add to Cart via AJAX
+            $(".btn-add-to-cart").on("click", function (e) {
+                e.preventDefault();
+                var productId = $(this).data("product-id");
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: 1,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response && response.success) {
+                            // Update Nav Cart badge & price
+                            $(".cart-count").text(response.totalItemCount);
+                            $(".header__nav__option .price, .offcanvas__nav__option .price").text("BDT " + Number(response.totalAmount).toFixed(2));
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Added to Cart!',
+                                text: response.message || 'Product added to cart successfully.',
+                                timer: 2500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        }
+                    },
+                    error: function () {
+                        window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                    }
+                });
+            });
+        });
+    </script>
+}
+

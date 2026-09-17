@@ -8,6 +8,8 @@ using MaleFashion.Application.Contracts.Repositories.Ordering;
 using MaleFashion.Application.Contracts.Repositories.Promotions;
 using MaleFashion.Application.Contracts.Repositories.Reviews;
 using MaleFashion.Application.Contracts.Repositories.Support;
+using MaleFashion.Application.Contracts.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -42,6 +44,8 @@ namespace MaleFashion.Infrastructure.Data
         public IPartnerClientRepository PartnerClientRepository { get; private set; }
         public ITestimonialRepository TestimonialRepository { get; private set; }
         public IHeroSlideRepository HeroSlideRepository { get; private set; }
+
+        public ISqlUtility SqlUtility { get; private set; }
 
         public ApplicationUnitOfWork(
             ApplicationDbContext dbContext,
@@ -80,6 +84,7 @@ namespace MaleFashion.Infrastructure.Data
             PartnerClientRepository = partnerClientRepository;
             TestimonialRepository = testimonialRepository;
             HeroSlideRepository = heroSlideRepository;
+            SqlUtility = new SqlUtility(dbContext.Database.GetDbConnection());
         }
     }
 }

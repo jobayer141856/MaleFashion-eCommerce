@@ -20,6 +20,7 @@ using MaleFashion.Infrastructure.Data.Repositories.Promotions;
 using MaleFashion.Infrastructure.Data.Repositories.Reviews;
 using MaleFashion.Infrastructure.Data.Repositories.Support;
 using MaleFashion.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace MaleFashion.Infrastructure.Extensions
         public static IServiceCollection AddInfrastructureDependency(this IServiceCollection services, string rootPath)
         {
             services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
+            services.AddScoped<ISqlUtility, SqlUtility>(sp => new SqlUtility(sp.GetRequiredService<ApplicationDbContext>().Database.GetDbConnection()));
             services.AddSingleton<IFileStorageService, FileStorageService>(x => new FileStorageService(rootPath));
             services.AddScoped<IEmailService, EmailService>();
 

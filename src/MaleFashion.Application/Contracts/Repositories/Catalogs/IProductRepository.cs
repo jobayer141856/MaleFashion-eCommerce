@@ -22,6 +22,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Catalogs
         Task<Dictionary<Guid, ProductActiveDealDto>> GetActiveDealsForProductIdsAsync(List<Guid> productIds, CancellationToken cancellationToken);
         Task<List<Coupon>> GetActiveStoreCouponsAsync(CancellationToken cancellationToken);
         Task<IList<Product>> GetFeaturedHomeProductsAsync(int take, CancellationToken cancellationToken);
+        Task<IList<Product>> GetRelatedProductsAsync(Guid categoryId, Guid excludeProductId, int take, CancellationToken cancellationToken);
     }
 }
 

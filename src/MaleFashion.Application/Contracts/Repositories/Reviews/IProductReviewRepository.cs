@@ -15,6 +15,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Reviews
         Task<ProductReview?> GetReviewWithDetailsById(Guid id, CancellationToken cancellationToken);
         Task<(int Total, int Pending, int Approved, double AverageRating)> GetReviewStatsAsync(CancellationToken cancellationToken);
         Task RecalculateProductRatingAsync(Guid productId, CancellationToken cancellationToken);
+        Task<IList<ProductReview>> GetApprovedReviewsByProductIdAsync(Guid productId, CancellationToken cancellationToken);
     }
 }
 

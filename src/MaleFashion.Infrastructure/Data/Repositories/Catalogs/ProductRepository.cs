@@ -101,7 +101,8 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 x => x.Include(p => p.Category)
                       .Include(p => p.Brand)
                       .Include(p => p.Images)
-                      .Include(p => p.Variants),
+                      .Include(p => p.Variants)
+                      .Include(p => p.Tags),
                 cancellationToken);
 
             return list.FirstOrDefault();
@@ -253,6 +254,19 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 .ThenByDescending(p => p.Rating)
                 .ThenByDescending(p => p.CreatedAt)
                 .Take(take > 0 ? take : 8)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IList<Product>> GetRelatedProductsAsync(Guid categoryId, Guid excludeProductId, int take, CancellationToken cancellationToken)
+        {
+            return await _context.Set<Product>()
+                .AsNoTracking()
+                .Where(p => p.CategoryId == categoryId && p.Id != excludeProductId && p.IsActive)
+                .Include(p => p.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Variants)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(take > 0 ? take : 4)
                 .ToListAsync(cancellationToken);
         }
     }

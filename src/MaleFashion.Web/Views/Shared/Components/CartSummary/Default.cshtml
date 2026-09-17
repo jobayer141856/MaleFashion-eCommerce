@@ -1,0 +1,8 @@
+@model MaleFashion.Web.Models.Cart.CartSummaryModel
+
+<a asp-controller="Cart" asp-action="Index">
+    <img src="~/malefashion/img/icon/cart.png" alt="Cart" />
+    <span class="cart-count">@Model.TotalItemCount</span>
+</a>
+<div class="price">@Model.Currency @Model.TotalAmount.ToString("N2")</div>
+

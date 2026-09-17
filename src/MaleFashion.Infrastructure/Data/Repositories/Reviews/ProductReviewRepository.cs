@@ -86,6 +86,16 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Reviews
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
+
+        public async Task<IList<ProductReview>> GetApprovedReviewsByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            return await _context.Set<ProductReview>()
+                .AsNoTracking()
+                .Where(r => r.ProductId == productId && r.IsApproved)
+                .Include(r => r.Customer)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
 

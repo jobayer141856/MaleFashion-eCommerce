@@ -62,6 +62,38 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Carts
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
+        public async Task<Cart?> GetActiveCartByCustomerOrSessionAsync(Guid? customerId, string? sessionId, CancellationToken cancellationToken)
+        {
+            if (customerId.HasValue)
+            {
+                var customerCart = await _context.Set<Cart>()
+                    .Include(c => c.Items)
+                        .ThenInclude(i => i.Product)
+                            .ThenInclude(p => p.Images)
+                    .Include(c => c.Items)
+                        .ThenInclude(i => i.ProductVariant)
+                    .OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt)
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value, cancellationToken);
+
+                if (customerCart != null)
+                    return customerCart;
+            }
+
+            if (!string.IsNullOrWhiteSpace(sessionId))
+            {
+                return await _context.Set<Cart>()
+                    .Include(c => c.Items)
+                        .ThenInclude(i => i.Product)
+                            .ThenInclude(p => p.Images)
+                    .Include(c => c.Items)
+                        .ThenInclude(i => i.ProductVariant)
+                    .OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt)
+                    .FirstOrDefaultAsync(c => c.SessionId == sessionId, cancellationToken);
+            }
+
+            return null;
+        }
+
         public async Task<ActiveCartStatsDto> GetActiveCartStatsAsync(CancellationToken cancellationToken)
         {
             var now = DateTime.UtcNow;

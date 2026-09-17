@@ -14,6 +14,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Carts
     {
         Task<(IList<Cart> Items, int Total, int TotalDisplay)> GetPagedActiveCarts(GetAllActiveCartsByPagingQuery query, CancellationToken cancellationToken);
         Task<Cart?> GetCartWithDetailsById(Guid id, CancellationToken cancellationToken);
+        Task<Cart?> GetActiveCartByCustomerOrSessionAsync(Guid? customerId, string? sessionId, CancellationToken cancellationToken);
         Task<ActiveCartStatsDto> GetActiveCartStatsAsync(CancellationToken cancellationToken);
         Task<int> ClearStaleCartsAsync(int olderThanDays, CancellationToken cancellationToken);
     }

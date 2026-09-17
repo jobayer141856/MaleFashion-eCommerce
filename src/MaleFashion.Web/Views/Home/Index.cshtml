@@ -75,7 +75,7 @@
 
                 <div class="col-lg-3 col-md-6 col-sm-6 @product.MixItUpClasses">
                     <div class="product__item @labelClass">
-                        <div class="product__item__pic set-bg" data-setbg="@Url.Content(product.PrimaryImageUrl)">
+                        <div class="product__item__pic set-bg" data-setbg="@ProductImageHelper.GetProductImageUrl(product.PrimaryImageUrl)" style="background-image: url('@ProductImageHelper.GetProductImageUrl(product.PrimaryImageUrl)');">
                             @if (product.HasDiscount)
                             {
                                 <span class="label">Sale</span>
@@ -91,12 +91,6 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void(0);" class="btn-compare" title="Compare">
-                                        <img src="@Url.Content("~/malefashion/img/icon/compare.png")" alt="Compare" />
-                                        <span>Compare</span>
-                                    </a>
-                                </li>
-                                <li>
                                     <a asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" title="View Details">
                                         <img src="@Url.Content("~/malefashion/img/icon/search.png")" alt="Details" />
                                     </a>
@@ -104,7 +98,7 @@
                             </ul>
                         </div>
                         <div class="product__item__text">
-                            <h6>@product.Name</h6>
+                            <h6 style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", "Shop", new { id = product.Id })'">@product.Name</h6>
                             <a href="javascript:void(0);" class="add-cart btn-add-cart" data-product-id="@product.Id" data-product-name="@product.Name">+ Add To Cart</a>
                             <div class="rating">
                                 @for (int i = 1; i <= 5; i++)
@@ -124,11 +118,11 @@
                                 }
                             </div>
                             <h5>
-                                $@product.DisplayPrice.ToString("0.00")
+                                BDT @product.DisplayPrice.ToString("0.00")
                                 @if (product.HasDiscount)
                                 {
                                     <span class="text-muted small ml-1" style="text-decoration: line-through; font-size: 13px; font-weight: normal;">
-                                        $@product.BasePrice.ToString("0.00")
+                                        BDT @product.BasePrice.ToString("0.00")
                                     </span>
                                 }
                             </h5>
@@ -168,7 +162,7 @@
                     <img src="@Url.Content(Model.DealOfTheWeek.ImageUrl)" alt="@Model.DealOfTheWeek.Title" />
                     <div class="hot__deal__sticker">
                         <span>Sale Of</span>
-                        <h5>$@Model.DealOfTheWeek.SalePrice.ToString("0.00")</h5>
+                        <h5>BDT @Model.DealOfTheWeek.SalePrice.ToString("0.00")</h5>
                     </div>
                 </div>
             </div>
@@ -296,35 +290,46 @@
                 });
             });
 
-            // 3. Interactive Quick Add to Cart Feedback
+            // 3. Interactive Quick Add to Cart with AJAX
             $(document).on("click", ".btn-add-cart", function (e) {
                 e.preventDefault();
+                var productId = $(this).data("product-id");
                 var productName = $(this).data("product-name") || "Item";
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Cart!',
-                    text: productName + ' was added to your cart.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                });
-            });
+                var token = $('input[name="__RequestVerificationToken"]').val();
 
-            // 4. Compare feature notification
-            $(document).on("click", ".btn-compare", function (e) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Compare',
-                    text: 'Product comparison feature will be available soon!',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: 1,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response && response.success) {
+                            $(".cart-count").text(response.totalItemCount);
+                            $(".header__nav__option .price, .offcanvas__nav__option .price").text("BDT " + Number(response.totalAmount).toFixed(2));
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Added to Cart!',
+                                text: productName + ' was added to your cart.',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        } else {
+                            window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                        }
+                    },
+                    error: function () {
+                        window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                    }
                 });
             });
         });
     </script>
 }
+
+@Html.AntiForgeryToken()
 <!-- Latest Blog Section End -->

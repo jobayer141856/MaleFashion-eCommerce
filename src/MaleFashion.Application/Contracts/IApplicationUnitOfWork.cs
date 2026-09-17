@@ -42,6 +42,6 @@ namespace MaleFashion.Application.Contracts
         public IPartnerClientRepository PartnerClientRepository { get; }
         public ITestimonialRepository TestimonialRepository { get; }
         public IHeroSlideRepository HeroSlideRepository { get; }
-
+        public MaleFashion.Application.Contracts.Services.ISqlUtility SqlUtility { get; }
     }
 }

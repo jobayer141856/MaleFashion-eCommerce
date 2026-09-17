@@ -1,0 +1,189 @@
+@model MaleFashion.Web.Models.Cart.ShoppingCartModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Shopping Cart</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Shop" asp-action="Index">Shop</a>
+                        <span>Shopping Cart</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- Shopping Cart Section Begin -->
+<section class="shopping-cart spad">
+    <div class="container">
+        @if (!string.IsNullOrWhiteSpace(Model.CouponSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @Model.CouponSuccessMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.CouponErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @Model.CouponErrorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (Model.Cart.Items.Any())
+        {
+            <div class="row">
+                <div class="col-lg-8">
+                    <form asp-controller="Cart" asp-action="UpdateCart" method="post" id="cartForm">
+                        @Html.AntiForgeryToken()
+                        <div class="shopping__cart__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Cart.Items)
+                                    {
+                                        <tr>
+                                            <td class="product__cart__item">
+                                                <div class="product__cart__item__pic">
+                                                    <img src="@Url.Content(ProductImageHelper.GetProductImageUrl(item.ImageUrl))" alt="@item.ProductName" style="width: 90px; height: 90px; object-fit: cover;">
+                                                </div>
+                                                <div class="product__cart__item__text">
+                                                    <h6><a asp-controller="Shop" asp-action="Details" asp-route-id="@item.ProductId" class="text-dark">@item.ProductName</a></h6>
+                                                    @if (!string.IsNullOrWhiteSpace(item.Size) || !string.IsNullOrWhiteSpace(item.ColorName))
+                                                    {
+                                                        <small class="text-muted d-block">
+                                                            @if (!string.IsNullOrWhiteSpace(item.Size)) { <span>Size: @item.Size.ToUpper() </span> }
+                                                            @if (!string.IsNullOrWhiteSpace(item.ColorName)) { <span>| Color: @item.ColorName</span> }
+                                                        </small>
+                                                    }
+                                                    <h5>BDT @item.UnitPrice.ToString("N2")</h5>
+                                                </div>
+                                            </td>
+                                            <td class="quantity__item">
+                                                <div class="quantity">
+                                                    <div class="pro-qty-2">
+                                                        <input type="number" name="quantities[@item.Id]" value="@item.Quantity" min="1" max="99" style="width: 60px; text-align: center;">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="cart__price">BDT @item.LineTotal.ToString("N2")</td>
+                                            <td class="cart__close">
+                                                <button type="button" class="btn-remove-item border-0 bg-transparent text-danger p-0" data-item-id="@item.Id" title="Remove item">
+                                                    <i class="fa fa-close"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn">
+                                <a asp-controller="Shop" asp-action="Index">Continue Shopping</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn update__btn">
+                                <button type="submit" form="cartForm" class="primary-btn border-0">
+                                    <i class="fa fa-spinner"></i> Update cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Coupon Discount Form -->
+                    <div class="cart__discount">
+                        <h6>Discount codes</h6>
+                        <form asp-controller="Cart" asp-action="ApplyCoupon" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="text" name="couponCode" value="@Model.Cart.AppliedCouponCode" placeholder="Coupon code" required>
+                            <button type="submit">Apply</button>
+                        </form>
+                    </div>
+
+                    <!-- Cart Totals -->
+                    <div class="cart__total">
+                        <h6>Cart total</h6>
+                        <ul>
+                            <li>Subtotal <span>BDT @Model.Cart.Subtotal.ToString("N2")</span></li>
+                            @if (Model.Cart.DiscountAmount > 0)
+                            {
+                                <li class="text-success">Discount <span>- BDT @Model.Cart.DiscountAmount.ToString("N2")</span></li>
+                            }
+                            <li>Total <span>BDT @Model.Cart.Total.ToString("N2")</span></li>
+                        </ul>
+                        <a href="#" class="primary-btn">Proceed to checkout</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-12 text-center py-5">
+                    <img src="~/malefashion/img/icon/cart.png" alt="Empty Cart" style="width: 64px; opacity: 0.5;" class="mb-3">
+                    <h3>Your shopping cart is currently empty</h3>
+                    <p class="text-muted mt-2">Looks like you haven't added anything to your cart yet.</p>
+                    <a asp-controller="Shop" asp-action="Index" class="primary-btn mt-4">Start Shopping</a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+<!-- Shopping Cart Section End -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Remove item via AJAX
+            $(".btn-remove-item").on("click", function (e) {
+                e.preventDefault();
+                var itemId = $(this).data("item-id");
+                var token = $('input[name="__RequestVerificationToken"]').first().val();
+
+                if (confirm("Are you sure you want to remove this item from your cart?")) {
+                    $.ajax({
+                        url: '@Url.Action("RemoveItem", "Cart")/' + itemId,
+                        type: 'POST',
+                        data: {
+                            __RequestVerificationToken: token
+                        },
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function () {
+                            window.location.reload();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+

@@ -5,3 +5,5 @@
 **/Logs/*
 **/node_modules
 **/*.xml
+
+**/GetShopProducts_StoredProcedure.sql

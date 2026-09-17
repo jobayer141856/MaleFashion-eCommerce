@@ -2359,22 +2359,50 @@ ol {
 }
 
 .shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 {
-	width: 80px;
+	width: 105px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	white-space: nowrap;
+	border: 1px solid #e5e5e5;
+	border-radius: 3px;
+	padding: 2px 4px;
+	background: #ffffff;
 }
 
 .shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 input {
-	width: 50px;
+	width: 44px;
 	border: none;
+	background: transparent;
 	text-align: center;
 	color: #111111;
 	font-size: 16px;
+	font-weight: 700;
+	margin: 0 4px;
+	-moz-appearance: textfield;
+}
+
+.shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 input::-webkit-outer-spin-button,
+.shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 .shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 .qtybtn {
-	font-size: 16px;
-	color: #888888;
-	width: 10px;
+	font-size: 15px;
+	color: #555555;
+	width: 20px;
+	height: 24px;
+	line-height: 24px;
+	text-align: center;
 	cursor: pointer;
+	user-select: none;
+	display: inline-block;
+	transition: color 0.2s;
+}
+
+.shopping__cart__table table tbody tr td.quantity__item .quantity .pro-qty-2 .qtybtn:hover {
+	color: #e53637;
 }
 
 .shopping__cart__table table tbody tr td.cart__price {
@@ -3848,4 +3876,34 @@ ol {
 	.categories__text:before {
 		height: 250px;
 	}
+}
+
+/* Header and Offcanvas Auth & Option Enhancements */
+.header__top .header-auth-link {
+	color: #ffffff !important;
+}
+.header__top .header-auth-link:hover {
+	color: #e53637 !important;
+}
+.offcanvas-menu-wrapper .header-auth-link {
+	color: #111111 !important;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
+.offcanvas-menu-wrapper .header-auth-link:hover {
+	color: #e53637 !important;
+}
+.offcanvas-menu-wrapper .offcanvas__links a {
+	color: #111111 !important;
+	font-size: 13px;
+	letter-spacing: 1px;
+	font-weight: 700;
+}
+.offcanvas-menu-wrapper .offcanvas__links a:hover {
+	color: #e53637 !important;
+}
+.offcanvas-menu-wrapper .offcanvas__option {
+	margin-bottom: 25px;
+	padding-bottom: 15px;
+	border-bottom: 1px solid #f2f2f2;
 }

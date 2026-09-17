@@ -209,7 +209,7 @@
                                         }
                                         <!-- Hover Action Icons (Compare Removed!) -->
                                         <ul class="product__hover">
-                                            <li><a href="#"><img src="~/malefashion/img/icon/heart.png" alt="Wishlist"></a></li>
+                                            <li><a href="javascript:void(0);" class="btn-add-wishlist" data-product-id="@item.Id" data-product-name="@item.Name" title="Add to Wishlist"><img src="~/malefashion/img/icon/heart.png" alt="Wishlist"></a></li>
                                             <li><a asp-controller="Shop" asp-action="Details" asp-route-id="@item.Id"><img src="~/malefashion/img/icon/search.png" alt="Quick View"></a></li>
                                         </ul>
                                     </div>
@@ -330,6 +330,41 @@
                     },
                     error: function () {
                         window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                    }
+                });
+            });
+
+            // Interactive Wishlist Toggle with AJAX
+            $(document).on("click", ".btn-add-wishlist", function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var productId = btn.data("product-id");
+                var productName = btn.data("product-name") || "Item";
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("Toggle", "Wishlist")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        __RequestVerificationToken: token
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (res) {
+                        if (res && res.success) {
+                            $(".wishlist-count").text(res.totalCount);
+                            Swal.fire({
+                                icon: 'success',
+                                title: res.isAdded ? 'Added to Wishlist!' : 'Removed from Wishlist',
+                                text: res.message || (productName + (res.isAdded ? ' has been saved to your wishlist.' : ' has been removed from your wishlist.')),
+                                timer: 2500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        }
                     }
                 });
             });

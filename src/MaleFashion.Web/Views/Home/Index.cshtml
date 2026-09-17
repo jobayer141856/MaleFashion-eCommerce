@@ -275,18 +275,38 @@
                 }
             }
 
-            // 2. Interactive Quick Wishlist Feedback
+            // 2. Interactive Wishlist Toggle with AJAX
             $(document).on("click", ".btn-add-wishlist", function (e) {
                 e.preventDefault();
-                var productName = $(this).data("product-name") || "Item";
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added to Wishlist!',
-                    text: productName + ' has been saved to your wishlist.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
+                var btn = $(this);
+                var productId = btn.data("product-id");
+                var productName = btn.data("product-name") || "Item";
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("Toggle", "Wishlist")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        __RequestVerificationToken: token
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (res) {
+                        if (res && res.success) {
+                            $(".wishlist-count").text(res.totalCount);
+                            Swal.fire({
+                                icon: 'success',
+                                title: res.isAdded ? 'Added to Wishlist!' : 'Removed from Wishlist',
+                                text: res.message || (productName + (res.isAdded ? ' has been saved to your wishlist.' : ' has been removed from your wishlist.')),
+                                timer: 2500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        }
+                    }
                 });
             });
 

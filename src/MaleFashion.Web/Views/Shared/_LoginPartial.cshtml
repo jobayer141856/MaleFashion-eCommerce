@@ -1,4 +1,4 @@
-﻿@using MaleFashion.Infrastructure.Identity
+@using MaleFashion.Infrastructure.Identity
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -10,18 +10,24 @@
         ? $"{currentUser.FirstName} {currentUser.LastName}".Trim()
         : User.Identity?.Name;
 
-    <div class="dropdown d-inline-block">
-        <a class="nav-link dropdown-toggle text-white" href="#" role="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <div class="dropdown d-inline-block mr-3" style="position: relative;">
+        <a class="dropdown-toggle header-auth-link font-weight-bold d-inline-block p-0 text-uppercase" href="#" role="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: 13px; letter-spacing: 1px; cursor: pointer; text-decoration: none;">
             Hello, @displayName!
         </a>
         <div class="dropdown-menu dropdown-menu-right shadow-sm header-dropdown-menu" aria-labelledby="userDropdown">
             <a class="dropdown-item" asp-area="" asp-controller="Manage" asp-action="Index" style="color: #111111 !important;">
-                Manage Profile
+                <i class="fa fa-user mr-2 text-muted"></i> Manage Profile
+            </a>
+            <a class="dropdown-item" asp-area="" asp-controller="Wishlist" asp-action="Index" style="color: #111111 !important;">
+                <i class="fa fa-heart-o mr-2 text-muted"></i> My Wishlist
+            </a>
+            <a class="dropdown-item" asp-area="" asp-controller="Cart" asp-action="Index" style="color: #111111 !important;">
+                <i class="fa fa-shopping-bag mr-2 text-muted"></i> Shopping Cart
             </a>
             <div class="dropdown-divider"></div>
             <form asp-area="" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0 p-0">
                 <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-left">
-                    Logout
+                    <i class="fa fa-sign-out mr-2"></i> Logout
                 </button>
             </form>
         </div>
@@ -29,6 +35,6 @@
 }
 else
 {
-    <a class="nav-link d-inline-block" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
-    <a class="nav-link d-inline-block" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+    <a class="header-auth-link d-inline-block p-0 text-uppercase mr-3 font-weight-bold" asp-area="" asp-controller="Account" asp-action="Login" style="font-size: 13px; letter-spacing: 1px; text-decoration: none;">Sign In</a>
+    <a class="header-auth-link d-inline-block p-0 text-uppercase mr-3 font-weight-bold" asp-area="" asp-controller="Account" asp-action="Register" style="font-size: 13px; letter-spacing: 1px; text-decoration: none;">Register</a>
 }

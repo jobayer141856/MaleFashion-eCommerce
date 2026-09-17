@@ -23,6 +23,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Catalogs
         Task<List<Coupon>> GetActiveStoreCouponsAsync(CancellationToken cancellationToken);
         Task<IList<Product>> GetFeaturedHomeProductsAsync(int take, CancellationToken cancellationToken);
         Task<IList<Product>> GetRelatedProductsAsync(Guid categoryId, Guid excludeProductId, int take, CancellationToken cancellationToken);
+        Task<IList<Product>> GetProductsByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
     }
 }
 

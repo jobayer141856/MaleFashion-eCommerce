@@ -37,23 +37,17 @@
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
-        <div class="offcanvas__option">
-            <div class="offcanvas__links">
+        <div class="offcanvas__option d-flex align-items-center justify-content-between">
+            <div class="offcanvas__links d-flex align-items-center flex-wrap">
                 <partial name="_LoginPartial" />
-                <a href="#">FAQs</a>
+                <a asp-controller="Faq" asp-action="Index">FAQs</a>
             </div>
             <div class="offcanvas__top__hover">
-                <span>BDT <i class="arrow_carrot-down"></i></span>
-                <ul>
-                    <li>BDT</li>
-                    <li>USD</li>
-                    <li>EUR</li>
-                </ul>
+                <span class="badge badge-light px-2 py-1" style="font-size: 11px; letter-spacing: 1px; font-weight: 700; border: 1px solid #e1e1e1;">BDT</span>
             </div>
         </div>
         <div class="offcanvas__nav__option">
-            <a href="#" class="search-switch"><img src="~/malefashion/img/icon/search.png" alt="" /></a>
-            <a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a>
+            @await Component.InvokeAsync("WishlistSummary")
             @await Component.InvokeAsync("CartSummary")
         </div>
         <div id="mobile-menu-wrap"></div>
@@ -66,25 +60,20 @@
     <header class="header">
         <div class="header__top">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-7">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-5 col-12 text-center text-md-left mb-2 mb-md-0">
                         <div class="header__top__left">
-                            <p>Free shipping, 30-day return or refund guarantee.</p>
+                            <p class="mb-0 text-truncate" style="font-size: 13px;">Free shipping, 30-day return or refund guarantee.</p>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-5">
-                        <div class="header__top__right">
-                            <div class="header__top__links">
+                    <div class="col-lg-6 col-md-7 col-12">
+                        <div class="header__top__right d-flex justify-content-center justify-content-md-end align-items-center flex-nowrap" style="white-space: nowrap;">
+                            <div class="header__top__links d-flex align-items-center mr-3" style="white-space: nowrap;">
                                 <partial name="_LoginPartial" />
-                                <a href="#">FAQs</a>
+                                <a asp-controller="Faq" asp-action="Index" class="header-auth-link text-uppercase" style="font-size: 13px; letter-spacing: 1px; text-decoration: none;">FAQs</a>
                             </div>
-                            <div class="header__top__hover">
-                                <span>BDT <i class="arrow_carrot-down"></i></span>
-                                <ul>
-                                    <li>BDT</li>
-                                    <li>USD</li>
-                                    <li>EUR</li>
-                                </ul>
+                            <div class="header__top__hover d-inline-block" style="white-space: nowrap;">
+                                <span class="badge badge-dark px-2 py-1 text-white" style="font-size: 11px; letter-spacing: 1px; font-weight: 700; background: #222222; border: 1px solid #444444;">BDT</span>
                             </div>
                         </div>
                     </div>
@@ -127,8 +116,7 @@
                 </div>
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
-                        <a href="#" class="search-switch"><img src="~/malefashion/img/icon/search.png" alt="" /></a>
-                        <a href="#"><img src="~/malefashion/img/icon/heart.png" alt="" /></a>
+                        @await Component.InvokeAsync("WishlistSummary")
                         @await Component.InvokeAsync("CartSummary")
                     </div>
                 </div>
@@ -171,9 +159,9 @@
                         <h6>Shopping</h6>
                         <ul>
                             <li><a asp-controller="ContactInquiry" asp-action="Index">Contact Us</a></li>
-                            <li><a href="#">Payment Methods</a></li>
-                            <li><a href="#">Delivary</a></li>
-                            <li><a href="#">Return & Exchanges</a></li>
+                            <li><a asp-controller="Faq" asp-action="Index" asp-route-category="Payment">Payment Methods</a></li>
+                            <li><a asp-controller="Faq" asp-action="Index" asp-route-category="Shipping">Delivery</a></li>
+                            <li><a asp-controller="Faq" asp-action="Index" asp-route-category="Returns">Return & Exchanges</a></li>
                         </ul>
                     </div>
                 </div>
@@ -206,16 +194,6 @@
         </div>
     </footer>
     <!-- Footer Section End -->
-    <!-- Search Begin -->
-    <div class="search-model">
-        <div class="h-100 d-flex align-items-center justify-content-center">
-            <div class="search-close-switch">+</div>
-            <form class="search-model-form">
-                <input type="text" id="search-input" placeholder="Search here....." />
-            </form>
-        </div>
-    </div>
-    <!-- Search End -->
     <!-- Js Plugins -->
     <script src="~/malefashion/js/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>

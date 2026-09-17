@@ -83,11 +83,11 @@
                                             <td class="quantity__item">
                                                 <div class="quantity">
                                                     <div class="pro-qty-2">
-                                                        <input type="number" name="quantities[@item.Id]" value="@item.Quantity" min="1" max="99" style="width: 60px; text-align: center;">
+                                                        <input type="text" class="cart-qty-input" name="quantities[@item.Id]" value="@item.Quantity" data-unit-price="@item.UnitPrice" data-item-id="@item.Id" autocomplete="off">
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="cart__price">BDT @item.LineTotal.ToString("N2")</td>
+                                            <td class="cart__price" id="row-total-@item.Id">BDT @item.LineTotal.ToString("N2")</td>
                                             <td class="cart__close">
                                                 <button type="button" class="btn-remove-item border-0 bg-transparent text-danger p-0" data-item-id="@item.Id" title="Remove item">
                                                     <i class="fa fa-close"></i>
@@ -161,27 +161,66 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Remove item via AJAX
+            function recalculateRowTotal(input) {
+                var val = input.val();
+                var qty = parseInt(val, 10);
+                if (isNaN(qty) || qty < 1) {
+                    qty = 1;
+                    input.val(1);
+                } else if (qty > 99) {
+                    qty = 99;
+                    input.val(99);
+                }
+                var unitPrice = parseFloat(input.data("unit-price")) || 0;
+                var itemId = input.data("item-id");
+                var rowTotal = qty * unitPrice;
+                $("#row-total-" + itemId).text("BDT " + rowTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            }
+
+            // Input change listener
+            $(document).on("input change", ".cart-qty-input", function () {
+                recalculateRowTotal($(this));
+            });
+
+            // Arrow button click listener
+            $(document).on("click", ".pro-qty-2 .qtybtn", function () {
+                var input = $(this).siblings(".cart-qty-input");
+                setTimeout(function () {
+                    recalculateRowTotal(input);
+                }, 50);
+            });
+
+            // Remove item via AJAX with SweetAlert confirmation
             $(".btn-remove-item").on("click", function (e) {
                 e.preventDefault();
                 var itemId = $(this).data("item-id");
                 var token = $('input[name="__RequestVerificationToken"]').first().val();
 
-                if (confirm("Are you sure you want to remove this item from your cart?")) {
-                    $.ajax({
-                        url: '@Url.Action("RemoveItem", "Cart")/' + itemId,
-                        type: 'POST',
-                        data: {
-                            __RequestVerificationToken: token
-                        },
-                        success: function () {
-                            window.location.reload();
-                        },
-                        error: function () {
-                            window.location.reload();
-                        }
-                    });
-                }
+                Swal.fire({
+                    title: 'Remove item?',
+                    text: "Are you sure you want to remove this item from your cart?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e53637',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, remove it'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '@Url.Action("RemoveItem", "Cart")/' + itemId,
+                            type: 'POST',
+                            data: {
+                                __RequestVerificationToken: token
+                            },
+                            success: function () {
+                                window.location.reload();
+                            },
+                            error: function () {
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

@@ -90,7 +90,6 @@ try
     #region Dependency Injection Configuration
 
     builder.Services.AddInfrastructureDependency(builder.Environment.WebRootPath);
-    builder.Services.AddScoped<MaleFashion.Web.Services.ICartSessionService, MaleFashion.Web.Services.CartSessionService>();
     #endregion
 
     #region DbContext Configuration

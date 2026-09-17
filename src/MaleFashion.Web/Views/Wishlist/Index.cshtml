@@ -1,0 +1,222 @@
+@model MaleFashion.Web.Models.Wishlist.WishlistIndexModel
+@using MaleFashion.Web.Helpers
+@{
+    ViewData["Title"] = "My Wishlist";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>My Wishlist</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Shop" asp-action="Index">Shop</a>
+                        <span>Wishlist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- Wishlist Section Begin -->
+<section class="shopping-cart spad">
+    <div class="container">
+        <div id="wishlistContainer">
+            @if (Model.Wishlist.Items.Any())
+            {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="shopping__cart__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Stock Status</th>
+                                        <th class="text-center">Action</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Wishlist.Items)
+                                    {
+                                        <tr id="wishlist-row-@item.ProductId">
+                                            <td class="product__cart__item">
+                                                <div class="product__cart__item__pic">
+                                                    <img src="@Url.Content(ProductImageHelper.GetProductImageUrl(item.ImageUrl))" alt="@item.ProductName" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+                                                </div>
+                                                <div class="product__cart__item__text">
+                                                    <h6>
+                                                        <a asp-controller="Shop" asp-action="Details" asp-route-id="@item.ProductId" class="text-dark font-weight-bold">
+                                                            @item.ProductName
+                                                        </a>
+                                                    </h6>
+                                                    <small class="text-muted">SKU: @item.Sku</small>
+                                                </div>
+                                            </td>
+                                            <td class="cart__price">
+                                                BDT @item.UnitPrice.ToString("N2")
+                                            </td>
+                                            <td>
+                                                @if (item.IsInStock)
+                                                {
+                                                    <span class="badge badge-success px-2 py-1 font-weight-bold">In Stock</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-danger px-2 py-1 font-weight-bold">Out of Stock</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.IsInStock)
+                                                {
+                                                    <button type="button" class="primary-btn border-0 btn-wishlist-add-to-cart py-2 px-3" style="font-size: 13px;" data-product-id="@item.ProductId" data-product-name="@item.ProductName">
+                                                        <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-controller="Shop" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-secondary py-2 px-3">
+                                                        View Details
+                                                    </a>
+                                                }
+                                            </td>
+                                            <td class="cart__close">
+                                                <button type="button" class="btn-remove-wishlist border-0 bg-transparent text-danger p-0" data-product-id="@item.ProductId" data-product-name="@item.ProductName" title="Remove from Wishlist">
+                                                    <i class="fa fa-close" style="font-size: 20px; cursor: pointer;"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                <div class="continue__btn">
+                                    <a asp-controller="Shop" asp-action="Index">Continue Shopping</a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+                                <div class="continue__btn update__btn">
+                                    <a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-bag mr-1"></i> View Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-lg-12 text-center py-5">
+                        <div class="mb-4">
+                            <i class="fa fa-heart-o text-muted" style="font-size: 70px;"></i>
+                        </div>
+                        <h4 class="font-weight-bold mb-2">Your Wishlist is Empty</h4>
+                        <p class="text-muted mb-4">You haven't added any products to your wishlist yet. Explore our shop to find your favorite styles!</p>
+                        <a asp-controller="Shop" asp-action="Index" class="primary-btn">Explore Products</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<!-- Wishlist Section End -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 1. Remove item from Wishlist via AJAX
+            $(document).on("click", ".btn-remove-wishlist", function () {
+                var btn = $(this);
+                var productId = btn.data("product-id");
+                var productName = btn.data("product-name") || "Item";
+                var row = $("#wishlist-row-" + productId);
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("Remove", "Wishlist")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        __RequestVerificationToken: token
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (res) {
+                        if (res && res.success) {
+                            row.fadeOut(300, function () {
+                                $(this).remove();
+                                if ($(".shopping__cart__table tbody tr").length === 0) {
+                                    window.location.reload();
+                                }
+                            });
+                            $(".wishlist-count").text(res.totalCount);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Removed',
+                                text: productName + ' was removed from your wishlist.',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // 2. Add to Cart directly from Wishlist
+            $(document).on("click", ".btn-wishlist-add-to-cart", function () {
+                var btn = $(this);
+                var productId = btn.data("product-id");
+                var productName = btn.data("product-name") || "Item";
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                btn.prop("disabled", true);
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: 1,
+                        __RequestVerificationToken: token
+                    },
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (res) {
+                        btn.prop("disabled", false);
+                        if (res && res.success) {
+                            $(".cart-count").text(res.totalItemCount);
+                            $(".header__nav__option .price, .offcanvas__nav__option .price").text("BDT " + Number(res.totalAmount).toFixed(2));
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Added to Cart!',
+                                text: productName + ' was added to your cart.',
+                                timer: 2500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        } else {
+                            window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                        }
+                    },
+                    error: function () {
+                        btn.prop("disabled", false);
+                        window.location.href = '@Url.Action("Details", "Shop")/' + productId;
+                    }
+                });
+            });
+        });
+    </script>
+}
+

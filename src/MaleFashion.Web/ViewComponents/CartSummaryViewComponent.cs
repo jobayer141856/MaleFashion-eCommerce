@@ -1,8 +1,8 @@
 using Cortex.Mediator;
+using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Features.Carts.DTOs;
 using MaleFashion.Application.Features.Carts.Queries;
 using MaleFashion.Web.Models.Cart;
-using MaleFashion.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -23,7 +23,7 @@ namespace MaleFashion.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync();
             var cart = await _mediator.SendQueryAsync<GetCustomerCartQuery, CustomerCartDto>(
                 new GetCustomerCartQuery
                 {

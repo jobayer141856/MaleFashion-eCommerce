@@ -1,0 +1,163 @@
+@model MaleFashion.Web.Models.Faq.FaqIndexModel
+@{
+    ViewData["Title"] = "Frequently Asked Questions (FAQs)";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Frequently Asked Questions</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <span>FAQs</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- FAQ Section Begin -->
+<section class="faq-section spad" style="background-color: #fdfdfd; min-height: 600px;">
+    <div class="container">
+        <!-- Search & Filter Bar -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 col-md-10 text-center">
+                <div class="section-title mb-4">
+                    <span>Help & Customer Care</span>
+                    <h2>How Can We Help You?</h2>
+                    <p class="text-muted mt-2">Find answers to commonly asked questions about ordering, delivery, payments in BDT, and 30-day returns.</p>
+                </div>
+                <form asp-controller="Faq" asp-action="Index" method="get" class="faq-search-form d-flex shadow-sm rounded-pill overflow-hidden bg-white p-1 border">
+                    <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                    <input type="text" name="search" class="form-control border-0 px-4 shadow-none" placeholder="Search keywords (e.g., shipping, bKash, refund, sizing)..." value="@Model.SearchQuery" style="border-radius: 50px 0 0 50px;">
+                    <button type="submit" class="site-btn px-4 rounded-pill border-0 font-weight-bold" style="background: #111111; color: #fff;">
+                        <i class="fa fa-search mr-1"></i> Search
+                    </button>
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                    {
+                        <a asp-controller="Faq" asp-action="Index" asp-route-category="@Model.SelectedCategory" class="btn btn-link text-danger d-flex align-items-center px-3" title="Clear Search">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    }
+                </form>
+            </div>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-12 text-center">
+                <div class="faq-category-filters d-flex justify-content-center flex-wrap" style="gap: 10px;">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        var isActive = string.Equals(Model.SelectedCategory, cat.Key, StringComparison.OrdinalIgnoreCase);
+                        <a asp-controller="Faq" asp-action="Index" asp-route-category="@cat.Key" asp-route-search="@Model.SearchQuery"
+                           class="btn @(isActive ? "btn-dark text-white font-weight-bold" : "btn-outline-secondary bg-white text-dark") px-3 py-2 rounded-pill transition"
+                           style="font-size: 13px; letter-spacing: 0.5px; @(isActive ? "background-color: #111111; border-color: #111111;" : "border-color: #e1e1e1;")">
+                            <i class="@cat.IconClass mr-1 text-danger"></i> @cat.Title
+                            <span class="badge @(isActive ? "badge-light text-dark" : "badge-secondary text-white") ml-1">@cat.Count</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion FAQ Items -->
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-11">
+                @if (Model.FaqItems != null && Model.FaqItems.Any())
+                {
+                    <div class="accordion" id="faqAccordion">
+                        @for (int i = 0; i < Model.FaqItems.Count; i++)
+                        {
+                            var item = Model.FaqItems[i];
+                            var headingId = $"heading{item.Id}";
+                            var collapseId = $"collapse{item.Id}";
+                            var isFirst = i == 0;
+
+                            <div class="card border-0 mb-3 shadow-sm rounded overflow-hidden" style="border: 1px solid #f0f0f0 !important;">
+                                <div class="card-header bg-white p-0 border-0" id="@headingId">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link btn-block text-left d-flex justify-content-between align-items-center py-3 px-4 font-weight-bold text-dark text-decoration-none @(isFirst ? "" : "collapsed")"
+                                                type="button"
+                                                data-toggle="collapse"
+                                                data-target="#@collapseId"
+                                                aria-expanded="@(isFirst ? "true" : "false")"
+                                                aria-controls="@collapseId"
+                                                style="font-size: 15px; color: #111111 !important;">
+                                            <span>
+                                                <span class="text-danger font-weight-bold mr-2">Q@(i + 1).</span>
+                                                @item.Question
+                                            </span>
+                                            <i class="fa fa-chevron-down faq-chevron text-muted transition" style="font-size: 13px;"></i>
+                                        </button>
+                                    </h2>
+                                </div>
+
+                                <div id="@collapseId"
+                                     class="collapse @(isFirst ? "show" : "")"
+                                     aria-labelledby="@headingId"
+                                     data-parent="#faqAccordion">
+                                    <div class="card-body px-4 pb-4 pt-1 text-muted" style="line-height: 1.8; font-size: 14.5px;">
+                                        <div class="border-top pt-3">
+                                            @item.Answer
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 bg-white rounded shadow-sm border p-4">
+                        <i class="fa fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="font-weight-bold mb-2">No Matching Questions Found</h4>
+                        <p class="text-muted mb-4">We couldn't find any questions matching your query "@Model.SearchQuery". Try searching with different keywords or browse all categories.</p>
+                        <a asp-controller="Faq" asp-action="Index" class="primary-btn">View All Questions</a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Contact Support CTA Banner -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-9 col-md-11">
+                <div class="p-4 p-md-5 rounded text-center text-md-left d-md-flex align-items-center justify-content-between shadow-sm"
+                     style="background: linear-gradient(135deg, #111111 0%, #292929 100%); color: #ffffff;">
+                    <div class="mb-3 mb-md-0">
+                        <h4 class="text-white font-weight-bold mb-2">Still have questions?</h4>
+                        <p class="text-muted mb-0" style="color: #cccccc !important;">Can't find the answer you're looking for? Please contact our friendly customer care team.</p>
+                    </div>
+                    <div class="flex-shrink-0 ml-md-4">
+                        <a asp-controller="ContactInquiry" asp-action="Index" class="site-btn rounded-pill px-4 font-weight-bold" style="background-color: #e53637; color: #ffffff; text-decoration: none;">
+                            <i class="fa fa-envelope-o mr-2"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- FAQ Section End -->
+
+<style>
+    .faq-chevron {
+        transition: transform 0.25s ease-in-out;
+    }
+    .btn-link:not(.collapsed) .faq-chevron {
+        transform: rotate(180deg);
+        color: #e53637 !important;
+    }
+    .faq-category-filters a:hover {
+        transform: translateY(-2px);
+    }
+    .transition {
+        transition: all 0.2s ease-in-out;
+    }
+</style>
+

@@ -1,0 +1,7 @@
+@model MaleFashion.Web.Models.Wishlist.WishlistSummaryModel
+
+<a asp-controller="Wishlist" asp-action="Index" class="header__wishlist__btn" title="View Wishlist" style="position: relative; display: inline-block;">
+    <img src="~/malefashion/img/icon/heart.png" alt="Wishlist" />
+    <span class="wishlist-count" style="color: #0d0d0d; font-size: 11px; position: absolute; left: 5px; top: 8px;">@Model.TotalCount</span>
+</a>
+

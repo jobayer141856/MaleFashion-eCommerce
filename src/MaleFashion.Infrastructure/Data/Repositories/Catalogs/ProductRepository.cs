@@ -269,6 +269,19 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 .Take(take > 0 ? take : 4)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<IList<Product>> GetProductsByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
+        {
+            if (ids == null || !ids.Any())
+                return new List<Product>();
+
+            return await _context.Set<Product>()
+                .AsNoTracking()
+                .Where(p => ids.Contains(p.Id) && p.IsActive)
+                .Include(p => p.Images)
+                .Include(p => p.Variants)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
 

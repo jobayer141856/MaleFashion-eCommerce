@@ -36,6 +36,9 @@ namespace MaleFashion.Infrastructure.Extensions
             services.AddScoped<ISqlUtility, SqlUtility>(sp => new SqlUtility(sp.GetRequiredService<ApplicationDbContext>().Database.GetDbConnection()));
             services.AddSingleton<IFileStorageService, FileStorageService>(x => new FileStorageService(rootPath));
             services.AddScoped<IEmailService, EmailService>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICartSessionService, CartSessionService>();
+            services.AddScoped<IWishlistSessionService, WishlistSessionService>();
 
             // =========================================================
             // REPOSITORIES

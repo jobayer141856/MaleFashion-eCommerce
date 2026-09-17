@@ -1,9 +1,9 @@
 using Cortex.Mediator;
+using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Features.Carts.Commands;
 using MaleFashion.Application.Features.Carts.DTOs;
 using MaleFashion.Application.Features.Carts.Queries;
 using MaleFashion.Web.Models.Cart;
-using MaleFashion.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace MaleFashion.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext, cancellationToken);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
             var cart = await _mediator.SendQueryAsync<GetCustomerCartQuery, CustomerCartDto>(
                 new GetCustomerCartQuery
                 {
@@ -58,7 +58,7 @@ namespace MaleFashion.Web.Controllers
             int quantity = 1,
             CancellationToken cancellationToken = default)
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext, cancellationToken);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
 
             var success = await _mediator.SendCommandAsync<AddToCartCommand, bool>(
                 new AddToCartCommand
@@ -104,7 +104,7 @@ namespace MaleFashion.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCart(Dictionary<Guid, int> quantities, CancellationToken cancellationToken)
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext, cancellationToken);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
 
             await _mediator.SendCommandAsync<UpdateCartItemQuantityCommand, bool>(
                 new UpdateCartItemQuantityCommand
@@ -122,7 +122,7 @@ namespace MaleFashion.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveItem(Guid id, CancellationToken cancellationToken)
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext, cancellationToken);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
 
             var success = await _mediator.SendCommandAsync<RemoveCartItemCommand, bool>(
                 new RemoveCartItemCommand
@@ -160,7 +160,7 @@ namespace MaleFashion.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyCoupon(string couponCode, CancellationToken cancellationToken)
         {
-            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(HttpContext, cancellationToken);
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
 
             var (success, message) = await _mediator.SendCommandAsync<ApplyCartCouponCommand, (bool Success, string Message)>(
                 new ApplyCartCouponCommand

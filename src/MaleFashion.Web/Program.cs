@@ -10,9 +10,11 @@ using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
 using MaleFashion.Web.Areas.Admin.Conventions;
+using MaleFashion.Infrastructure.Services.SSLCommerz;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 
 Log.Logger = new LoggerConfiguration()
       .WriteTo.File(
@@ -122,6 +124,7 @@ try
 
     #region AppSettings Configuration
     builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+    builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
     #endregion
 
     builder.Services.AddRazorPages();

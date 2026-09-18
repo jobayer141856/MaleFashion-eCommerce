@@ -44,6 +44,16 @@ namespace MaleFashion.Application.Features.Ordering.Commands
                 }
             }
 
+            // Restore coupon redemption count if applicable
+            if (order.CouponId.HasValue)
+            {
+                var coupon = await _unitOfWork.CouponRepository.GetByIdAsync(order.CouponId.Value, cancellationToken);
+                if (coupon != null && coupon.UsedCount > 0)
+                {
+                    coupon.UsedCount--;
+                }
+            }
+
             await _unitOfWork.SaveAsync(cancellationToken);
             return true;
         }

@@ -99,24 +99,58 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
             }
 
             // Update Variants
+            // Update Variants (Synchronize in-place to avoid deleting active variants)
             if (command.Variants != null)
             {
-                product.Variants.Clear();
+                var incomingIds = command.Variants
+                    .Where(v => v.Id.HasValue && v.Id.Value != Guid.Empty)
+                    .Select(v => v.Id!.Value)
+                    .ToHashSet();
+
+                // 1. Remove variants that are no longer in the submitted list
+                var variantsToRemove = product.Variants
+                    .Where(v => !incomingIds.Contains(v.Id))
+                    .ToList();
+
+                foreach (var removedVariant in variantsToRemove)
+                {
+                    product.Variants.Remove(removedVariant);
+                }
+
+                // 2. Update existing variants or add new ones
                 foreach (var v in command.Variants)
                 {
-                    product.Variants.Add(new ProductVariant
+                    var existingVariant = v.Id.HasValue && v.Id.Value != Guid.Empty
+                        ? product.Variants.FirstOrDefault(x => x.Id == v.Id.Value)
+                        : null;
+
+                    if (existingVariant != null)
                     {
-                        Id = IdentityGenerator.NewSequentialGuid(),
-                        ProductId = product.Id,
-                        Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size,
-                        ColorName = v.ColorName ?? string.Empty,
-                        ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex,
-                        Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku,
-                        StockQuantity = v.StockQuantity,
-                        lowStockQuantity = v.LowStockQuantity,
-                        VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null,
-                        CreatedAt = DateTime.UtcNow
-                    });
+                        existingVariant.Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size;
+                        existingVariant.ColorName = v.ColorName ?? string.Empty;
+                        existingVariant.ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex;
+                        existingVariant.Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku;
+                        existingVariant.StockQuantity = v.StockQuantity;
+                        existingVariant.lowStockQuantity = v.LowStockQuantity;
+                        existingVariant.VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null;
+                        existingVariant.UpdatedAt = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        product.Variants.Add(new ProductVariant
+                        {
+                            Id = IdentityGenerator.NewSequentialGuid(),
+                            ProductId = product.Id,
+                            Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size,
+                            ColorName = v.ColorName ?? string.Empty,
+                            ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex,
+                            Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku,
+                            StockQuantity = v.StockQuantity,
+                            lowStockQuantity = v.LowStockQuantity,
+                            VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
             }
 

@@ -20,9 +20,20 @@
                             <h4 class="font-weight-bold mb-0 text-dark">Order Details</h4>
                             <small class="text-muted">Order #@Model.OrderNumber &bull; Placed on @Model.OrderDate.ToString("MMM dd, yyyy - hh:mm tt")</small>
                         </div>
-                        <a asp-action="Orders" class="btn btn-sm btn-outline-secondary font-weight-bold">
-                            <i class="fa fa-arrow-left mr-1"></i> Back to Orders
-                        </a>
+                        <div class="d-flex align-items-center">
+                            @if (Model.Status == MaleFashion.Domain.Enums.OrderStatus.Pending)
+                            {
+                                <form asp-action="CancelOrder" asp-route-id="@Model.Id" method="post" class="d-inline mr-2" onsubmit="return confirm('Are you sure you want to cancel order #@Model.OrderNumber?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger font-weight-bold">
+                                        <i class="fa fa-times mr-1"></i> Cancel Order
+                                    </button>
+                                </form>
+                            }
+                            <a asp-action="Orders" class="btn btn-sm btn-outline-secondary font-weight-bold">
+                                <i class="fa fa-arrow-left mr-1"></i> Back to Orders
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Status & Payment Highlights -->

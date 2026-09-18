@@ -7,3 +7,10 @@
 **/*.xml
 
 **/GetShopProducts_StoredProcedure.sql
+
+# Environment & Sensitive Configuration Files
+**/appsettings.local.json
+**/appsettings.Production.json
+**/appsettings.Development.json
+**/.env
+**/.env.*

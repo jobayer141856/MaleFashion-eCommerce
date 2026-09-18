@@ -75,6 +75,10 @@ namespace MaleFashion.Application.Features.Carts.Commands
                 };
                 await _unitOfWork.CartRepository.AddAsync(cart, cancellationToken);
             }
+            else if (!cart.CustomerId.HasValue && command.CustomerId.HasValue)
+            {
+                cart.CustomerId = command.CustomerId.Value;
+            }
 
             // Check if item already exists in cart
             var existingItem = cart.Items.FirstOrDefault(i =>
@@ -91,7 +95,6 @@ namespace MaleFashion.Application.Features.Carts.Commands
             {
                 var newItem = new CartItem
                 {
-                    Id = Guid.NewGuid(),
                     CartId = cart.Id,
                     ProductId = product.Id,
                     ProductVariantId = variant?.Id,

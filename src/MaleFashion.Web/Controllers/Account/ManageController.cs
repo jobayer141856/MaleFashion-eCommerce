@@ -1,6 +1,7 @@
 using Cortex.Mediator;
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Features.Catalogs.Products.Queries;
+using MaleFashion.Application.Features.Ordering.Commands;
 using MaleFashion.Domain.Entities.Customers;
 using MaleFashion.Domain.Entities.Ordering;
 using MaleFashion.Domain.Entities.Promotions;
@@ -583,6 +584,45 @@ namespace MaleFashion.Web.Controllers
                 }).ToList();
 
             return View(returns);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelOrder(Guid id, string? reason, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            var customer = await GetOrCreateCustomerAsync(user, cancellationToken);
+            var order = customer.Orders.FirstOrDefault(o => o.Id == id);
+
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Order not found or access denied.";
+                return RedirectToAction(nameof(Orders));
+            }
+
+            if (order.Status != OrderStatus.Pending)
+            {
+                TempData["ErrorMessage"] = $"Order #{order.OrderNumber} cannot be cancelled because its status is already {order.Status}. Only Pending orders can be cancelled.";
+                return RedirectToAction(nameof(OrderDetails), new { id = order.Id });
+            }
+
+            var cancellationReason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by customer" : reason.Trim();
+
+            var success = await _mediator.SendCommandAsync<OrderCancelCommand, bool>(
+                new OrderCancelCommand(order.Id, cancellationReason), cancellationToken);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = $"Order #{order.OrderNumber} has been successfully cancelled.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Failed to cancel order #{order.OrderNumber}.";
+            }
+
+            return RedirectToAction(nameof(Orders));
         }
 
         #endregion

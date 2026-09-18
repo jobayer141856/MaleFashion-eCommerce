@@ -212,16 +212,21 @@
                     <div class="border-top pt-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <span class="text-muted">Payment Method:</span>
-                            <span class="badge bg-label-info">
-                                @if (Model.PaymentMethod == PaymentMethod.Cash)
-                                {
-                                    <i class="bx bx-money me-1"></i><span>Cash on Delivery</span>
-                                }
-                                else
-                                {
-                                    <i class="bx bxl-stripe me-1"></i><span>Stripe Gateway</span>
-                                }
-                            </span>
+                            @switch (Model.PaymentMethod)
+                            {
+                                case PaymentMethod.Cash:
+                                    <span class="badge bg-label-success"><i class="bx bx-money me-1"></i>Cash on Delivery</span>
+                                    break;
+                                case PaymentMethod.SSLCommerz:
+                                    <span class="badge bg-label-info"><i class="bx bx-credit-card me-1"></i>SSLCommerz Gateway</span>
+                                    break;
+                                case PaymentMethod.Stripe:
+                                    <span class="badge bg-label-primary"><i class="bx bxl-stripe me-1"></i>Stripe Gateway</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-label-secondary">@Model.PaymentMethod</span>
+                                    break;
+                            }
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-2">

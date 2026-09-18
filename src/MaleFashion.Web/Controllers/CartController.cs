@@ -181,6 +181,28 @@ namespace MaleFashion.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        // POST: /Cart/RemoveCoupon
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveCoupon(CancellationToken cancellationToken)
+        {
+            var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
+
+            var success = await _mediator.SendCommandAsync<RemoveCartCouponCommand, bool>(
+                new RemoveCartCouponCommand
+                {
+                    CustomerId = customerId,
+                    SessionId = sessionId
+                }, cancellationToken);
+
+            if (success)
+            {
+                TempData["CouponSuccess"] = "Coupon removed successfully.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
 

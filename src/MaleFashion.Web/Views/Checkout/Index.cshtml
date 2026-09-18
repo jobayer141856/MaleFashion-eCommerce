@@ -1,0 +1,299 @@
+@model MaleFashion.Web.Models.Checkout.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Check Out</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Shop" asp-action="Index">Shop</a>
+                        <a asp-controller="Cart" asp-action="Index">Shopping Cart</a>
+                        <span>Check Out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<!-- Checkout Section Begin -->
+<section class="checkout spad">
+    <div class="container">
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <strong>Please fix the following:</strong>
+                <ul class="mb-0 mt-2">
+                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="checkout__form">
+            <form asp-controller="Checkout" asp-action="Index" method="post" id="checkoutForm">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <!-- Left: Customer Information & Shipping -->
+                    <div class="col-lg-8 col-md-6">
+                        @if (Model.SavedAddresses != null && Model.SavedAddresses.Any())
+                        {
+                            <div class="p-3 mb-4 bg-light border rounded clearfix saved-address-card">
+                                <h6 class="font-weight-bold mb-2 text-dark"><i class="fa fa-map-marker text-danger mr-2"></i>Use Saved Address</h6>
+                                <select class="form-control w-100" id="savedAddressSelector" style="width: 100% !important;">
+                                    <option value="">-- Select from your address book --</option>
+                                    @foreach (var addr in Model.SavedAddresses)
+                                    {
+                                        <option value="@addr.Id" 
+                                                data-street="@addr.Address?.StreetAddress" 
+                                                data-suite="@addr.Address?.ApartmentSuite"
+                                                data-city="@addr.Address?.City"
+                                                data-state="@addr.Address?.State"
+                                                data-zip="@addr.Address?.PostalCode"
+                                                data-country="@addr.Address?.Country">
+                                            @addr.Type: @addr.Address?.StreetAddress, @addr.Address?.City (@(addr.IsDefault ? "Default" : "Saved"))
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
+                        <h6 class="checkout__title">Billing / Delivery Details</h6>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>First Name<span>*</span></p>
+                                    <input asp-for="FirstName" placeholder="First name" required />
+                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Last Name<span>*</span></p>
+                                    <input asp-for="LastName" placeholder="Last name" required />
+                                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Phone<span>*</span></p>
+                                    <input asp-for="PhoneNumber" placeholder="e.g. 01712345678" required />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Email Address<span>*</span></p>
+                                    <input asp-for="Email" type="email" placeholder="name@domain.com" required />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Country<span>*</span></p>
+                            <input asp-for="ShippingCountry" value="Bangladesh" required />
+                            <span asp-validation-for="ShippingCountry" class="text-danger small"></span>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Street Address<span>*</span></p>
+                            <input asp-for="ShippingStreetAddress" placeholder="House number and street name" class="checkout__input__add" required />
+                            <input asp-for="ShippingApartmentSuite" placeholder="Apartment, suite, unit etc. (optional)" />
+                            <span asp-validation-for="ShippingStreetAddress" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>Town / City<span>*</span></p>
+                                    <input asp-for="ShippingCity" placeholder="e.g. Dhaka" required />
+                                    <span asp-validation-for="ShippingCity" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="checkout__input">
+                                    <p>District / State<span>*</span></p>
+                                    <input asp-for="ShippingState" placeholder="e.g. Dhaka Division" required />
+                                    <span asp-validation-for="ShippingState" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>Postcode / ZIP<span>*</span></p>
+                            <input asp-for="ShippingPostalCode" placeholder="e.g. 1205" required />
+                            <span asp-validation-for="ShippingPostalCode" class="text-danger small"></span>
+                        </div>
+
+                        <div class="checkout__input__checkbox mt-3">
+                            <label for="diff-acc">
+                                Ship to a different address?
+                                <input type="checkbox" id="diff-acc" asp-for="ShipToDifferentAddress">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div id="differentAddressSection" style="display: none;" class="mt-3 p-3 bg-light border rounded">
+                            <h6 class="font-weight-bold mb-3 text-dark">Alternative Billing Address</h6>
+                            <div class="checkout__input">
+                                <p>Billing Street Address</p>
+                                <input asp-for="BillingStreetAddress" placeholder="Street address" />
+                            </div>
+                            <div class="checkout__input">
+                                <p>Billing Apartment / Suite</p>
+                                <input asp-for="BillingApartmentSuite" placeholder="Apartment, suite, etc." />
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Billing City</p>
+                                        <input asp-for="BillingCity" placeholder="City" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="checkout__input">
+                                        <p>Billing Postal Code</p>
+                                        <input asp-for="BillingPostalCode" placeholder="Postal code" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkout__input mt-4">
+                            <p>Order Notes (Optional)</p>
+                            <input asp-for="OrderNotes" placeholder="Special notes regarding delivery, e.g. landmark or delivery time." />
+                        </div>
+                    </div>
+
+                    <!-- Right: Order Summary & Payment Method -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="checkout__order">
+                            <h4 class="order__title">Your order</h4>
+                            <div class="checkout__order__products">Product <span>Total</span></div>
+                            <ul class="checkout__total__products">
+                                @for (int i = 0; i < Model.Cart.Items.Count; i++)
+                                {
+                                    var item = Model.Cart.Items[i];
+                                    <li>
+                                        @(i + 1). @item.ProductName
+                                        @if (!string.IsNullOrWhiteSpace(item.Size) || !string.IsNullOrWhiteSpace(item.ColorName))
+                                        {
+                                            <small class="text-muted d-block pl-3">
+                                                (@string.Join(", ", new[] { item.Size, item.ColorName }.Where(s => !string.IsNullOrWhiteSpace(s)))) x @item.Quantity
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted d-block pl-3">x @item.Quantity</small>
+                                        }
+                                        <span>BDT @item.LineTotal.ToString("N2")</span>
+                                    </li>
+                                }
+                            </ul>
+
+                            <ul class="checkout__total__all">
+                                <li>Subtotal <span>BDT @Model.Cart.Subtotal.ToString("N2")</span></li>
+                                @if (Model.Cart.DiscountAmount > 0)
+                                {
+                                    <li class="text-success">
+                                        Discount (@Model.Cart.AppliedCouponCode)
+                                        <span class="text-success">- BDT @Model.Cart.DiscountAmount.ToString("N2")</span>
+                                    </li>
+                                }
+                                <li>
+                                    Delivery Charge
+                                    <span>@(Model.ShippingFee == 0 ? "FREE" : $"BDT {Model.ShippingFee:N2}")</span>
+                                </li>
+                                <li class="font-weight-bold text-danger" style="font-size: 18px;">
+                                    Total <span>BDT @Model.FinalTotal.ToString("N2")</span>
+                                </li>
+                            </ul>
+
+                            <!-- Payment Method Choices -->
+                            <div class="payment__method mt-4">
+                                <h6 class="font-weight-bold mb-3 text-dark">Payment Method</h6>
+
+                                <div class="checkout__input__checkbox mb-3 p-3 bg-white border rounded">
+                                    <label for="payment_sslcommerz" class="mb-0 font-weight-bold">
+                                        <input type="radio" id="payment_sslcommerz" asp-for="PaymentMethod" value="@MaleFashion.Domain.Enums.PaymentMethod.SSLCommerz" checked>
+                                        <span class="checkmark"></span>
+                                        <div class="ml-2">
+                                            <span>SSLCommerz Secure Gateway</span>
+                                            <small class="d-block text-muted font-weight-normal mt-1">
+                                                bKash, Nagad, Rocket, Visa, Mastercard & Internet Banking
+                                            </small>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="checkout__input__checkbox mb-3 p-3 bg-white border rounded">
+                                    <label for="payment_cash" class="mb-0 font-weight-bold">
+                                        <input type="radio" id="payment_cash" asp-for="PaymentMethod" value="@MaleFashion.Domain.Enums.PaymentMethod.Cash">
+                                        <span class="checkmark"></span>
+                                        <div class="ml-2">
+                                            <span>Cash on Delivery (COD)</span>
+                                            <small class="d-block text-muted font-weight-normal mt-1">
+                                                Pay conveniently with cash when your parcel is delivered
+                                            </small>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="site-btn btn-block mt-4 py-3 font-weight-bold" style="letter-spacing: 2px;">
+                                PLACE ORDER
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<!-- Checkout Section End -->
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Toggle different billing address
+            $('#diff-acc').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#differentAddressSection').slideDown();
+                } else {
+                    $('#differentAddressSection').slideUp();
+                }
+            });
+
+            // Auto-fill from saved address dropdown
+            $('#savedAddressSelector').on('change', function () {
+                var selected = $(this).find(':selected');
+                if (selected.val()) {
+                    $('#ShippingStreetAddress').val(selected.data('street') || '');
+                    $('#ShippingApartmentSuite').val(selected.data('suite') || '');
+                    $('#ShippingCity').val(selected.data('city') || '');
+                    $('#ShippingState').val(selected.data('state') || '');
+                    $('#ShippingPostalCode').val(selected.data('zip') || '');
+                    $('#ShippingCountry').val(selected.data('country') || 'Bangladesh');
+                }
+            });
+        });
+    </script>
+}
+

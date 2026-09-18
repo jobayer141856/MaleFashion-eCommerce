@@ -67,6 +67,20 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Ordering
                 .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
         }
 
+        public async Task<Order?> GetOrderByOrderNumberWithDetailsAsync(string orderNumber, CancellationToken cancellationToken)
+        {
+            return await _context.Set<Order>()
+                .Include(o => o.Customer)
+                    .ThenInclude(c => c.Addresses)
+                .Include(o => o.Coupon)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(i => i.Product)
+                        .ThenInclude(p => p.Images)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(i => i.ProductVariant)
+                .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber, cancellationToken);
+        }
+
         public async Task<OrderStatsDto> GetOrderStatsAsync(CancellationToken cancellationToken)
         {
             var total = await GetCountAsync(null, cancellationToken);
@@ -81,6 +95,7 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Ordering
 
             decimal totalSales = 0;
             decimal cashSales = 0;
+            decimal sslCommerzSales = 0;
             decimal stripeSales = 0;
 
             if (total > 0)
@@ -88,6 +103,7 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Ordering
                 var validOrders = _context.Set<Order>().Where(o => o.Status != OrderStatus.Cancelled);
                 totalSales = await validOrders.SumAsync(o => o.TotalAmount.Amount, cancellationToken);
                 cashSales = await validOrders.Where(o => o.PaymentMethod == PaymentMethod.Cash).SumAsync(o => o.TotalAmount.Amount, cancellationToken);
+                sslCommerzSales = await validOrders.Where(o => o.PaymentMethod == PaymentMethod.SSLCommerz).SumAsync(o => o.TotalAmount.Amount, cancellationToken);
                 stripeSales = await validOrders.Where(o => o.PaymentMethod == PaymentMethod.Stripe).SumAsync(o => o.TotalAmount.Amount, cancellationToken);
             }
 
@@ -103,6 +119,7 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Ordering
                 PendingPaymentOrdersCount = pendingPaymentCount,
                 TotalSales = totalSales,
                 CashSales = cashSales,
+                SSLCommerzSales = sslCommerzSales,
                 StripeSales = stripeSales
             };
         }

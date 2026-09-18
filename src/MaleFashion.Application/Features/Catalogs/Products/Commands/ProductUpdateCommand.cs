@@ -1,4 +1,5 @@
 using Cortex.Mediator.Commands;
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Domain.Entities.Catalogs;
 using System;
 using System.Collections.Generic;

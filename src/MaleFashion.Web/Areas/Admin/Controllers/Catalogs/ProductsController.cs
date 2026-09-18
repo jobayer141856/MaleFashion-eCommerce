@@ -308,6 +308,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                         DeletedImageIds = deletedImageIds ?? new List<Guid>(),
                         Variants = model.Variants.Select(v => new ProductVariantDto
                         {
+                            Id = v.Id,
                             Size = v.Size,
                             ColorName = v.ColorName,
                             ColorHex = v.ColorHex,

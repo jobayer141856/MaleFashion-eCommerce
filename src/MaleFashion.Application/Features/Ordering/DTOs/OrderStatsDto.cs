@@ -12,6 +12,7 @@ namespace MaleFashion.Application.Features.Ordering.DTOs
         public int CancelledOrders { get; set; }
         public decimal TotalSales { get; set; }
         public decimal CashSales { get; set; }
+        public decimal SSLCommerzSales { get; set; }
         public decimal StripeSales { get; set; }
         public int PaidOrdersCount { get; set; }
         public int PendingPaymentOrdersCount { get; set; }

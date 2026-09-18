@@ -1420,7 +1420,7 @@ namespace MaleFashion.Infrastructure.Data.Migrations
                     b.HasOne("MaleFashion.Domain.Entities.Catalogs.ProductVariant", "ProductVariant")
                         .WithMany()
                         .HasForeignKey("ProductVariantId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.OwnsOne("MaleFashion.Domain.ValueOfObjects.Money", "UnitPrice", b1 =>
                         {

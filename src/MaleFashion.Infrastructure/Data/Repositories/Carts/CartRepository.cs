@@ -88,7 +88,7 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Carts
                     .Include(c => c.Items)
                         .ThenInclude(i => i.ProductVariant)
                     .OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt)
-                    .FirstOrDefaultAsync(c => c.SessionId == sessionId, cancellationToken);
+                    .FirstOrDefaultAsync(c => c.SessionId == sessionId && c.CustomerId == null, cancellationToken);
             }
 
             return null;

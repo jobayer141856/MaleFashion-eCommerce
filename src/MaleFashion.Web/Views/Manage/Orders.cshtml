@@ -95,9 +95,20 @@
                                         </div>
                                         <div class="text-right">
                                             <div class="h6 font-weight-bold text-dark mb-1">৳ @order.TotalAmount.ToString("N2")</div>
-                                            <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-xs btn-outline-danger font-weight-bold py-1 px-3" style="font-size: 12px;">
-                                                View Details
-                                            </a>
+                                            <div class="d-flex justify-content-end align-items-center">
+                                                <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-xs btn-outline-secondary font-weight-bold py-1 px-3 mr-1" style="font-size: 12px;">
+                                                    View Details
+                                                </a>
+                                                @if (order.Status == MaleFashion.Domain.Enums.OrderStatus.Pending)
+                                                {
+                                                    <form asp-action="CancelOrder" asp-route-id="@order.Id" method="post" class="d-inline m-0" onsubmit="return confirm('Are you sure you want to cancel order #@order.OrderNumber?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-xs btn-outline-danger font-weight-bold py-1 px-2" style="font-size: 12px;">
+                                                            <i class="fa fa-times mr-1"></i> Cancel
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

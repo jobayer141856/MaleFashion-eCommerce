@@ -29,3 +29,104 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* =========================================================
+   Header Top Bar - User Dropdown Menu Fix
+   ========================================================= */
+.header__top__links .dropdown {
+    position: relative !important;
+}
+
+.header-dropdown-menu {
+    min-width: 220px !important;
+    width: 220px !important;
+    max-width: 250px !important;
+    padding: 8px 0 !important;
+    border-radius: 6px !important;
+    border: 1px solid #e5e5e5 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    white-space: normal !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 8px !important;
+    z-index: 1050 !important;
+}
+
+.header-dropdown-menu .dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 9px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: none !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    color: #222222 !important;
+    transition: all 0.2s ease !important;
+}
+
+.header-dropdown-menu .dropdown-item:hover {
+    background-color: #f8f9fa !important;
+    color: #e53637 !important;
+}
+
+.header-dropdown-menu .dropdown-item:hover i {
+    color: #e53637 !important;
+}
+
+.header-dropdown-menu .dropdown-divider {
+    margin: 6px 0 !important;
+    border-top: 1px solid #f0f0f0 !important;
+}
+
+/* =========================================================
+   Nice-Select Responsive Full-Width & Float Reset
+   ========================================================= */
+.nice-select.form-control,
+.nice-select.w-100,
+.modal .nice-select,
+.manage-account-wrapper .nice-select,
+.checkout__form .nice-select {
+    float: none !important;
+    display: block !important;
+    width: 100% !important;
+    height: 44px !important;
+    line-height: 42px !important;
+    padding-left: 15px !important;
+    padding-right: 30px !important;
+    clear: both !important;
+    box-sizing: border-box !important;
+}
+
+.nice-select.form-control:after,
+.nice-select.w-100:after,
+.modal .nice-select:after,
+.manage-account-wrapper .nice-select:after,
+.checkout__form .nice-select:after {
+    right: 15px !important;
+}
+
+.nice-select.form-control .list,
+.nice-select.w-100 .list,
+.modal .nice-select .list,
+.manage-account-wrapper .nice-select .list,
+.checkout__form .nice-select .list {
+    width: 100% !important;
+    max-height: 240px !important;
+    overflow-y: auto !important;
+    z-index: 99 !important;
+}
+
+.nice-select.form-control .current,
+.nice-select.w-100 .current,
+.modal .nice-select .current,
+.manage-account-wrapper .nice-select .current,
+.checkout__form .nice-select .current {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 90% !important;
+}

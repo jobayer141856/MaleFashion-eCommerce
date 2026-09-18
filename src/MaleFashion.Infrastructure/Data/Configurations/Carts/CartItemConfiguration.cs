@@ -27,7 +27,7 @@ namespace MaleFashion.Infrastructure.Data.Configurations.Carts
             builder.HasOne(i => i.ProductVariant)
                    .WithMany()
                    .HasForeignKey(i => i.ProductVariantId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

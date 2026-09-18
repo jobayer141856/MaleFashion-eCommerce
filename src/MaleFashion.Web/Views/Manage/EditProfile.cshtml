@@ -74,9 +74,9 @@
                                 <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Gender" class="font-weight-bold small text-dark"></label>
-                                <select asp-for="Gender" class="form-control">
+                            <div class="col-md-6 mb-3 clearfix">
+                                <label asp-for="Gender" class="font-weight-bold small text-dark d-block mb-1"></label>
+                                <select asp-for="Gender" class="form-control w-100" style="width: 100% !important;">
                                     <option value="">-- Select Gender --</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>

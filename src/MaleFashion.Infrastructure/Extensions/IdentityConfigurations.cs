@@ -17,7 +17,6 @@ namespace MaleFashion.Infrastructure.Extensions
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddRoleManager<ApplicationRoleManager>()
                 .AddSignInManager<ApplicationSignInManager>()
-                .AddSignInManager<ApplicationSignInManager>()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>

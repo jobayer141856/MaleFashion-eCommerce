@@ -1,0 +1,202 @@
+@model MaleFashion.Web.Models.Checkout.OrderConfirmationViewModel
+@{
+    ViewData["Title"] = $"Order Confirmed - {Model.OrderNumber}";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Order Confirmation</h4>
+                    <div class="breadcrumb__links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Shop" asp-action="Index">Shop</a>
+                        <span>Order #@Model.OrderNumber</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<section class="spad">
+    <div class="container">
+        <!-- Status Notification Banners -->
+        @if (TempData["OrderSuccess"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4 p-3 font-weight-bold" role="alert">
+                <i class="fa fa-check-circle mr-2"></i> @TempData["OrderSuccess"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        @if (TempData["OrderWarning"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show mb-4 p-3" role="alert">
+                <i class="fa fa-exclamation-triangle mr-2"></i> @TempData["OrderWarning"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        @if (TempData["OrderError"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4 p-3" role="alert">
+                <i class="fa fa-times-circle mr-2"></i> @TempData["OrderError"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h5 class="text-white font-weight-bold mb-1">
+                        Order #@Model.OrderNumber
+                    </h5>
+                    <small class="text-white-50">Placed on @Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt") UTC</small>
+                </div>
+                <div class="mt-2 mt-sm-0">
+                    <span class="badge badge-light px-3 py-2 text-uppercase font-weight-bold mr-2">
+                        Status: @Model.Status
+                    </span>
+                    @if (Model.PaymentStatus == MaleFashion.Domain.Enums.PaymentStatus.Paid)
+                    {
+                        <span class="badge badge-success px-3 py-2 text-uppercase font-weight-bold">
+                            Payment: Paid
+                        </span>
+                    }
+                    else if (Model.PaymentStatus == MaleFashion.Domain.Enums.PaymentStatus.Failed)
+                    {
+                        <span class="badge badge-danger px-3 py-2 text-uppercase font-weight-bold">
+                            Payment: Failed
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning px-3 py-2 text-uppercase font-weight-bold text-dark">
+                            Payment: Pending
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <!-- Delivery Details -->
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h6 class="font-weight-bold text-dark text-uppercase mb-2">Shipping Information</h6>
+                        <p class="mb-1 text-dark"><strong>Recipient:</strong> @Model.CustomerName</p>
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerPhone))
+                        {
+                            <p class="mb-1 text-muted"><strong>Phone:</strong> @Model.CustomerPhone</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CustomerEmail))
+                        {
+                            <p class="mb-1 text-muted"><strong>Email:</strong> @Model.CustomerEmail</p>
+                        }
+                        <p class="mb-0 text-muted"><strong>Address:</strong> @Model.ShippingAddressText</p>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="col-md-6">
+                        <h6 class="font-weight-bold text-dark text-uppercase mb-2">Payment Details</h6>
+                        <p class="mb-1 text-dark">
+                            <strong>Method:</strong> 
+                            @(Model.PaymentMethod == MaleFashion.Domain.Enums.PaymentMethod.SSLCommerz ? "SSLCommerz Online Payment" : "Cash on Delivery (COD)")
+                        </p>
+                        @if (!string.IsNullOrWhiteSpace(Model.TransactionId))
+                        {
+                            <p class="mb-1 text-muted"><strong>Transaction ID:</strong> <code>@Model.TransactionId</code></p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.OrderNotes))
+                        {
+                            <p class="mb-0 text-muted"><strong>Notes:</strong> @Model.OrderNotes</p>
+                        }
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Ordered Items -->
+                <h6 class="font-weight-bold text-dark text-uppercase mb-3">Order Items</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center" style="width: 120px;">Unit Price</th>
+                                <th class="text-center" style="width: 100px;">Qty</th>
+                                <th class="text-right" style="width: 140px;">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@item.ImageUrl" alt="@item.ProductName" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" class="mr-3 border" />
+                                            <div>
+                                                <strong class="text-dark d-block">@item.ProductName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(item.Size) || !string.IsNullOrWhiteSpace(item.Color))
+                                                {
+                                                    <small class="text-muted">
+                                                        @(string.Join(" / ", new[] { item.Size, item.Color }.Where(s => !string.IsNullOrWhiteSpace(s))))
+                                                    </small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">BDT @item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-center align-middle font-weight-bold">@item.Quantity</td>
+                                    <td class="text-right align-middle font-weight-bold text-dark">BDT @item.TotalPrice.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-right font-weight-normal">Subtotal</th>
+                                <th class="text-right font-weight-normal">BDT @Model.Subtotal.ToString("N2")</th>
+                            </tr>
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <tr class="text-success">
+                                    <th colspan="3" class="text-right font-weight-normal">Discount</th>
+                                    <th class="text-right font-weight-normal">- BDT @Model.DiscountAmount.ToString("N2")</th>
+                                </tr>
+                            }
+                            <tr>
+                                <th colspan="3" class="text-right font-weight-normal">Shipping Cost</th>
+                                <th class="text-right font-weight-normal">@(Model.ShippingCost == 0 ? "FREE" : $"BDT {Model.ShippingCost:N2}")</th>
+                            </tr>
+                            <tr class="bg-light font-weight-bold" style="font-size: 16px;">
+                                <th colspan="3" class="text-right text-dark">Total Amount</th>
+                                <th class="text-right text-danger font-weight-bold">BDT @Model.TotalAmount.ToString("N2")</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Footer Buttons -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap mt-4 pt-2">
+                    <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-dark px-4 py-2 font-weight-bold">
+                        <i class="fa fa-arrow-left mr-2"></i> Continue Shopping
+                    </a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Manage" asp-action="Orders" class="primary-btn px-4 py-2">
+                            View All My Orders <i class="fa fa-arrow-right ml-2"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

@@ -24,6 +24,7 @@ namespace MaleFashion.Web.Controllers.Account
         private readonly ILogger<AccountController> _logger;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
+        private readonly Cortex.Mediator.IMediator _mediator;
 
         public AccountController(
            UserManager<ApplicationUser> userManager,
@@ -31,7 +32,8 @@ namespace MaleFashion.Web.Controllers.Account
            SignInManager<ApplicationUser> signInManager,
            ILogger<AccountController> logger,
            IEmailService emailService,
-           IMapper mapper)
+           IMapper mapper,
+           Cortex.Mediator.IMediator mediator)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -40,6 +42,7 @@ namespace MaleFashion.Web.Controllers.Account
             _logger = logger;
             _emailService = emailService;
             _mapper = mapper;
+            _mediator = mediator;
         }
         public IActionResult Index()
         {
@@ -303,6 +306,17 @@ namespace MaleFashion.Web.Controllers.Account
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "Customer");
+
+                    // Create matching Customer record in Customers table
+                    await _mediator.SendCommandAsync(new MaleFashion.Application.Features.Customers.Commands.CustomerAddCommand
+                    {
+                        UserId = user.Id,
+                        FirstName = model.FirstName.Trim(),
+                        LastName = model.LastName.Trim(),
+                        Email = model.Email.Trim().ToLowerInvariant(),
+                        PhoneNumber = string.Empty,
+                        Origin = MaleFashion.Domain.Enums.CustomerOrigin.Self
+                    });
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

@@ -110,15 +110,19 @@
                 <div class="card-header d-flex align-items-center justify-content-between pb-0">
                     <div class="card-title mb-0">
                         <h5 class="m-0 me-2"><i class="bx bx-bar-chart-alt-2 me-1 text-success"></i> Revenue by Payment Method</h5>
-                        <small class="text-muted">Cash on Delivery vs Stripe gateway volume</small>
+                        <small class="text-muted">Breakdown of sales by payment gateway</small>
                     </div>
                 </div>
                 <div class="card-body">
                     <div id="paymentRevenueChart" style="min-height: 250px;"></div>
-                    <div class="d-flex justify-content-around text-center pt-2 border-top">
+                    <div class="d-flex justify-content-around text-center pt-2 border-top flex-wrap gap-2">
                         <div>
                             <span class="badge bg-label-success mb-1"><i class="bx bx-money me-1"></i>Cash on Delivery</span>
                             <h6 class="mb-0 fw-bold">৳ @(stats.CashSales.ToString("N2"))</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-label-info mb-1"><i class="bx bx-credit-card me-1"></i>SSLCommerz</span>
+                            <h6 class="mb-0 fw-bold">৳ @(stats.SSLCommerzSales.ToString("N2"))</h6>
                         </div>
                         <div>
                             <span class="badge bg-label-primary mb-1"><i class="bx bxl-stripe me-1"></i>Stripe Online</span>
@@ -162,6 +166,7 @@
                         <select id="filter-payment-method" class="form-select form-select-sm" style="width: auto;">
                             <option value="">All Methods</option>
                             <option value="Cash">Cash on Delivery</option>
+                            <option value="SSLCommerz">SSLCommerz</option>
                             <option value="Stripe">Stripe</option>
                         </select>
                     </div>
@@ -258,6 +263,7 @@
 
             // Bar Chart: Revenue by Method
             var cashSales = @(stats.CashSales);
+            var sslCommerzSales = @(stats.SSLCommerzSales);
             var stripeSales = @(stats.StripeSales);
 
             var paymentOptions = {
@@ -273,13 +279,13 @@
                         barHeight: '50%'
                     }
                 },
-                colors: ['#71dd37', '#696cff'],
+                colors: ['#71dd37', '#03c3ec', '#696cff'],
                 series: [{
                     name: 'Sales (BDT)',
-                    data: [cashSales, stripeSales]
+                    data: [cashSales, sslCommerzSales, stripeSales]
                 }],
                 xaxis: {
-                    categories: ['Cash on Delivery', 'Stripe Online'],
+                    categories: ['Cash on Delivery', 'SSLCommerz', 'Stripe Online'],
                     labels: {
                         formatter: function (val) {
                             return '৳ ' + val.toLocaleString();

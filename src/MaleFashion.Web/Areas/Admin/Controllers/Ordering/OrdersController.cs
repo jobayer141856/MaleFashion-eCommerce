@@ -49,6 +49,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
                 ViewBag.CancelledOrders = stats.CancelledOrders;
                 ViewBag.TotalSales = stats.TotalSales;
                 ViewBag.CashSales = stats.CashSales;
+                ViewBag.SSLCommerzSales = stats.SSLCommerzSales;
                 ViewBag.StripeSales = stats.StripeSales;
             }
             catch (Exception ex)
@@ -63,6 +64,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
                 ViewBag.CancelledOrders = 0;
                 ViewBag.TotalSales = 0m;
                 ViewBag.CashSales = 0m;
+                ViewBag.SSLCommerzSales = 0m;
                 ViewBag.StripeSales = 0m;
             }
 
@@ -129,7 +131,13 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
                             let currency = item.TotalAmount.Currency
                             let totalHtml = $"<span class='fw-bold text-dark fs-6'>{totalVal:N2} {currency}</span>"
                             let paymentBadge = GetPaymentStatusBadge(item.PaymentStatus)
-                            let paymentMethodIcon = item.PaymentMethod == PaymentMethod.Cash ? "<i class='bx bx-money text-success me-1'></i>Cash" : "<i class='bx bxl-stripe text-primary me-1'></i>Stripe"
+                            let paymentMethodIcon = item.PaymentMethod switch
+                            {
+                                PaymentMethod.Cash => "<span class='badge bg-label-success'><i class='bx bx-money me-1'></i>Cash</span>",
+                                PaymentMethod.SSLCommerz => "<span class='badge bg-label-info'><i class='bx bx-credit-card me-1'></i>SSLCommerz</span>",
+                                PaymentMethod.Stripe => "<span class='badge bg-label-primary'><i class='bx bxl-stripe me-1'></i>Stripe</span>",
+                                _ => $"<span class='badge bg-label-secondary'>{item.PaymentMethod}</span>"
+                            }
                             let paymentHtml = $@"<div>
                                 <div>{paymentMethodIcon}</div>
                                 <div class='mt-1'>{paymentBadge}</div>

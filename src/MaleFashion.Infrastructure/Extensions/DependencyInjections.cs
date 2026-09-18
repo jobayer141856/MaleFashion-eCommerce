@@ -20,6 +20,7 @@ using MaleFashion.Infrastructure.Data.Repositories.Promotions;
 using MaleFashion.Infrastructure.Data.Repositories.Reviews;
 using MaleFashion.Infrastructure.Data.Repositories.Support;
 using MaleFashion.Infrastructure.Services;
+using MaleFashion.Infrastructure.Services.SSLCommerz;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -39,6 +40,7 @@ namespace MaleFashion.Infrastructure.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped<ICartSessionService, CartSessionService>();
             services.AddScoped<IWishlistSessionService, WishlistSessionService>();
+            services.AddHttpClient<ISSLCommerzService, SSLCommerzService>();
 
             // =========================================================
             // REPOSITORIES
@@ -54,6 +56,7 @@ namespace MaleFashion.Infrastructure.Extensions
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             // Blogs
             services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+            services.AddScoped<IBlogCommentRepository, BlogCommentRepository>(); 
             // Reviews & Feedback
             services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
             // Promotions & Deals

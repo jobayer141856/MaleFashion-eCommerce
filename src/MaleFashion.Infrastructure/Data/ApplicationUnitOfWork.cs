@@ -29,6 +29,7 @@ namespace MaleFashion.Infrastructure.Data
         public ICustomerRepository CustomerRepository { get; private set; }
         // Blog & Content
         public IBlogPostRepository BlogPostRepository { get; private set; }
+
         public IBlogCommentRepository BlogCommentRepository { get; private set; }
         // Feedback & Reviews
         public IProductReviewRepository ProductReviewRepository { get; private set; }
@@ -56,6 +57,7 @@ namespace MaleFashion.Infrastructure.Data
             ICartRepository cartRepository,
             ICustomerRepository customerRepository,
             IBlogPostRepository blogPostRepository,
+            IBlogCommentRepository blogCommentRepository,
             IProductReviewRepository productReviewRepository,
             ICouponRepository couponRepository,
             IDealCountdownRepository dealCountdownRepository,
@@ -74,6 +76,7 @@ namespace MaleFashion.Infrastructure.Data
             CartRepository = cartRepository;
             CustomerRepository = customerRepository;
             BlogPostRepository = blogPostRepository;
+            BlogCommentRepository = blogCommentRepository;  
             ProductReviewRepository = productReviewRepository;
             CouponRepository = couponRepository;
             DealCountdownRepository = dealCountdownRepository;

@@ -15,6 +15,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Customers
         Task<Customer?> GetCustomerByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<Customer?> GetCustomerWithWishlistByIdAsync(Guid customerId, CancellationToken cancellationToken = default);
         Task<bool> IsDuplicateEmail(string email, Guid? id, CancellationToken cancellationToken);
+        Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
     }
 }
 

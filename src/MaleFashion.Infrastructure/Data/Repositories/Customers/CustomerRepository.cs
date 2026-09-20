@@ -91,5 +91,12 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Customers
             else
                 return (await GetCountAsync(x => x.Email == cleanEmail && x.Id != id.Value && x.Origin != CustomerOrigin.Guest, cancellationToken)) > 0;
         }
+
+        public async Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+        {
+            var cleanEmail = email.Trim().ToLowerInvariant();
+            var list = await GetAsync(x => x.Email == cleanEmail, null, cancellationToken);
+            return list.FirstOrDefault();
+        }
     }
 }

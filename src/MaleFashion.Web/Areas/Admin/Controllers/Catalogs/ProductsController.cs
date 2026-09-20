@@ -574,6 +574,42 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
 
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult IndexSP()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GetPagedProductsSP([FromBody] ProductListSPModel model, CancellationToken cancellationToken)
+        {
+            var query = new GetShopProductsQuery
+            {
+                PageIndex = (model.Start / (model.Length > 0 ? model.Length : 10)) + 1,
+                PageSize = model.Length > 0 ? model.Length : 10,
+                SearchText = model.Name,
+                PriceFrom = model.PriceFrom.HasValue ? Convert.ToDecimal(model.PriceFrom.Value) : null,
+                PriceTo = model.PriceTo.HasValue ? Convert.ToDecimal(model.PriceTo.Value) : null
+            };
+
+            var (products, total, totalDisplay) = await _mediator.SendQueryAsync<GetShopProductsQuery,
+                (IList<ShopProductItemDto>, int, int)>(query, cancellationToken);
+
+            var data = products.Select(p => new object[]
+            {
+                !string.IsNullOrEmpty(p.ImageUrl) ? (p.ImageUrl.StartsWith("/") ? p.ImageUrl : $"/uploads/products/{p.ImageUrl}") : "/sneat/assets/img/elements/1.jpg",
+                p.Name,
+                $"৳{p.EffectivePrice:N2}",
+                p.Id
+            });
+
+            return Json(new
+            {
+                recordsTotal = total,
+                recordsFiltered = totalDisplay,
+                data
+            });
+        }
     }
 }
 

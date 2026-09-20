@@ -28,6 +28,7 @@ namespace MaleFashion.Web.Controllers
         private readonly IApplicationUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISSLCommerzService _sslCommerzService;
+        private readonly IEmailService _emailService;
         private readonly ILogger<CheckoutController> _logger;
 
         public CheckoutController(
@@ -36,6 +37,7 @@ namespace MaleFashion.Web.Controllers
             IApplicationUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             ISSLCommerzService sslCommerzService,
+            IEmailService emailService,
             ILogger<CheckoutController> logger)
         {
             _mediator = mediator;
@@ -43,6 +45,7 @@ namespace MaleFashion.Web.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _sslCommerzService = sslCommerzService;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -163,6 +166,7 @@ namespace MaleFashion.Web.Controllers
             // Route based on payment method
             if (result.PaymentMethod == PaymentMethod.Cash)
             {
+                await SendOrderConfirmationEmailAsync($"{model.FirstName} {model.LastName}".Trim(), model.Email, result.OrderNumber, result.TotalAmount, "Cash on Delivery");
                 TempData["OrderSuccess"] = "Your order has been placed successfully! Payment will be collected on delivery.";
                 return RedirectToAction(nameof(Confirmation), new { orderNumber = result.OrderNumber });
             }
@@ -238,6 +242,12 @@ namespace MaleFashion.Web.Controllers
                         TransactionId = validation.BankTranId ?? val_id,
                         GatewayNotes = $"SSLCommerz Payment Validated: Card={validation.CardType ?? card_type}, BankTranId={validation.BankTranId ?? bank_tran_id}, ValId={val_id}"
                     }, cancellationToken);
+
+                    var order = await _unitOfWork.OrderRepository.GetOrderByOrderNumberWithDetailsAsync(tran_id, cancellationToken);
+                    if (order != null && order.Customer != null && !string.IsNullOrWhiteSpace(order.Customer.Email))
+                    {
+                        await SendOrderConfirmationEmailAsync($"{order.Customer.FirstName} {order.Customer.LastName}".Trim(), order.Customer.Email, order.OrderNumber, order.TotalAmount.Amount, "SSLCommerz");
+                    }
 
                     TempData["OrderSuccess"] = "Payment successful! Your order is being processed.";
                     return RedirectToAction(nameof(Confirmation), new { orderNumber = tran_id });
@@ -388,6 +398,46 @@ namespace MaleFashion.Web.Controllers
             };
 
             return View(model);
+        }
+
+        private async Task SendOrderConfirmationEmailAsync(string customerName, string customerEmail, string orderNumber, decimal totalAmount, string paymentMethod)
+        {
+            try
+            {
+                var subject = $"Order Confirmation - {orderNumber} | MaleFashion";
+                var trackUrl = $"{Request.Scheme}://{Request.Host}/Order/Track?orderNumber={orderNumber}";
+                var body = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e1e1e1; padding: 25px; border-radius: 8px;'>
+                        <h2 style='color: #e53637; margin-bottom: 5px;'>MaleFashion</h2>
+                        <h3 style='margin-top: 0;'>Thank you for your order!</h3>
+                        <p>Dear <strong>{customerName}</strong>,</p>
+                        <p>We are pleased to confirm that your order <strong>{orderNumber}</strong> has been received and is being processed.</p>
+                        
+                        <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+                            <tr style='background: #f8f9fa;'>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'><strong>Order Number:</strong></td>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'>{orderNumber}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'><strong>Total Amount:</strong></td>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'>৳{totalAmount:N2} BDT</td>
+                            </tr>
+                            <tr style='background: #f8f9fa;'>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'><strong>Payment Method:</strong></td>
+                                <td style='padding: 10px; border: 1px solid #dee2e6;'>{paymentMethod}</td>
+                            </tr>
+                        </table>
+
+                        <p>You can track the status of your order anytime on our website at <a href='{trackUrl}' style='color: #e53637;'>Track Your Order</a>.</p>
+                        <p style='color: #777; font-size: 13px; margin-top: 30px;'>MaleFashion Team<br />Support Hotline: +880 1234-567890</p>
+                    </div>";
+
+                await _emailService.SendEmailAsync(customerName, customerEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send order confirmation email for {OrderNumber} to {Email}", orderNumber, customerEmail);
+            }
         }
     }
 }

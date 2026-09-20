@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator.Commands;
+using Cortex.Mediator.Commands;
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Exceptions;
@@ -28,6 +28,13 @@ namespace MaleFashion.Application.Features.Catalogs.Brands.Commands
             var brand = await _unitOfWork.BrandRepository.GetByIdAsync(command.Id, cancellationToken);
             if (brand == null)
                 throw new NotFoundException($"Brand with ID '{command.Id}' not found.");
+
+            var productCount = await _unitOfWork.ProductRepository.GetCountAsync(
+                p => p.BrandId == command.Id, cancellationToken);
+
+            if (productCount > 0)
+                throw new DuplicateDataException($"Brand '{brand.Name}' cannot be deleted because it is associated with {productCount} product(s). Please reassign or delete the products first.");
+
             var logoUrl = brand.LogoUrl;
             await _unitOfWork.BrandRepository.RemoveAsync(command.Id, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

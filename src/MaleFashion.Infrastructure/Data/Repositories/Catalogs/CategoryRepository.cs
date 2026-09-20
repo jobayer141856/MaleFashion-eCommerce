@@ -35,6 +35,15 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
             else
                 return (await GetCountAsync(x => x.Name == name && x.Id != id.Value, cancellationToken)) > 0;
         }
+
+        public async Task<Dictionary<Guid, int>> GetProductCountsByCategoryAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Set<Product>()
+                .Where(p => p.IsActive)
+                .GroupBy(p => p.CategoryId)
+                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CategoryId, x => x.Count, cancellationToken);
+        }
     }
 }
 

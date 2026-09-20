@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator.Commands;
+using Cortex.Mediator.Commands;
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Exceptions;
@@ -29,11 +29,11 @@ namespace MaleFashion.Application.Features.Catalogs.Categories.Commands
             if (category == null)
                 throw new NotFoundException($"Category with ID '{command.Id}' not found.");
 
-            //var hasProducts = await _unitOfWork.ProductRepository.ExistsByCategoryIdAsync(
-            //    command.Id, cancellationToken);
+            var productCount = await _unitOfWork.ProductRepository.GetCountAsync(
+                p => p.CategoryId == command.Id, cancellationToken);
 
-            //if (hasProducts)
-            //    throw new DuplicateDataException($"Category '{category.Name}' has associated products and cannot be deleted.");
+            if (productCount > 0)
+                throw new DuplicateDataException($"Category '{category.Name}' cannot be deleted because it is associated with {productCount} product(s). Please reassign or delete the products first.");
 
             var imageName = category.ImageName;
 

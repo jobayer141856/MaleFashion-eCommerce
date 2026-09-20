@@ -13,6 +13,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Catalogs
         //Task AddAsync(Category category);
         Task<(IList<Category>, int, int)> GetPagedCategories(GetAllCategoriesByPagingQuery query, CancellationToken cancellationToken);
         Task<bool> IsDuplicateCategoryName(string name, Guid? Id, CancellationToken cancellationToken);
+        Task<Dictionary<Guid, int>> GetProductCountsByCategoryAsync(CancellationToken cancellationToken = default);
     }
 }
 

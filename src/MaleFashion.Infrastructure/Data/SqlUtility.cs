@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts.Services;
+using MaleFashion.Application.Contracts.Services;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,7 @@ namespace MaleFashion.Infrastructure.Data
             catch (DbException dex)
             {
                 transaction.Rollback();
+                throw;
             }
 
             return CopyOutParams(command, outParameters);
@@ -70,6 +71,7 @@ namespace MaleFashion.Infrastructure.Data
             catch (DbException dex)
             {
                 await transaction.RollbackAsync();
+                throw;
             }
 
             return CopyOutParams(command, outParameters);
@@ -81,6 +83,7 @@ namespace MaleFashion.Infrastructure.Data
             where TReturn : class, new()
         {
             var command = CreateCommand(storedProcedureName, parameters, outParameters);
+            command = ConvertNullToDbNull(command);
 
             var connectionOpened = false;
             if (command.Connection.State == ConnectionState.Closed)
@@ -90,17 +93,17 @@ namespace MaleFashion.Infrastructure.Data
             }
 
             IList<TReturn> result = null;
+            IDictionary<string, object> outValues = null;
             try
             {
                 result = await ExecuteQueryAsync<TReturn>(command);
+                outValues = CopyOutParams(command, outParameters);
             }
             finally
             {
                 if (connectionOpened)
                     await command.Connection.CloseAsync();
             }
-
-            var outValues = CopyOutParams(command, outParameters);
 
             return (result, outValues);
         }
@@ -229,25 +232,29 @@ namespace MaleFashion.Infrastructure.Data
 
         private async Task<IList<TReturn>> ExecuteQueryAsync<TReturn>(DbCommand command)
         {
-            var reader = await command.ExecuteReaderAsync();
             var result = new List<TReturn>();
 
-            while (await reader.ReadAsync())
+            await using (var reader = await command.ExecuteReaderAsync())
             {
-                var type = typeof(TReturn);
-                var constructor = type.GetConstructor(new Type[] { });
-                if (constructor == null)
-                    throw new InvalidOperationException("An empty contructor is required for the return type");
-
-                var instance = constructor.Invoke(new object[] { });
-
-                for (var i = 0; i < reader.FieldCount; i++)
+                while (await reader.ReadAsync())
                 {
-                    var property = type.GetProperty(reader.GetName(i));
-                    property?.SetValue(instance, ChangeType(property.PropertyType, reader.GetValue(i)));
+                    var type = typeof(TReturn);
+                    var constructor = type.GetConstructor(new Type[] { });
+                    if (constructor == null)
+                        throw new InvalidOperationException("An empty contructor is required for the return type");
+
+                    var instance = constructor.Invoke(new object[] { });
+
+                    for (var i = 0; i < reader.FieldCount; i++)
+                    {
+                        var property = type.GetProperty(reader.GetName(i));
+                        property?.SetValue(instance, ChangeType(property.PropertyType, reader.GetValue(i)));
+                    }
+
+                    result.Add((TReturn)instance);
                 }
 
-                result.Add((TReturn)instance);
+                await reader.CloseAsync();
             }
 
             return result;

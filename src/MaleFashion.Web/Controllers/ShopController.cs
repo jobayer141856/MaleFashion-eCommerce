@@ -38,6 +38,7 @@ namespace MaleFashion.Web.Controllers
             // 2. Fetch Category & Brand filters
             var categories = await _unitOfWork.CategoryRepository.GetAllAsync(cancellationToken);
             var brands = await _unitOfWork.BrandRepository.GetAllAsync(cancellationToken);
+            var categoryCounts = await _unitOfWork.CategoryRepository.GetProductCountsByCategoryAsync(cancellationToken);
 
             var model = new ShopIndexModel
             {
@@ -59,7 +60,7 @@ namespace MaleFashion.Web.Controllers
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    ProductCount = c.Products?.Count ?? 0
+                    ProductCount = categoryCounts.TryGetValue(c.Id, out var cnt) ? cnt : 0
                 }).ToList(),
                 Brands = brands.Where(b => b.IsActive).Select(b => new BrandFilterItem
                 {

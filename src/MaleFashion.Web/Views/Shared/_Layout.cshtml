@@ -42,18 +42,20 @@
             <div class="offcanvas__links d-flex align-items-center flex-wrap">
                 <partial name="_LoginPartial" />
                 <a asp-controller="Faq" asp-action="Index">FAQs</a>
+                <a asp-controller="OrderTracking" asp-action="Index">Track Order</a>
             </div>
             <div class="offcanvas__top__hover">
                 <span class="badge badge-light px-2 py-1" style="font-size: 11px; letter-spacing: 1px; font-weight: 700; border: 1px solid #e1e1e1;">BDT</span>
             </div>
         </div>
         <div class="offcanvas__nav__option">
+            <a href="#" class="search-switch"><img src="~/malefashion/img/icon/search.png" alt="Search" /></a>
             @await Component.InvokeAsync("WishlistSummary")
             @await Component.InvokeAsync("CartSummary")
         </div>
         <div id="mobile-menu-wrap"></div>
         <div class="offcanvas__text">
-            <p>Free shipping, 30-day return or refund guarantee.</p>
+            <p>Free shipping on orders over BDT 1500 or 30-day money-back guarantee.</p>
         </div>
     </div>
     <!-- Offcanvas Menu End -->
@@ -61,10 +63,10 @@
     <header class="header">
         <div class="header__top">
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 col-md-5 col-12 text-center text-md-left mb-2 mb-md-0">
-                        <div class="header__top__left">
-                            <p class="mb-0 text-truncate" style="font-size: 13px;">Free shipping, 30-day return or refund guarantee.</p>
+                <div class="row">
+                    <div class="col-lg-6 col-md-5 col-12">
+                        <div class="header__top__left text-center text-md-left">
+                            <p>Free shipping on orders over BDT 1500 or 30-day money-back guarantee.</p>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-7 col-12">
@@ -72,6 +74,7 @@
                             <div class="header__top__links d-flex align-items-center mr-3" style="white-space: nowrap;">
                                 <partial name="_LoginPartial" />
                                 <a asp-controller="Faq" asp-action="Index" class="header-auth-link text-uppercase" style="font-size: 13px; letter-spacing: 1px; text-decoration: none;">FAQs</a>
+                                <a asp-controller="OrderTracking" asp-action="Index" class="header-auth-link text-uppercase ml-3" style="font-size: 13px; letter-spacing: 1px; text-decoration: none;">Track Order</a>
                             </div>
                             <div class="header__top__hover d-inline-block" style="white-space: nowrap;">
                                 <span class="badge badge-dark px-2 py-1 text-white" style="font-size: 11px; letter-spacing: 1px; font-weight: 700; background: #222222; border: 1px solid #444444;">BDT</span>
@@ -117,6 +120,7 @@
                 </div>
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
+                        <a href="#" class="search-switch"><img src="~/malefashion/img/icon/search.png" alt="Search" /></a>
                         @await Component.InvokeAsync("WishlistSummary")
                         @await Component.InvokeAsync("CartSummary")
                     </div>
@@ -195,6 +199,18 @@
         </div>
     </footer>
     <!-- Footer Section End -->
+
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form" asp-controller="Shop" asp-action="Index" method="get">
+                <input type="text" id="search-input" name="SearchText" placeholder="Search products, brands, or SKU..." autocomplete="off">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+
     <!-- Js Plugins -->
     <script src="~/malefashion/js/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>

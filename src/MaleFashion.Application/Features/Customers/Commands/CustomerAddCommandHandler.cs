@@ -1,4 +1,4 @@
-﻿using Cortex.Mediator.Commands;
+using Cortex.Mediator.Commands;
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Exceptions;
 using MaleFashion.Domain.Entities.Customers;
@@ -22,6 +22,8 @@ namespace MaleFashion.Application.Features.Customers.Commands
 
         public async Task<Customer> Handle(CustomerAddCommand command, CancellationToken cancellationToken)
         {
+            var cleanEmail = command.Email.Trim().ToLowerInvariant();
+
             // Only validate unique email if it is a registered user (Self or Admin)
             if (command.Origin != CustomerOrigin.Guest)
             {
@@ -29,6 +31,42 @@ namespace MaleFashion.Application.Features.Customers.Commands
                 if (isDuplicate)
                 {
                     throw new DuplicateDataException($"A customer with email '{command.Email}' already exists.");
+                }
+
+                var existingGuest = await _unitOfWork.CustomerRepository.GetByEmailAsync(cleanEmail, cancellationToken);
+                if (existingGuest != null && existingGuest.Origin == CustomerOrigin.Guest)
+                {
+                    existingGuest.UserId = command.UserId;
+                    existingGuest.FirstName = command.FirstName.Trim();
+                    existingGuest.LastName = command.LastName.Trim();
+                    existingGuest.PhoneNumber = command.PhoneNumber.Trim();
+                    existingGuest.DateOfBirth = command.DateOfBirth;
+                    existingGuest.Gender = command.Gender;
+                    existingGuest.Origin = CustomerOrigin.Self;
+                    existingGuest.UpdatedAt = DateTime.UtcNow;
+
+                    if (!string.IsNullOrWhiteSpace(command.StreetAddress) && !string.IsNullOrWhiteSpace(command.City))
+                    {
+                        existingGuest.Addresses.Add(new CustomerAddress
+                        {
+                            Id = IdentityGenerator.NewSequentialGuid(),
+                            CustomerId = existingGuest.Id,
+                            Type = AddressType.Shipping,
+                            Address = new Address(
+                                command.StreetAddress,
+                                command.ApartmentSuite,
+                                command.City,
+                                command.State ?? string.Empty,
+                                command.PostalCode ?? string.Empty,
+                                command.Country ?? "Bangladesh"
+                            ),
+                            IsDefault = true,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
+
+                    await _unitOfWork.SaveAsync(cancellationToken);
+                    return existingGuest;
                 }
             }
 

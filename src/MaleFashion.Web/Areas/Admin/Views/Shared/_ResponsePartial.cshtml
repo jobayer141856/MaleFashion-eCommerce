@@ -1,8 +1,11 @@
-﻿@using MaleFashion.Infrastructure.Extensions
+@using MaleFashion.Infrastructure.Extensions
 
-@if(TempData.Peek<ResponseModel>("ResponseMessage") != null)
-{
+@{
     var response = TempData.Get<ResponseModel>("ResponseMessage");
+}
+
+@if (response != null && !string.IsNullOrWhiteSpace(response.Message))
+{
     <div class="alert alert-@(response.Type.ToString().ToLower()) alert-dismissible" role="alert">
         @response.Message
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

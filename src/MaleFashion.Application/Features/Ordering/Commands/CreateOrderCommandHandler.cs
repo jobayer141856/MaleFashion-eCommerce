@@ -40,20 +40,28 @@ namespace MaleFashion.Application.Features.Ordering.Commands
             // 2. Validate Variant Stock & Deduct
             foreach (var item in cart.Items)
             {
-                if (item.ProductVariant != null)
+                var variant = item.ProductVariant;
+                if (variant == null && item.ProductVariantId.HasValue)
                 {
-                    if (item.ProductVariant.StockQuantity < item.Quantity)
+                    var product = await _unitOfWork.ProductRepository.GetProductDetailsById(item.ProductId, cancellationToken);
+                    variant = product?.Variants?.FirstOrDefault(v => v.Id == item.ProductVariantId.Value);
+                }
+
+                if (variant != null)
+                {
+                    if (variant.StockQuantity < item.Quantity)
                     {
-                        var variantDesc = $"{item.ProductVariant.Size} / {item.ProductVariant.ColorName}".Trim(' ', '/');
+                        var variantDesc = $"{variant.Size} / {variant.ColorName}".Trim(' ', '/');
                         return new CreateOrderResultDto
                         {
                             Success = false,
-                            Message = $"Insufficient stock for {item.ProductName} ({variantDesc}). Available: {item.ProductVariant.StockQuantity}, In Cart: {item.Quantity}."
+                            Message = $"Insufficient stock for {item.ProductName} ({variantDesc}). Available: {variant.StockQuantity}, In Cart: {item.Quantity}."
                         };
                     }
 
                     // Deduct stock quantity
-                    item.ProductVariant.StockQuantity -= item.Quantity;
+                    variant.StockQuantity -= item.Quantity;
+                    variant.UpdatedAt = DateTime.UtcNow;
                 }
             }
 
@@ -99,9 +107,7 @@ namespace MaleFashion.Application.Features.Ordering.Commands
             Guid? customerId = command.CustomerId;
             if (!customerId.HasValue && !string.IsNullOrWhiteSpace(command.Email))
             {
-                var allCustomers = await _unitOfWork.CustomerRepository.GetAllAsync(cancellationToken);
-                var existingCustomer = allCustomers.FirstOrDefault(c =>
-                    string.Equals(c.Email, command.Email.Trim(), StringComparison.OrdinalIgnoreCase));
+                var existingCustomer = await _unitOfWork.CustomerRepository.GetByEmailAsync(command.Email, cancellationToken);
 
                 if (existingCustomer != null)
                 {

@@ -100,14 +100,8 @@
                             <li class="@(currentController == "Shop" ? "active" : "")">
                                 <a asp-controller="Shop" asp-action="Index">Shop</a>
                             </li>
-                            <li class="@(currentController == "About" || currentController == "Pages" ? "active" : "")">
-                                <a href="#">Pages</a>
-                                <ul class="dropdown">
-                                    <li><a asp-controller="About" asp-action="Index">About Us</a></li>
-                                    <li><a asp-controller="Shop" asp-action="Index">Shop</a></li>
-                                    <li><a asp-controller="Cart" asp-action="Index">Shopping Cart</a></li>
-                                    <li><a asp-controller="BlogPosts" asp-action="Index">Blog</a></li>
-                                </ul>
+                            <li class="@(currentController == "About" ? "active" : "")">
+                                <a asp-controller="About" asp-action="Index">About Us</a>
                             </li>
                             <li class="@(currentController == "BlogPosts" ? "active" : "")">
                                 <a asp-controller="BlogPosts" asp-action="Index">Blog</a>
@@ -152,10 +146,10 @@
                     <div class="footer__widget">
                         <h6>Shopping</h6>
                         <ul>
-                            <li><a href="#">Clothing Store</a></li>
-                            <li><a href="#">Trending Shoes</a></li>
-                            <li><a href="#">Accessories</a></li>
-                            <li><a href="#">Sale</a></li>
+                            <li><a asp-controller="Shop" asp-action="Index" asp-route-tagName="Clothing">Clothing Store</a></li>
+                            <li><a asp-controller="Shop" asp-action="Index" asp-route-tagName="Shoes">Trending Shoes</a></li>
+                            <li><a asp-controller="Shop" asp-action="Index" asp-route-tagName="Accessories">Accessories</a></li>
+                            <li><a asp-controller="Shop" asp-action="Index" asp-route-tagName="Sale">Sale</a></li>
                         </ul>
                     </div>
                 </div>
@@ -189,9 +183,9 @@
                 <div class="col-lg-12 text-center">
                     <div class="footer__copyright__text">
                         <p>
-                            Copyright © @DateTime.Now.Year All rights reserved | This template is made with
+                            Copyright © @DateTime.Now.Year All rights reserved | Developed with
                             <i class="fa fa-heart-o" aria-hidden="true"></i> by
-                            <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                            <a href="https://github.com/jobayer141856" target="_blank" rel="noopener noreferrer">Jobayer Hossen</a>
                         </p>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-﻿@model LoginModel
+@model LoginModel
 @{
     ViewData["Title"] = "Sign In";
 }
@@ -24,7 +24,8 @@
         <div class="checkout__form">
             <div class="row justify-content-center">
                 <div class="col-lg-5 col-md-8">
-                    <form asp-action="Login" asp-route-returnurl="@Model.ReturnUrl" method="post">
+                    <form asp-action="Login" asp-route-returnurl="@Model.ReturnUrl" method="post" id="loginForm">
+                        <input type="hidden" asp-for="RecaptchaToken" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="checkout__input">
@@ -113,3 +114,13 @@
         }
     }
 </script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ReCaptchaScriptsPartial" />
+    <script>
+        $(function () {
+            bindReCaptcha('#loginForm', 'login');
+        });
+    </script>
+}

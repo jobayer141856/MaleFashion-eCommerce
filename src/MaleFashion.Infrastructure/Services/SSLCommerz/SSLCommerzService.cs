@@ -1,4 +1,5 @@
 using MaleFashion.Application.Contracts.Services;
+using MaleFashion.Domain.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;

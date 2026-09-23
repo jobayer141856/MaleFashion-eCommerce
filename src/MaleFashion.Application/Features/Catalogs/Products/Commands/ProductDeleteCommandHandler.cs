@@ -34,6 +34,23 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
                 throw new NotFoundException($"Product with ID '{command.Id}' not found.");
             }
 
+            // 1. Check if product is in any customer orders
+            var orderCount = await _unitOfWork.OrderRepository.GetCountAsync(
+                o => o.OrderItems.Any(oi => oi.ProductId == command.Id), cancellationToken);
+            if (orderCount > 0)
+            {
+                throw new DuplicateDataException(
+                    $"Product '{product.Name}' cannot be deleted because it is part of {orderCount} customer order(s). Consider deactivating it instead.");
+            }
+            // 2. Check if product is in any active customer carts
+            var cartCount = await _unitOfWork.CartRepository.GetCountAsync(
+                c => c.Items.Any(ci => ci.ProductId == command.Id), cancellationToken);
+            if (cartCount > 0)
+            {
+                throw new DuplicateDataException(
+                    $"Product '{product.Name}' cannot be deleted because it is currently in {cartCount} active shopping cart(s).");
+            }
+
             var imageNames = product.Images.Select(i => i.ImageUrl).ToList();
 
             await _unitOfWork.ProductRepository.RemoveAsync(command.Id, cancellationToken);

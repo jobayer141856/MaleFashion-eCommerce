@@ -21,6 +21,7 @@ using MaleFashion.Infrastructure.Data.Repositories.Reviews;
 using MaleFashion.Infrastructure.Data.Repositories.Support;
 using MaleFashion.Infrastructure.Services;
 using MaleFashion.Infrastructure.Services.SSLCommerz;
+using MaleFashion.Infrastructure.Services.ReCaptcha;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -41,6 +42,7 @@ namespace MaleFashion.Infrastructure.Extensions
             services.AddScoped<ICartSessionService, CartSessionService>();
             services.AddScoped<IWishlistSessionService, WishlistSessionService>();
             services.AddHttpClient<ISSLCommerzService, SSLCommerzService>();
+            services.AddHttpClient<IRecaptchaService, ReCaptchaService>();
 
             // =========================================================
             // REPOSITORIES

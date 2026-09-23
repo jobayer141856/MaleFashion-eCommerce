@@ -25,6 +25,7 @@ namespace MaleFashion.Web.Controllers.Account
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly Cortex.Mediator.IMediator _mediator;
+        private readonly IRecaptchaService _recaptchaService;
 
         public AccountController(
            UserManager<ApplicationUser> userManager,
@@ -33,7 +34,8 @@ namespace MaleFashion.Web.Controllers.Account
            ILogger<AccountController> logger,
            IEmailService emailService,
            IMapper mapper,
-           Cortex.Mediator.IMediator mediator)
+           Cortex.Mediator.IMediator mediator,
+           IRecaptchaService recaptchaService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +45,7 @@ namespace MaleFashion.Web.Controllers.Account
             _emailService = emailService;
             _mapper = mapper;
             _mediator = mediator;
+            _recaptchaService = recaptchaService;
         }
         public IActionResult Index()
         {
@@ -73,6 +76,12 @@ namespace MaleFashion.Web.Controllers.Account
             model.ReturnUrl ??= Url.Content("~/");
 
             model.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            var captchaResult = await _recaptchaService.VerifyTokenAsync(model.RecaptchaToken, "login");
+            if (!captchaResult.Success)
+            {
+                ModelState.AddModelError(string.Empty, captchaResult.ErrorMessage ?? "Security verification failed. Please try again.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -290,6 +299,12 @@ namespace MaleFashion.Web.Controllers.Account
         {
             model.ReturnUrl ??= Url.Content("~/");
             model.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            var captchaResult = await _recaptchaService.VerifyTokenAsync(model.RecaptchaToken, "register");
+            if (!captchaResult.Success)
+            {
+                ModelState.AddModelError(string.Empty, captchaResult.ErrorMessage ?? "Security verification failed. Please try again.");
+            }
 
             if (ModelState.IsValid)
             {

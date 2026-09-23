@@ -1,4 +1,4 @@
-namespace MaleFashion.Infrastructure.Services.SSLCommerz
+namespace MaleFashion.Domain.Utilities
 {
     public class SSLCommerzSettings
     {

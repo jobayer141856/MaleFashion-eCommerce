@@ -11,6 +11,7 @@ using MaleFashion.Web.Areas.Admin.Models.Catalogs;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Web;
 
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
@@ -263,7 +264,24 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                             Type = ResponseTypes.Success
                         });
                 }
-                catch (Exception ex)
+            catch (DuplicateDataException oex)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = oex.Message,
+                    Type = ResponseTypes.Warning
+                });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database constraint violation while deleting brand ID {Id}", id);
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Cannot delete this brand because products are still associated with it.",
+                    Type = ResponseTypes.Warning
+                });
+            }
+            catch (Exception ex)
                 {
                     const string errorMessage = "Failed to delete brand.";
                     _logger.LogError(ex, errorMessage);

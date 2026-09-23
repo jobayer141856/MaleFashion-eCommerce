@@ -35,6 +35,11 @@ namespace MaleFashion.Application.Features.Catalogs.Categories.Commands
             if (productCount > 0)
                 throw new DuplicateDataException($"Category '{category.Name}' cannot be deleted because it is associated with {productCount} product(s). Please reassign or delete the products first.");
 
+            var subCategoryCount = await _unitOfWork.CategoryRepository.GetCountAsync(
+                c => c.ParentCategoryId == command.Id, cancellationToken);
+            if (subCategoryCount > 0)
+                throw new DuplicateDataException($"Category '{category.Name}' cannot be deleted because it has {subCategoryCount} sub-category(ies). Please reassign or delete them first.");
+
             var imageName = category.ImageName;
 
             await _unitOfWork.CategoryRepository.RemoveAsync(command.Id, cancellationToken);

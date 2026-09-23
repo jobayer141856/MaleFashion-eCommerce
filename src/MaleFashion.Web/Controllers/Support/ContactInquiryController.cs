@@ -1,4 +1,5 @@
 using Cortex.Mediator;
+using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Application.Features.Support.ContactInquiries.Commands;
 using MaleFashion.Application.Features.Support.StoreLocations.Queries;
 using MaleFashion.Domain.Entities.Support;
@@ -21,15 +22,18 @@ namespace MaleFashion.Web.Controllers.Support
     {
         private readonly IMediator _mediator;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRecaptchaService _recaptchaService;
         private readonly ILogger<ContactInquiryController> _logger;
 
         public ContactInquiryController(
             IMediator mediator,
             UserManager<ApplicationUser> userManager,
+            IRecaptchaService recaptchaService,
             ILogger<ContactInquiryController> logger)
         {
             _mediator = mediator;
             _userManager = userManager;
+            _recaptchaService = recaptchaService;
             _logger = logger;
         }
 
@@ -66,6 +70,12 @@ namespace MaleFashion.Web.Controllers.Support
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(ContactInquiryModel model, CancellationToken cancellationToken = default)
         {
+            var captchaResult = await _recaptchaService.VerifyTokenAsync(model.RecaptchaToken, "contact", cancellationToken);
+            if (!captchaResult.Success)
+            {
+                ModelState.AddModelError(string.Empty, captchaResult.ErrorMessage ?? "Security verification failed. Please try again.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var locations = await _mediator.SendQueryAsync(new GetActiveStoreLocationsQuery(), cancellationToken);

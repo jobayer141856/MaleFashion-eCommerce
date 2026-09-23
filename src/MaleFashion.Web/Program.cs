@@ -11,6 +11,7 @@ using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
 using MaleFashion.Web.Areas.Admin.Conventions;
 using MaleFashion.Infrastructure.Services.SSLCommerz;
+using MaleFashion.Infrastructure.Services.ReCaptcha;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -125,6 +126,7 @@ try
     #region AppSettings Configuration
     builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
     builder.Services.Configure<SSLCommerzSettings>(builder.Configuration.GetSection("SSLCommerz"));
+    builder.Services.Configure<ReCaptchaSettings>(builder.Configuration.GetSection("ReCaptcha"));
     #endregion
 
     builder.Services.AddRazorPages();

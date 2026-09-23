@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using System.ComponentModel.DataAnnotations;
 
 namespace MaleFashion.Web.Models.Account
@@ -19,5 +19,7 @@ namespace MaleFashion.Web.Models.Account
         public IList<AuthenticationScheme>? ExternalLogins { get; set; }
 
         public string? ReturnUrl { get; set; }
+
+        public string? RecaptchaToken { get; set; }
     }
 }

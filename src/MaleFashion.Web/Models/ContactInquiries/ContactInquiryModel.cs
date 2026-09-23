@@ -21,6 +21,8 @@ namespace MaleFashion.Web.Models.ContactInquiries
         [Required(ErrorMessage = "Please enter your message.")]
         [StringLength(3000, ErrorMessage = "Message cannot exceed 3000 characters.")]
         public string Message { get; set; } = string.Empty;
+
+        public string? RecaptchaToken { get; set; }
     }
 }
 

@@ -14,6 +14,7 @@ using MaleFashion.Web.Areas.Admin.Models.Catalogs;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -559,6 +560,23 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                 {
                     Message = "Product successfully deleted.",
                     Type = ResponseTypes.Success
+                });
+            }
+            catch (DuplicateDataException oex)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = oex.Message,
+                    Type = ResponseTypes.Warning
+                });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database constraint violation while deleting product ID {Id}", id);
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Cannot delete this product because it is referenced by other records (e.g., past orders or cart items). Consider deactivating it instead.",
+                    Type = ResponseTypes.Warning
                 });
             }
             catch (Exception ex)

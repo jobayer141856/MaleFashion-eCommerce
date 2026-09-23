@@ -12,6 +12,7 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Web;
 
 namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
@@ -322,6 +323,23 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                         Message = "Category successfully deleted.",
                         Type = ResponseTypes.Success
                     });
+            }
+            catch (DuplicateDataException oex)
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = oex.Message,
+                    Type = ResponseTypes.Warning
+                });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database constraint violation while deleting category ID {Id}", id);
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = "Cannot delete this category because products or subcategories are still associated with it.",
+                    Type = ResponseTypes.Warning
+                });
             }
             catch (Exception ex)
             {

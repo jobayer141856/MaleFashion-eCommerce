@@ -1,0 +1,63 @@
+@using MaleFashion.Domain.Utilities
+@using MaleFashion.Infrastructure.Services.ReCaptcha
+@using Microsoft.Extensions.Options
+@inject IOptions<ReCaptchaSettings> ReCaptchaOptions
+@{
+    var settings = ReCaptchaOptions.Value;
+    var isEnabled = settings.IsEnabled && !string.IsNullOrWhiteSpace(settings.SiteKey);
+    var siteKey = settings.SiteKey;
+}
+
+@if (isEnabled)
+{
+    <script src="https://www.google.com/recaptcha/api.js?render=@siteKey"></script>
+    <script>
+        function bindReCaptcha(formSelector, actionName) {
+            var $form = $(formSelector);
+            if (!$form.length) return;
+
+            $form.on('submit', function (e) {
+                var form = this;
+                if ($(form).data('recaptcha-submitting')) {
+                    return true;
+                }
+
+                // If jQuery Validation is attached and form is invalid, stop here
+                if ($.data(form, 'validator') && !$(form).valid()) {
+                    return false;
+                }
+
+                e.preventDefault();
+                var $btn = $(form).find('button[type="submit"], input[type="submit"]');
+                $btn.prop('disabled', true);
+
+                grecaptcha.ready(function () {
+                    grecaptcha.execute('@siteKey', { action: actionName }).then(function (token) {
+                        var $input = $(form).find('input[name="RecaptchaToken"]');
+                        if (!$input.length) {
+                            $input = $('<input type="hidden" name="RecaptchaToken" />').appendTo($form);
+                        }
+                        $input.val(token);
+                        $(form).data('recaptcha-submitting', true);
+                        form.submit();
+                    }).catch(function (error) {
+                        console.error('reCAPTCHA execution failed:', error);
+                        $btn.prop('disabled', false);
+                        // Fallback submit so user is not blocked if Google CDN is unreachable
+                        $(form).data('recaptcha-submitting', true);
+                        form.submit();
+                    });
+                });
+            });
+        }
+    </script>
+}
+else
+{
+    <script>
+        function bindReCaptcha(formSelector, actionName) {
+            // reCAPTCHA is currently disabled or unconfigured; no-op
+        }
+    </script>
+}
+

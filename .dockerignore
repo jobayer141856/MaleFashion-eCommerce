@@ -15,3 +15,9 @@ docker-compose*.yml
 .dockerignore
 README.md
 
+# Prevent local environment overrides and secrets from entering image
+**/appsettings.local.json
+**/appsettings.*.local.json
+**/.env
+**/.env.*
+

@@ -6,17 +6,23 @@ services:
     container_name: malefashion-web
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "${WEB_PORT:-8080}:8080"
+    env_file:
+      - path: .env
+        required: false
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MaleFashion;User Id=sa;Password=YourStrong@Passw0rd!;TrustServerCertificate=True
-      - Serilog__WriteTo__1__Args__connectionString=Server=sqlserver,1433;Database=MaleFashion;User Id=sa;Password=YourStrong@Passw0rd!;TrustServerCertificate=True
+      - APPLY_MIGRATIONS=${APPLY_MIGRATIONS:-true}
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=${DB_NAME:-MaleFashion};User Id=sa;Password=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd!};TrustServerCertificate=True
+      - Serilog__WriteTo__1__Args__connectionString=Server=sqlserver,1433;Database=${DB_NAME:-MaleFashion};User Id=sa;Password=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd!};TrustServerCertificate=True
     depends_on:
       sqlserver:
         condition: service_healthy
     volumes:
       - uploads_data:/app/wwwroot/uploads
+      - logs_data:/app/Logs
+      - ./src/MaleFashion.Web/appsettings.local.json:/app/appsettings.local.json:ro
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -24,10 +30,10 @@ services:
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd!
-      - MSSQL_PID=Developer
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd!}
+      - MSSQL_PID=${MSSQL_PID:-Developer}
     ports:
-      - "1433:1433"
+      - "${SQL_PORT:-1433}:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     healthcheck:
@@ -40,4 +46,5 @@ services:
 volumes:
   mssql_data:
   uploads_data:
+  logs_data:
 

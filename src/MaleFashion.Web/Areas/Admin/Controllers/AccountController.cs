@@ -111,6 +111,12 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
                     return View(model);
                 }
 
+                if (result.IsNotAllowed)
+                {
+                    ModelState.AddModelError(string.Empty, "Sign-in is not allowed. Please ensure your email has been confirmed or contact your administrator.");
+                    return View(model);
+                }
+
                 ModelState.AddModelError(string.Empty, "Invalid email or password. If you forgot your password or need assistance, please contact your system administrator.");
             }
 

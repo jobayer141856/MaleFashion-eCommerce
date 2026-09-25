@@ -16,8 +16,10 @@ using MaleFashion.Infrastructure.Services.ReCaptcha;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
 
 Log.Logger = new LoggerConfiguration()
+      .WriteTo.Console()
       .WriteTo.File(
         "Logs/log-.log",
         rollingInterval: RollingInterval.Day)
@@ -86,6 +88,7 @@ try
         lc.MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
             .Enrich.FromLogContext()
+            .WriteTo.Console()
             .ReadFrom.Configuration(context.Configuration);
     });
     #endregion
@@ -132,6 +135,16 @@ try
     builder.Services.AddRazorPages();
 
     var app = builder.Build();
+
+    // Run database migrations if configured
+    if (app.Configuration.GetValue<bool>("APPLY_MIGRATIONS"))
+    {
+        Log.Information("Applying database migrations...");
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.MigrateAsync();
+        Log.Information("Database migrations applied successfully.");
+    }
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

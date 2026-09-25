@@ -1,4 +1,4 @@
-﻿using MaleFashion.Infrastructure.Identity;
+using MaleFashion.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace MaleFashion.Infrastructure.Data.Seeds
                 NormalizedUserName = "ADMIN@MALEFASHION.COM",
                 Email = "admin@malefashion.com",
                 NormalizedEmail = "ADMIN@MALEFASHION.COM",
-                EmailConfirmed = false,
+                EmailConfirmed = true,
                 FirstName = "Admin",
                 LastName = "User",
                 SecurityStamp = "A7C934E2-55B1-4A89-B817-2D9981E3F1A0",

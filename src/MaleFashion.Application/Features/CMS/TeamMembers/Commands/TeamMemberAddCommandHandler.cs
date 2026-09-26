@@ -25,6 +25,10 @@ namespace MaleFashion.Application.Features.CMS.TeamMembers.Commands
             var member = _mapper.Map<TeamMember>(command);
             member.Id = IdentityGenerator.NewSequentialGuid();
             member.CreatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(member.PhotoUrl))
+            {
+                member.PhotoUrl = "malefashion/img/about/team-1.jpg";
+            }
 
             await _unitOfWork.TeamMemberRepository.AddAsync(member, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

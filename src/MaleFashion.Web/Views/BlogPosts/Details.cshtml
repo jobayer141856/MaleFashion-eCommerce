@@ -1,4 +1,4 @@
-﻿@model BlogDetailsModel
+@model BlogDetailsModel
 @{
     ViewData["Title"] = Model.Post.Title;
     var approvedComments = Model.Post.Comments?.Where(c => c.IsApproved).ToList() ?? new();
@@ -118,10 +118,6 @@
                     <!-- Leave A Comment Section -->
                     <div class="blog__details__comment">
                         <h4>Leave A Comment</h4>
-                        @if (TempData["CommentSuccess"] != null)
-                        {
-                            <div class="alert alert-success">@TempData["CommentSuccess"]</div>
-                        }
                         <form asp-controller="Blog" asp-action="AddComment" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="CommentInput.BlogPostId" value="@Model.Post.Id" />

@@ -87,6 +87,10 @@ namespace MaleFashion.Application.UnitTests.Features.Wishlists.Commands
                 .ReturnsAsync(customer)
                 .Verifiable();
 
+            _mockCustomerRepository.Setup(x => x.AddWishlistItemAsync(It.IsAny<WishlistItem>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
             _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -99,6 +103,7 @@ namespace MaleFashion.Application.UnitTests.Features.Wishlists.Commands
                 () => result.Success.ShouldBeTrue(),
                 () => result.IsAdded.ShouldBeTrue(),
                 () => customer.Wishlist.Count.ShouldBe(1),
+                () => customer.Wishlist.First().Id.ShouldNotBe(Guid.Empty),
                 () => _mockProductRepository.VerifyAll(),
                 () => _mockCustomerRepository.VerifyAll(),
                 () => _mockUnitOfWork.VerifyAll()
@@ -143,6 +148,10 @@ namespace MaleFashion.Application.UnitTests.Features.Wishlists.Commands
 
             _mockCustomerRepository.Setup(x => x.GetCustomerWithWishlistByIdAsync(customerId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(customer)
+                .Verifiable();
+
+            _mockCustomerRepository.Setup(x => x.RemoveWishlistItemAsync(existingItem, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
                 .Verifiable();
 
             _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))

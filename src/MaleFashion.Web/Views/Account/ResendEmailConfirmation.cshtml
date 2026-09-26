@@ -1,4 +1,4 @@
-﻿@model ResendEmailConfirmationModel
+@model ResendEmailConfirmationModel
 @{
     ViewData["Title"] = "Resend Email Confirmation";
 }
@@ -32,13 +32,6 @@
                             <h4 class="font-weight-bold mb-1">Verify Your Email</h4>
                             <p class="text-muted small">Enter your account email to receive a new activation link</p>
                         </div>
-
-                        @if (TempData["SuccessMessage"] != null)
-                        {
-                            <div class="alert alert-success small mb-4" role="alert">
-                                @TempData["SuccessMessage"]
-                            </div>
-                        }
 
                         <form asp-action="ResendEmailConfirmation" method="post">
                             <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>

@@ -2,6 +2,7 @@ using Cortex.Mediator.Commands;
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Features.Wishlists.DTOs;
 using MaleFashion.Domain.Entities.Customers;
+using MaleFashion.Domain.Utilities;
 using System;
 using System.Linq;
 using System.Threading;
@@ -56,6 +57,7 @@ namespace MaleFashion.Application.Features.Wishlists.Commands
                 if (existingItem != null)
                 {
                     customer.Wishlist.Remove(existingItem);
+                    await _unitOfWork.CustomerRepository.RemoveWishlistItemAsync(existingItem, cancellationToken);
                     await _unitOfWork.SaveAsync(cancellationToken);
 
                     return new ToggleWishlistResultDto
@@ -70,13 +72,14 @@ namespace MaleFashion.Application.Features.Wishlists.Commands
                 {
                     var newItem = new WishlistItem
                     {
-                        Id = Guid.NewGuid(),
+                        Id = IdentityGenerator.NewSequentialGuid(),
                         CustomerId = customer.Id,
                         ProductId = product.Id,
                         ProductVariantId = command.VariantId,
                         CreatedAt = DateTime.UtcNow
                     };
                     customer.Wishlist.Add(newItem);
+                    await _unitOfWork.CustomerRepository.AddWishlistItemAsync(newItem, cancellationToken);
                     await _unitOfWork.SaveAsync(cancellationToken);
 
                     return new ToggleWishlistResultDto

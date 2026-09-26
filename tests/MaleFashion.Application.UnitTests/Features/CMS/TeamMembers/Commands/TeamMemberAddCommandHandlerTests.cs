@@ -96,6 +96,55 @@ namespace MaleFashion.Application.UnitTests.Features.CMS.TeamMembers.Commands
                 () => _mockUnitOfWork.VerifyAll()
             );
         }
+
+        [Test]
+        public async Task Handle_CommandWithNullPhoto_UsesDefaultFallbackPhoto()
+        {
+            // Arrange
+            var command = new TeamMemberAddCommand
+            {
+                Name = "John Smith",
+                Role = "Creative Director",
+                PhotoUrl = null
+            };
+
+            var member = new TeamMember
+            {
+                Name = command.Name,
+                Role = command.Role,
+                PhotoUrl = null!
+            };
+
+            _mockMapper.Setup(x => x.Map<TeamMember>(command))
+                .Returns(member)
+                .Verifiable();
+
+            _mockUnitOfWork.SetupGet(x => x.TeamMemberRepository)
+                .Returns(_mockTeamMemberRepository.Object)
+                .Verifiable();
+
+            _mockTeamMemberRepository.Setup(x => x.AddAsync(member, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.Name.ShouldBe("John Smith"),
+                () => result.Role.ShouldBe("Creative Director"),
+                () => result.PhotoUrl.ShouldBe("malefashion/img/about/team-1.jpg"),
+                () => _mockMapper.VerifyAll(),
+                () => _mockTeamMemberRepository.VerifyAll(),
+                () => _mockUnitOfWork.VerifyAll()
+            );
+        }
     }
 }
 

@@ -56,7 +56,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
             {
                 try
                 {
-                    string? photoUrl = null;
+                    string photoUrl = "malefashion/img/about/team-1.jpg";
                     if (model.Photo != null)
                     {
                         await using var stream = model.Photo.OpenReadStream();
@@ -197,7 +197,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     {
                         try
                         {
-                            await _fileStorageService.DeleteImageAsync(oldPhotoUrl, "team", cancellationToken);
+                            if (!oldPhotoUrl.StartsWith("malefashion") && !oldPhotoUrl.StartsWith("/"))
+                            {
+                                await _fileStorageService.DeleteImageAsync(oldPhotoUrl, "team", cancellationToken);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -263,8 +266,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                             select new string[]
                             {
                                 !string.IsNullOrEmpty(item.PhotoUrl)
-                                    ? $"/uploads/team/{HttpUtility.HtmlEncode(item.PhotoUrl)}"
-                                    : "/img/about/team-1.jpg",
+                                    ? (item.PhotoUrl.StartsWith("malefashion") || item.PhotoUrl.StartsWith("/")
+                                        ? "/" + item.PhotoUrl.TrimStart('/')
+                                        : $"/uploads/team/{HttpUtility.HtmlEncode(item.PhotoUrl)}")
+                                    : "/malefashion/img/about/team-1.jpg",
                                 HttpUtility.HtmlEncode(item.Name),
                                 HttpUtility.HtmlEncode(item.Role),
                                 item.CreatedAt.ToString("MMM dd, yyyy"),

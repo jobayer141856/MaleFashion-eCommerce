@@ -24,34 +24,6 @@
 
 <section class="spad">
     <div class="container">
-        <!-- Status Notification Banners -->
-        @if (TempData["OrderSuccess"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show mb-4 p-3 font-weight-bold" role="alert">
-                <i class="fa fa-check-circle mr-2"></i> @TempData["OrderSuccess"]
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
-        @if (TempData["OrderWarning"] != null)
-        {
-            <div class="alert alert-warning alert-dismissible fade show mb-4 p-3" role="alert">
-                <i class="fa fa-exclamation-triangle mr-2"></i> @TempData["OrderWarning"]
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
-        @if (TempData["OrderError"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show mb-4 p-3" role="alert">
-                <i class="fa fa-times-circle mr-2"></i> @TempData["OrderError"]
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        }
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center flex-wrap">

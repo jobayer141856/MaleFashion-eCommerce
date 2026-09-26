@@ -25,6 +25,10 @@ namespace MaleFashion.Application.Features.CMS.Testimonials.Commands
             var testimonial = _mapper.Map<Testimonial>(command);
             testimonial.Id = IdentityGenerator.NewSequentialGuid();
             testimonial.CreatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(testimonial.AvatarUrl))
+            {
+                testimonial.AvatarUrl = "malefashion/img/about/testimonial-author.jpg";
+            }
 
             await _unitOfWork.TestimonialRepository.AddAsync(testimonial, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

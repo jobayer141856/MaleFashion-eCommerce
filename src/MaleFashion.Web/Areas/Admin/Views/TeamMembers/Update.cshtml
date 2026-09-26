@@ -41,9 +41,12 @@
 
                             @if (!string.IsNullOrEmpty(Model.PhotoUrl))
                             {
+                                var currentPhoto = Model.PhotoUrl.StartsWith("malefashion") || Model.PhotoUrl.StartsWith("/")
+                                    ? "/" + Model.PhotoUrl.TrimStart('/')
+                                    : "/uploads/team/" + Model.PhotoUrl;
                                 <div class="mb-2" id="currentPhotoContainer">
                                     <p class="text-muted small mb-1">Current Photo:</p>
-                                    <img src="/uploads/team/@Model.PhotoUrl" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
+                                    <img src="@currentPhoto" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
                                 </div>
                             }
 

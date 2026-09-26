@@ -62,6 +62,7 @@ namespace MaleFashion.Web.Controllers
 
             var (customerId, _) = await _wishlistSessionService.GetWishlistIdentityAsync(cancellationToken);
 
+            bool isSuccess = true;
             bool isAdded;
             int totalCount;
             string message;
@@ -76,6 +77,7 @@ namespace MaleFashion.Web.Controllers
                         VariantId = variantId
                     }, cancellationToken);
 
+                isSuccess = result.Success;
                 isAdded = result.IsAdded;
                 totalCount = result.TotalCount;
                 message = result.Message;
@@ -93,14 +95,14 @@ namespace MaleFashion.Web.Controllers
             {
                 return Json(new
                 {
-                    success = true,
+                    success = isSuccess,
                     isAdded = isAdded,
                     message = message,
                     totalCount = totalCount
                 });
             }
 
-            TempData["SuccessMessage"] = message;
+            TempData[isSuccess ? "SuccessMessage" : "ErrorMessage"] = message;
             return RedirectToAction(nameof(Index));
         }
 

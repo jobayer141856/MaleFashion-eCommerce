@@ -98,5 +98,16 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Customers
             var list = await GetAsync(x => x.Email == cleanEmail, null, cancellationToken);
             return list.FirstOrDefault();
         }
+
+        public async Task AddWishlistItemAsync(WishlistItem wishlistItem, CancellationToken cancellationToken = default)
+        {
+            await _context.Set<WishlistItem>().AddAsync(wishlistItem, cancellationToken);
+        }
+
+        public async Task RemoveWishlistItemAsync(WishlistItem wishlistItem, CancellationToken cancellationToken = default)
+        {
+            _context.Set<WishlistItem>().Remove(wishlistItem);
+            await Task.CompletedTask;
+        }
     }
 }

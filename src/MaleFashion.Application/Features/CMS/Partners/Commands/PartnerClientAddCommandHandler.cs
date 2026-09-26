@@ -25,6 +25,10 @@ namespace MaleFashion.Application.Features.CMS.Partners.Commands
             var partner = _mapper.Map<PartnerClient>(command);
             partner.Id = IdentityGenerator.NewSequentialGuid();
             partner.CreatedAt = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(partner.LogoUrl))
+            {
+                partner.LogoUrl = "malefashion/img/clients/client-1.png";
+            }
 
             await _unitOfWork.PartnerClientRepository.AddAsync(partner, cancellationToken);
             await _unitOfWork.SaveAsync(cancellationToken);

@@ -1,6 +1,7 @@
 using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Domain.Entities.Customers;
+using MaleFashion.Domain.Utilities;
 using MaleFashion.Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -57,13 +58,15 @@ namespace MaleFashion.Infrastructure.Services
                             {
                                 if (!existingWishlistProductIds.Contains(gId))
                                 {
-                                    customer.Wishlist.Add(new WishlistItem
+                                    var newItem = new WishlistItem
                                     {
-                                        Id = Guid.NewGuid(),
+                                        Id = IdentityGenerator.NewSequentialGuid(),
                                         CustomerId = customer.Id,
                                         ProductId = gId,
                                         CreatedAt = DateTime.UtcNow
-                                    });
+                                    };
+                                    customer.Wishlist.Add(newItem);
+                                    await _unitOfWork.CustomerRepository.AddWishlistItemAsync(newItem, cancellationToken);
                                     changed = true;
                                 }
                             }

@@ -609,6 +609,11 @@
                     success: function (res) {
                         if (res && res.success) {
                             $(".wishlist-count").text(res.totalCount);
+                            if (res.isAdded) {
+                                btn.addClass("active").find("i").addClass("text-danger");
+                            } else {
+                                btn.removeClass("active").find("i").removeClass("text-danger");
+                            }
                             Swal.fire({
                                 icon: 'success',
                                 title: res.isAdded ? 'Added to Wishlist!' : 'Removed from Wishlist',
@@ -618,7 +623,28 @@
                                 toast: true,
                                 position: 'top-end'
                             });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Wishlist',
+                                text: (res && res.message) ? res.message : 'Could not update wishlist.',
+                                timer: 3000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
                         }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to communicate with server. Please try again.',
+                            timer: 3000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
                     }
                 });
             });

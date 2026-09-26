@@ -281,7 +281,7 @@
                 var btn = $(this);
                 var productId = btn.data("product-id");
                 var productName = btn.data("product-name") || "Item";
-                var token = $('input[name="__RequestVerificationToken"]').val();
+                var token = $('input[name="__RequestVerificationToken"]').first().val();
 
                 $.ajax({
                     url: '@Url.Action("Toggle", "Wishlist")',
@@ -296,6 +296,11 @@
                     success: function (res) {
                         if (res && res.success) {
                             $(".wishlist-count").text(res.totalCount);
+                            if (res.isAdded) {
+                                btn.addClass("active");
+                            } else {
+                                btn.removeClass("active");
+                            }
                             Swal.fire({
                                 icon: 'success',
                                 title: res.isAdded ? 'Added to Wishlist!' : 'Removed from Wishlist',
@@ -305,7 +310,28 @@
                                 toast: true,
                                 position: 'top-end'
                             });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Wishlist',
+                                text: (res && res.message) ? res.message : 'Could not update wishlist.',
+                                timer: 3000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
                         }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to communicate with server. Please try again.',
+                            timer: 3000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
                     }
                 });
             });

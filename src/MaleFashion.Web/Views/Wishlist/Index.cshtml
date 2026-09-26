@@ -129,6 +129,8 @@
 </section>
 <!-- Wishlist Section End -->
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -138,7 +140,7 @@
                 var productId = btn.data("product-id");
                 var productName = btn.data("product-name") || "Item";
                 var row = $("#wishlist-row-" + productId);
-                var token = $('input[name="__RequestVerificationToken"]').val();
+                var token = $('input[name="__RequestVerificationToken"]').first().val();
 
                 $.ajax({
                     url: '@Url.Action("Remove", "Wishlist")',
@@ -168,7 +170,28 @@
                                 toast: true,
                                 position: 'top-end'
                             });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: (res && res.message) ? res.message : 'Could not remove item.',
+                                timer: 2500,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
                         }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to communicate with server. Please try again.',
+                            timer: 2500,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
                     }
                 });
             });

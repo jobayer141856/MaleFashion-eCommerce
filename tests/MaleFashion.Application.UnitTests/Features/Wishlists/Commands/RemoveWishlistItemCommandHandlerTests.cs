@@ -74,6 +74,10 @@ namespace MaleFashion.Application.UnitTests.Features.Wishlists.Commands
                 .ReturnsAsync(customer)
                 .Verifiable();
 
+            _mockCustomerRepository.Setup(x => x.RemoveWishlistItemAsync(item, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
             _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();

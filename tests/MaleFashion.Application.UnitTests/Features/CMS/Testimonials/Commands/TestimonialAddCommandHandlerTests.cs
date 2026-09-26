@@ -99,6 +99,58 @@ namespace MaleFashion.Application.UnitTests.Features.CMS.Testimonials.Commands
                 () => _mockUnitOfWork.VerifyAll()
             );
         }
+
+        [Test]
+        public async Task Handle_CommandWithNullAvatar_UsesDefaultFallbackAvatar()
+        {
+            // Arrange
+            var command = new TestimonialAddCommand
+            {
+                AuthorName = "Michael Brown",
+                AuthorProfession = "Fashion Blogger",
+                Quote = "Incredible quality and fast shipping!",
+                AvatarUrl = null
+            };
+
+            var testimonial = new Testimonial
+            {
+                AuthorName = command.AuthorName,
+                AuthorProfession = command.AuthorProfession,
+                Quote = command.Quote,
+                AvatarUrl = null!
+            };
+
+            _mockMapper.Setup(x => x.Map<Testimonial>(command))
+                .Returns(testimonial)
+                .Verifiable();
+
+            _mockUnitOfWork.SetupGet(x => x.TestimonialRepository)
+                .Returns(_mockTestimonialRepository.Object)
+                .Verifiable();
+
+            _mockTestimonialRepository.Setup(x => x.AddAsync(testimonial, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.AuthorName.ShouldBe("Michael Brown"),
+                () => result.AuthorProfession.ShouldBe("Fashion Blogger"),
+                () => result.Quote.ShouldBe("Incredible quality and fast shipping!"),
+                () => result.AvatarUrl.ShouldBe("malefashion/img/about/testimonial-author.jpg"),
+                () => _mockMapper.VerifyAll(),
+                () => _mockTestimonialRepository.VerifyAll(),
+                () => _mockUnitOfWork.VerifyAll()
+            );
+        }
     }
 }
 

@@ -31,6 +31,7 @@ namespace MaleFashion.Application.Features.Wishlists.Commands
                 if (existingItem != null)
                 {
                     customer.Wishlist.Remove(existingItem);
+                    await _unitOfWork.CustomerRepository.RemoveWishlistItemAsync(existingItem, cancellationToken);
                     await _unitOfWork.SaveAsync(cancellationToken);
                     return true;
                 }

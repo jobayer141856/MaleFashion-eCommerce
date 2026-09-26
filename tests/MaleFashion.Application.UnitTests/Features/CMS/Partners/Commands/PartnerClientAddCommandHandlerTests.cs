@@ -93,5 +93,51 @@ namespace MaleFashion.Application.UnitTests.Features.CMS.Partners.Commands
                 () => _mockUnitOfWork.VerifyAll()
             );
         }
+
+        [Test]
+        public async Task Handle_CommandWithNullLogo_UsesDefaultFallbackLogo()
+        {
+            // Arrange
+            var command = new PartnerClientAddCommand
+            {
+                ClientName = "Acme Corp",
+                LogoUrl = null
+            };
+
+            var partner = new PartnerClient
+            {
+                ClientName = command.ClientName,
+                LogoUrl = null!
+            };
+
+            _mockMapper.Setup(x => x.Map<PartnerClient>(command))
+                .Returns(partner)
+                .Verifiable();
+
+            _mockUnitOfWork.SetupGet(x => x.PartnerClientRepository)
+                .Returns(_mockPartnerClientRepository.Object)
+                .Verifiable();
+
+            _mockPartnerClientRepository.Setup(x => x.AddAsync(partner, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.ClientName.ShouldBe("Acme Corp"),
+                () => result.LogoUrl.ShouldBe("malefashion/img/clients/client-1.png"),
+                () => _mockMapper.VerifyAll(),
+                () => _mockPartnerClientRepository.VerifyAll(),
+                () => _mockUnitOfWork.VerifyAll()
+            );
+        }
     }
 }

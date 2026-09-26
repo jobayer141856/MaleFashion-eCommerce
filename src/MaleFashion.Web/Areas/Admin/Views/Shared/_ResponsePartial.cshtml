@@ -1,17 +1,88 @@
 @using MaleFashion.Infrastructure.Extensions
+@using MaleFashion.Web.Areas.Admin.Models
 
 @{
-    var response = TempData.Get<ResponseModel>("ResponseMessage");
+    var response = TempData.Get<ResponseModel>(MaleFashion.Domain.Utilities.Constants.ResponseTempKey);
+    TempData.Remove(MaleFashion.Domain.Utilities.Constants.ResponseTempKey);
+
+    var successMsg = TempData["Success"]?.ToString() ?? TempData["SuccessMessage"]?.ToString();
+    TempData.Remove("Success");
+    TempData.Remove("SuccessMessage");
+
+    var errorMsg = TempData["Error"]?.ToString() ?? TempData["ErrorMessage"]?.ToString();
+    TempData.Remove("Error");
+    TempData.Remove("ErrorMessage");
+
+    var warningMsg = TempData["Warning"]?.ToString() ?? TempData["WarningMessage"]?.ToString();
+    TempData.Remove("Warning");
+    TempData.Remove("WarningMessage");
+
+    var infoMsg = TempData["Info"]?.ToString() ?? TempData["InfoMessage"]?.ToString();
+    TempData.Remove("Info");
+    TempData.Remove("InfoMessage");
+
+    string? toastMessage = null;
+    string toastIcon = "info";
+    int toastTimer = 3500;
+
+    if (response != null && !string.IsNullOrWhiteSpace(response.Message))
+    {
+        toastMessage = response.Message;
+        toastIcon = response.Type switch
+        {
+            ResponseTypes.Success => "success",
+            ResponseTypes.Danger => "error",
+            ResponseTypes.Warning => "warning",
+            ResponseTypes.Info => "info",
+            _ => "info"
+        };
+        toastTimer = response.Type == ResponseTypes.Danger ? 4500 : 3500;
+    }
+    else if (!string.IsNullOrWhiteSpace(errorMsg))
+    {
+        toastMessage = errorMsg;
+        toastIcon = "error";
+        toastTimer = 4500;
+    }
+    else if (!string.IsNullOrWhiteSpace(warningMsg))
+    {
+        toastMessage = warningMsg;
+        toastIcon = "warning";
+        toastTimer = 4000;
+    }
+    else if (!string.IsNullOrWhiteSpace(successMsg))
+    {
+        toastMessage = successMsg;
+        toastIcon = "success";
+        toastTimer = 3500;
+    }
+    else if (!string.IsNullOrWhiteSpace(infoMsg))
+    {
+        toastMessage = infoMsg;
+        toastIcon = "info";
+        toastTimer = 3500;
+    }
 }
 
-@if (response != null && !string.IsNullOrWhiteSpace(response.Message))
+@if (!string.IsNullOrWhiteSpace(toastMessage))
 {
-    <div class="alert alert-@(response.Type.ToString().ToLower()) alert-dismissible" role="alert">
-        @response.Message
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-else
-{
-    <div></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: '@toastIcon',
+                    title: @Json.Serialize(toastMessage),
+                    showConfirmButton: false,
+                    timer: @toastTimer,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+        });
+    </script>
 }

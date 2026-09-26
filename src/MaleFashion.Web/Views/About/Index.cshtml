@@ -52,9 +52,11 @@
 <!-- Testimonial Section Begin -->
 @if (Model.FeaturedTestimonial != null)
 {
-    var testimonialAvatar = Model.FeaturedTestimonial.AvatarUrl?.StartsWith("malefashion") == true || Model.FeaturedTestimonial.AvatarUrl?.StartsWith("/") == true
-        ? Url.Content("~/" + Model.FeaturedTestimonial.AvatarUrl.TrimStart('/'))
-        : Url.Content("~/uploads/testimonials/" + Model.FeaturedTestimonial.AvatarUrl);
+    var testimonialAvatar = !string.IsNullOrEmpty(Model.FeaturedTestimonial.AvatarUrl)
+        ? (Model.FeaturedTestimonial.AvatarUrl.StartsWith("malefashion") || Model.FeaturedTestimonial.AvatarUrl.StartsWith("/")
+            ? Url.Content("~/" + Model.FeaturedTestimonial.AvatarUrl.TrimStart('/'))
+            : Url.Content("~/uploads/testimonials/" + Model.FeaturedTestimonial.AvatarUrl))
+        : Url.Content("~/malefashion/img/about/testimonial-author.jpg");
 
     <section class="testimonial">
         <div class="container-fluid">
@@ -141,9 +143,11 @@
             {
                 foreach (var member in Model.TeamMembers)
                 {
-                    var photoPath = member.PhotoUrl?.StartsWith("malefashion") == true || member.PhotoUrl?.StartsWith("/") == true
-                        ? Url.Content("~/" + member.PhotoUrl.TrimStart('/'))
-                        : Url.Content("~/uploads/team/" + member.PhotoUrl);
+                    var photoPath = !string.IsNullOrEmpty(member.PhotoUrl)
+                        ? (member.PhotoUrl.StartsWith("malefashion") || member.PhotoUrl.StartsWith("/")
+                            ? Url.Content("~/" + member.PhotoUrl.TrimStart('/'))
+                            : Url.Content("~/uploads/team/" + member.PhotoUrl))
+                        : Url.Content("~/malefashion/img/about/team-1.jpg");
 
                     <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="team__item">
@@ -175,9 +179,11 @@
             {
                 foreach (var partner in Model.Partners)
                 {
-                    var logoPath = partner.LogoUrl?.StartsWith("malefashion") == true || partner.LogoUrl?.StartsWith("/") == true
-                        ? Url.Content("~/" + partner.LogoUrl.TrimStart('/'))
-                        : Url.Content("~/uploads/partners/" + partner.LogoUrl);
+                    var logoPath = !string.IsNullOrEmpty(partner.LogoUrl)
+                        ? (partner.LogoUrl.StartsWith("malefashion") || partner.LogoUrl.StartsWith("/")
+                            ? Url.Content("~/" + partner.LogoUrl.TrimStart('/'))
+                            : Url.Content("~/uploads/partners/" + partner.LogoUrl))
+                        : Url.Content("~/malefashion/img/clients/client-1.png");
 
                     <div class="col-lg-3 col-md-4 col-sm-4 col-6">
                         <a href="#" class="client__item"><img src="@logoPath" alt="@partner.ClientName"></a>

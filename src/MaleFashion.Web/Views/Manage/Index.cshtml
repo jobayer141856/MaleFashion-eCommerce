@@ -14,22 +14,6 @@
 
             <!-- Main Content (Col 9) -->
             <div class="col-lg-9 col-md-8">
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show small mb-3">
-                        <i class="fa fa-check-circle mr-1"></i> @TempData["SuccessMessage"]
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    </div>
-                }
-
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show small mb-3">
-                        <i class="fa fa-exclamation-circle mr-1"></i> @TempData["ErrorMessage"]
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    </div>
-                }
-
                 <!-- Quick Stats Row -->
                 <div class="row mb-3">
                     <div class="col-md-4 mb-2">

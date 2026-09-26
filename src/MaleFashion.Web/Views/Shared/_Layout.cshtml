@@ -248,19 +248,25 @@
                             $emailInput.val('');
                             $feedback.html('<span class="text-success">' + res.message + '</span>').fadeIn();
                             Swal.fire({
+                                toast: true,
+                                position: 'top-end',
                                 icon: 'success',
-                                title: 'Subscribed!',
-                                text: res.message,
-                                timer: 3000,
-                                showConfirmButton: false
+                                title: res.message,
+                                showConfirmButton: false,
+                                timer: 3500,
+                                timerProgressBar: true
                             });
                         } else {
                             var msg = (res && res.message) ? res.message : 'Subscription failed. Please try again.';
                             $feedback.html('<span class="text-warning">' + msg + '</span>').fadeIn();
                             Swal.fire({
+                                toast: true,
+                                position: 'top-end',
                                 icon: 'warning',
-                                title: 'Notice',
-                                text: msg
+                                title: msg,
+                                showConfirmButton: false,
+                                timer: 4000,
+                                timerProgressBar: true
                             });
                         }
                     },
@@ -269,37 +275,91 @@
                         var errMsg = 'Unable to subscribe at the moment. Please try again.';
                         $feedback.html('<span class="text-danger">' + errMsg + '</span>').fadeIn();
                         Swal.fire({
+                            toast: true,
+                            position: 'top-end',
                             icon: 'error',
-                            title: 'Error',
-                            text: errMsg
+                            title: errMsg,
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
                         });
                     }
                 });
             });
 
-            @if (TempData["CartSuccess"] != null || TempData["Success"] != null || TempData["SuccessMessage"] != null)
+            @if (TempData["CartSuccess"] != null || TempData["Success"] != null || TempData["SuccessMessage"] != null || TempData["CouponSuccess"] != null || TempData["CommentSuccess"] != null || TempData["NewsletterSuccess"] != null || TempData["OrderSuccess"] != null)
             {
-                var successMsg = (TempData["CartSuccess"] ?? TempData["Success"] ?? TempData["SuccessMessage"])?.ToString();
+                var successMsg = (TempData["CartSuccess"] ?? TempData["Success"] ?? TempData["SuccessMessage"] ?? TempData["CouponSuccess"] ?? TempData["CommentSuccess"] ?? TempData["NewsletterSuccess"] ?? TempData["OrderSuccess"])?.ToString();
                 <text>
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: '@Html.Raw(successMsg)',
-                    timer: 3000,
-                    showConfirmButton: false,
                     toast: true,
-                    position: 'top-end'
+                    position: 'top-end',
+                    icon: 'success',
+                    title: @Json.Serialize(successMsg),
+                    showConfirmButton: false,
+                    timer: 3500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
                 });
                 </text>
             }
-            @if (TempData["Error"] != null || TempData["ErrorMessage"] != null)
+            @if (TempData["Error"] != null || TempData["ErrorMessage"] != null || TempData["CouponError"] != null || TempData["NewsletterError"] != null || TempData["OrderError"] != null)
             {
-                var errorMsg = (TempData["Error"] ?? TempData["ErrorMessage"])?.ToString();
+                var errorMsg = (TempData["Error"] ?? TempData["ErrorMessage"] ?? TempData["CouponError"] ?? TempData["NewsletterError"] ?? TempData["OrderError"])?.ToString();
                 <text>
                 Swal.fire({
+                    toast: true,
+                    position: 'top-end',
                     icon: 'error',
-                    title: 'Error',
-                    text: '@Html.Raw(errorMsg)'
+                    title: @Json.Serialize(errorMsg),
+                    showConfirmButton: false,
+                    timer: 4500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+                </text>
+            }
+            @if (TempData["Warning"] != null || TempData["WarningMessage"] != null || TempData["CartWarning"] != null || TempData["OrderWarning"] != null)
+            {
+                var warningMsg = (TempData["Warning"] ?? TempData["WarningMessage"] ?? TempData["CartWarning"] ?? TempData["OrderWarning"])?.ToString();
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: @Json.Serialize(warningMsg),
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+                </text>
+            }
+            @if (TempData["Info"] != null || TempData["InfoMessage"] != null || TempData["ReviewMessage"] != null || TempData["StatusMessage"] != null)
+            {
+                var infoMsg = (TempData["Info"] ?? TempData["InfoMessage"] ?? TempData["ReviewMessage"] ?? TempData["StatusMessage"])?.ToString();
+                <text>
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: @Json.Serialize(infoMsg),
+                    showConfirmButton: false,
+                    timer: 3500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
                 });
                 </text>
             }

@@ -34,9 +34,12 @@
 
                             @if (!string.IsNullOrEmpty(Model.LogoUrl))
                             {
+                                var currentLogo = Model.LogoUrl.StartsWith("malefashion") || Model.LogoUrl.StartsWith("/")
+                                    ? "/" + Model.LogoUrl.TrimStart('/')
+                                    : "/uploads/partners/" + Model.LogoUrl;
                                 <div class="mb-2" id="currentLogoContainer">
                                     <p class="text-muted small mb-1">Current Logo:</p>
-                                    <img src="/uploads/partners/@Model.LogoUrl" class="img-thumbnail rounded bg-light p-2" style="max-height: 80px; object-fit: contain;" />
+                                    <img src="@currentLogo" class="img-thumbnail rounded bg-light p-2" style="max-height: 80px; object-fit: contain;" />
                                 </div>
                             }
 

@@ -48,9 +48,12 @@
 
                             @if (!string.IsNullOrEmpty(Model.AvatarUrl))
                             {
+                                var currentAvatar = Model.AvatarUrl.StartsWith("malefashion") || Model.AvatarUrl.StartsWith("/")
+                                    ? "/" + Model.AvatarUrl.TrimStart('/')
+                                    : "/uploads/testimonials/" + Model.AvatarUrl;
                                 <div class="mb-2" id="currentAvatarContainer">
                                     <p class="text-muted small mb-1">Current Avatar:</p>
-                                    <img src="/uploads/testimonials/@Model.AvatarUrl" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
+                                    <img src="@currentAvatar" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;" />
                                 </div>
                             }
 

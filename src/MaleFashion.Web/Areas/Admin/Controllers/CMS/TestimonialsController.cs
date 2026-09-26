@@ -56,7 +56,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
             {
                 try
                 {
-                    string? avatarUrl = null;
+                    string avatarUrl = "malefashion/img/about/testimonial-author.jpg";
                     if (model.Avatar != null)
                     {
                         await using var stream = model.Avatar.OpenReadStream();
@@ -200,7 +200,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     {
                         try
                         {
-                            await _fileStorageService.DeleteImageAsync(oldAvatarUrl, "testimonials", cancellationToken);
+                            if (!oldAvatarUrl.StartsWith("malefashion") && !oldAvatarUrl.StartsWith("/"))
+                            {
+                                await _fileStorageService.DeleteImageAsync(oldAvatarUrl, "testimonials", cancellationToken);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -266,8 +269,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                             select new string[]
                             {
                                 !string.IsNullOrEmpty(item.AvatarUrl)
-                                    ? $"/uploads/testimonials/{HttpUtility.HtmlEncode(item.AvatarUrl)}"
-                                    : "/img/about/testimonial-author.jpg",
+                                    ? (item.AvatarUrl.StartsWith("malefashion") || item.AvatarUrl.StartsWith("/")
+                                        ? "/" + item.AvatarUrl.TrimStart('/')
+                                        : $"/uploads/testimonials/{HttpUtility.HtmlEncode(item.AvatarUrl)}")
+                                    : "/malefashion/img/about/testimonial-author.jpg",
                                 HttpUtility.HtmlEncode(item.AuthorName),
                                 HttpUtility.HtmlEncode(item.AuthorProfession),
                                 HttpUtility.HtmlEncode(item.Quote.Length > 60 ? item.Quote.Substring(0, 57) + "..." : item.Quote),

@@ -56,7 +56,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
             {
                 try
                 {
-                    string? logoUrl = null;
+                    string logoUrl = "malefashion/img/clients/client-1.png";
                     if (model.Logo != null)
                     {
                         await using var stream = model.Logo.OpenReadStream();
@@ -194,7 +194,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     {
                         try
                         {
-                            await _fileStorageService.DeleteImageAsync(oldLogoUrl, "partners", cancellationToken);
+                            if (!oldLogoUrl.StartsWith("malefashion") && !oldLogoUrl.StartsWith("/"))
+                            {
+                                await _fileStorageService.DeleteImageAsync(oldLogoUrl, "partners", cancellationToken);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -260,8 +263,10 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                             select new string[]
                             {
                                 !string.IsNullOrEmpty(item.LogoUrl)
-                                    ? $"/uploads/partners/{HttpUtility.HtmlEncode(item.LogoUrl)}"
-                                    : "/img/clients/client-1.png",
+                                    ? (item.LogoUrl.StartsWith("malefashion") || item.LogoUrl.StartsWith("/")
+                                        ? "/" + item.LogoUrl.TrimStart('/')
+                                        : $"/uploads/partners/{HttpUtility.HtmlEncode(item.LogoUrl)}")
+                                    : "/malefashion/img/clients/client-1.png",
                                 HttpUtility.HtmlEncode(item.ClientName),
                                 item.CreatedAt.ToString("MMM dd, yyyy"),
                                 item.Id.ToString()

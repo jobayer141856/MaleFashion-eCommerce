@@ -280,8 +280,19 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 .Where(p => ids.Contains(p.Id) && p.IsActive)
                 .Include(p => p.Images)
                 .Include(p => p.Variants)
+                .Include(p => p.Tags)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<string>> GetAllDistinctTagNamesAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Set<ProductTag>()
+                .AsNoTracking()
+                .Where(t => t.Product != null && t.Product.IsActive)
+                .Select(t => t.Name)
+                .Distinct()
+                .OrderBy(t => t)
                 .ToListAsync(cancellationToken);
         }
     }
 }
-

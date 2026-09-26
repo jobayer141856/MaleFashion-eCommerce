@@ -130,7 +130,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                             StockQuantity = v.StockQuantity,
                             LowStockQuantity = v.LowStockQuantity,
                             Price = v.Price
-                        }).ToList()
+                        }).ToList(),
+                        Tags = model.TagNamesCsv?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new()
                     };
 
                     await _mediator.SendCommandAsync(command, cancellationToken);
@@ -222,7 +223,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                         StockQuantity = v.StockQuantity,
                         LowStockQuantity = v.lowStockQuantity,
                         Price = v.VariantPrice?.Amount
-                    }).ToList()
+                    }).ToList(),
+                    TagNamesCsv = string.Join(", ", product.Tags.Select(t => t.Name))
                 };
 
                 return View(model);
@@ -317,7 +319,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                             StockQuantity = v.StockQuantity,
                             LowStockQuantity = v.LowStockQuantity,
                             Price = v.Price
-                        }).ToList()
+                        }).ToList(),
+                        Tags = model.TagNamesCsv?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new()
                     };
 
                     await _mediator.SendCommandAsync(command, cancellationToken);

@@ -35,10 +35,11 @@ namespace MaleFashion.Web.Controllers.Shop
             var (products, total, totalDisplay) = await _mediator.SendQueryAsync<GetShopProductsQuery, (IList<ShopProductItemDto>, int, int)>(
                 query, cancellationToken);
 
-            // 2. Fetch Category & Brand filters
+            // 2. Fetch Category, Brand & Tag filters
             var categories = await _unitOfWork.CategoryRepository.GetAllAsync(cancellationToken);
             var brands = await _unitOfWork.BrandRepository.GetAllAsync(cancellationToken);
             var categoryCounts = await _unitOfWork.CategoryRepository.GetProductCountsByCategoryAsync(cancellationToken);
+            var dynamicTags = await _unitOfWork.ProductRepository.GetAllDistinctTagNamesAsync(cancellationToken);
 
             var model = new ShopIndexModel
             {
@@ -56,6 +57,7 @@ namespace MaleFashion.Web.Controllers.Shop
                 Size = query.Size,
                 Color = query.Color,
                 TagName = query.TagName,
+                Tags = dynamicTags,
                 Categories = categories.Where(c => c.IsActive).Select(c => new CategoryFilterItem
                 {
                     Id = c.Id,

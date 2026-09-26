@@ -25,7 +25,7 @@ namespace MaleFashion.Web.Models.Shop
         public List<CategoryFilterItem> Categories { get; set; } = new();
         public List<BrandFilterItem> Brands { get; set; } = new();
         public List<string> Sizes { get; set; } = new() { "xs", "s", "m", "l", "xl", "2xl", "xxl", "3xl", "4xl" };
-        public List<string> Tags { get; set; } = new() { "Product", "Bags", "Shoes", "Fashion", "Clothing", "Hats", "Accessories", "Sale" };
+        public List<string> Tags { get; set; } = new();
 
         public int TotalPages => (int)Math.Ceiling((double)TotalDisplay / (PageSize > 0 ? PageSize : 12));
         public int StartRecord => TotalDisplay == 0 ? 0 : ((PageIndex - 1) * PageSize) + 1;

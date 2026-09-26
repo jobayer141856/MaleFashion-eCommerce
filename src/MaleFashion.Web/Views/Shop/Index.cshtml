@@ -149,12 +149,20 @@
                                 <div id="collapseSix" class="collapse show" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="shop__sidebar__tags">
-                                            @foreach (var tag in Model.Tags)
+                                            @if (Model.Tags != null && Model.Tags.Any())
                                             {
-                                                <a href="@Url.Action("Index", new { TagName = tag, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
-                                                   class="@(string.Equals(Model.TagName, tag, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
-                                                    @tag
-                                                </a>
+                                                @foreach (var tag in Model.Tags)
+                                                {
+                                                    var isSelected = string.Equals(Model.TagName, tag, StringComparison.OrdinalIgnoreCase);
+                                                    <a href="@Url.Action("Index", new { TagName = isSelected ? (string?)null : tag, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Size = Model.Size, Color = Model.Color, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                       class="@(isSelected ? "active" : "")">
+                                                        @tag
+                                                    </a>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">No tags available</span>
                                             }
                                         </div>
                                     </div>

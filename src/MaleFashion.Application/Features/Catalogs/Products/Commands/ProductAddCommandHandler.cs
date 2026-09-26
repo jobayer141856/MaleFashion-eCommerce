@@ -83,6 +83,11 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
             {
                 foreach (var v in command.Variants)
                 {
+                    var colorSlug = !string.IsNullOrWhiteSpace(v.ColorName) ? $"-{v.ColorName.Trim().Replace(" ", "")}" : "";
+                    decimal variantPriceAmount = (v.Price.HasValue && v.Price.Value > 0)
+                        ? v.Price.Value
+                        : product.BasePrice.Amount;
+
                     product.Variants.Add(new ProductVariant
                     {
                         Id = IdentityGenerator.NewSequentialGuid(),
@@ -90,12 +95,30 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
                         Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size,
                         ColorName = v.ColorName ?? string.Empty,
                         ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex,
-                        Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku,
+                        Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}{colorSlug}" : v.Sku,
                         StockQuantity = v.StockQuantity,
                         lowStockQuantity = v.LowStockQuantity,
-                        VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null,
+                        VariantPrice = new Money(variantPriceAmount),
                         CreatedAt = DateTime.UtcNow
                     });
+                }
+            }
+
+            // Tags
+            if (command.Tags != null && command.Tags.Count > 0)
+            {
+                foreach (var tag in command.Tags)
+                {
+                    if (!string.IsNullOrWhiteSpace(tag))
+                    {
+                        product.Tags.Add(new ProductTag
+                        {
+                            Id = IdentityGenerator.NewSequentialGuid(),
+                            ProductId = productId,
+                            Name = tag.Trim(),
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
             }
 

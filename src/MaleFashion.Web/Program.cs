@@ -18,7 +18,7 @@ builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, relo
 builder.Configuration.AddEnvironmentVariables();
 
 Log.Logger = new LoggerConfiguration()
-      .WriteTo.Console()
+      //.WriteTo.Console()
       .WriteTo.File(
         "Logs/log-.log",
         rollingInterval: RollingInterval.Day)
@@ -87,7 +87,7 @@ try
         lc.MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
             .Enrich.FromLogContext()
-            .WriteTo.Console()
+            //.WriteTo.Console()
             .ReadFrom.Configuration(context.Configuration);
     });
     #endregion

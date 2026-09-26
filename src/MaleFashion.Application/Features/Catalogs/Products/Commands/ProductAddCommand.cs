@@ -24,6 +24,7 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
         public string? PrimaryImageName { get; set; }
         public List<string> GalleryImageNames { get; set; } = new();
         public List<ProductVariantDto> Variants { get; set; } = new();
+        public List<string> Tags { get; set; } = new();
     }
 }
 

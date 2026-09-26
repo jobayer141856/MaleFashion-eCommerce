@@ -70,6 +70,12 @@
                                 <label class="form-label" asp-for="AdditionalInformation">Additional Information</label>
                                 <textarea rows="2" class="form-control" asp-for="AdditionalInformation" placeholder="Fabric, Care instructions, etc."></textarea>
                             </div>
+
+                            <div class="col-12">
+                                <label class="form-label" asp-for="TagNamesCsv">Tags (comma-separated)</label>
+                                <input type="text" class="form-control" asp-for="TagNamesCsv" placeholder="e.g. Shoes, Bags, Fashion, Trending, Sale" />
+                                <small class="text-muted">Separate multiple tags with commas.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -118,6 +124,7 @@
                                         <th>Size</th>
                                         <th>Color Name</th>
                                         <th style="width: 90px;">Color</th>
+                                        <th>Price (৳)</th>
                                         <th>Stock Qty</th>
                                         <th>Low Stock Alert</th>
                                         <th style="width: 50px;">Action</th>
@@ -133,6 +140,9 @@
                                         </td>
                                         <td>
                                             <input type="color" name="Variants[0].ColorHex" class="form-control form-control-color" value="#000000" />
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" min="0" name="Variants[0].Price" class="form-control" placeholder="Base Price" />
                                         </td>
                                         <td>
                                             <input type="number" name="Variants[0].StockQuantity" class="form-control" value="10" min="0" required />
@@ -254,24 +264,39 @@
             });
 
             // Dynamic Variants
-            let variantIndex = 1;
+            function reindexVariants() {
+                $('#variantsBody tr.variant-row').each(function (index) {
+                    $(this).find('input').each(function () {
+                        var name = $(this).attr('name');
+                        if (name) {
+                            var newName = name.replace(/Variants\[\d+\]/, 'Variants[' + index + ']');
+                            $(this).attr('name', newName);
+                        }
+                    });
+                });
+            }
+
             $('#addVariantBtn').on('click', function () {
+                let currentIndex = $('#variantsBody tr.variant-row').length;
                 let newRow = `
                     <tr class="variant-row">
                         <td>
-                            <input type="text" name="Variants[${variantIndex}].Size" class="form-control" placeholder="Size" required />
+                            <input type="text" name="Variants[${currentIndex}].Size" class="form-control" placeholder="Size" required />
                         </td>
                         <td>
-                            <input type="text" name="Variants[${variantIndex}].ColorName" class="form-control" placeholder="Color" />
+                            <input type="text" name="Variants[${currentIndex}].ColorName" class="form-control" placeholder="Color" />
                         </td>
                         <td>
-                            <input type="color" name="Variants[${variantIndex}].ColorHex" class="form-control form-control-color" value="#000000" />
+                            <input type="color" name="Variants[${currentIndex}].ColorHex" class="form-control form-control-color" value="#000000" />
                         </td>
                         <td>
-                            <input type="number" name="Variants[${variantIndex}].StockQuantity" class="form-control" value="0" min="0" required />
+                            <input type="number" step="0.01" min="0" name="Variants[${currentIndex}].Price" class="form-control" placeholder="Base Price" />
                         </td>
                         <td>
-                            <input type="number" name="Variants[${variantIndex}].LowStockQuantity" class="form-control" value="0" min="0" />
+                            <input type="number" name="Variants[${currentIndex}].StockQuantity" class="form-control" value="0" min="0" required />
+                        </td>
+                        <td>
+                            <input type="number" name="Variants[${currentIndex}].LowStockQuantity" class="form-control" value="0" min="0" />
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn"><i class="bx bx-trash"></i></button>
@@ -279,17 +304,17 @@
                     </tr>
                 `;
                 $('#variantsBody').append(newRow);
-                variantIndex++;
+                reindexVariants();
             });
 
             $('#variantsBody').on('click', '.remove-variant-btn', function () {
-                if ($('#variantsBody tr').length > 1) {
+                if ($('#variantsBody tr.variant-row').length > 1) {
                     $(this).closest('tr').remove();
+                    reindexVariants();
                 } else {
                     alert('At least one product variant is required.');
                 }
             });
         });
     </script>
-}
 }

@@ -51,6 +51,7 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
             if (!string.IsNullOrEmpty(command.PrimaryImageName))
             {
                 var existingPrimary = product.Images.FirstOrDefault(i => i.IsPrimary);
+
                 if (existingPrimary != null)
                 {
                     existingPrimary.ImageUrl = command.PrimaryImageName;
@@ -60,7 +61,6 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
                 {
                     product.Images.Add(new ProductImage
                     {
-                        Id = IdentityGenerator.NewSequentialGuid(),
                         ProductId = product.Id,
                         ImageUrl = command.PrimaryImageName,
                         IsPrimary = true,
@@ -88,7 +88,6 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
                 {
                     product.Images.Add(new ProductImage
                     {
-                        Id = IdentityGenerator.NewSequentialGuid(),
                         ProductId = product.Id,
                         ImageUrl = imgName,
                         IsPrimary = false,
@@ -124,33 +123,83 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
                         ? product.Variants.FirstOrDefault(x => x.Id == v.Id.Value)
                         : null;
 
+                    var colorSlug = !string.IsNullOrWhiteSpace(v.ColorName) ? $"-{v.ColorName.Trim().Replace(" ", "")}" : "";
+                    var variantSku = !string.IsNullOrWhiteSpace(v.Sku) ? v.Sku : $"{product.Sku}-{v.Size}{colorSlug}";
+                    decimal variantPriceAmount = (v.Price.HasValue && v.Price.Value > 0)
+                        ? v.Price.Value
+                        : product.BasePrice.Amount;
+
                     if (existingVariant != null)
                     {
                         existingVariant.Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size;
                         existingVariant.ColorName = v.ColorName ?? string.Empty;
                         existingVariant.ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex;
-                        existingVariant.Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku;
+                        existingVariant.Sku = variantSku;
                         existingVariant.StockQuantity = v.StockQuantity;
                         existingVariant.lowStockQuantity = v.LowStockQuantity;
-                        existingVariant.VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null;
+                        existingVariant.VariantPrice = new Money(variantPriceAmount);
                         existingVariant.UpdatedAt = DateTime.UtcNow;
                     }
                     else
                     {
                         product.Variants.Add(new ProductVariant
                         {
-                            Id = IdentityGenerator.NewSequentialGuid(),
                             ProductId = product.Id,
                             Size = string.IsNullOrWhiteSpace(v.Size) ? "Standard" : v.Size,
                             ColorName = v.ColorName ?? string.Empty,
                             ColorHex = string.IsNullOrWhiteSpace(v.ColorHex) ? "#000000" : v.ColorHex,
-                            Sku = string.IsNullOrWhiteSpace(v.Sku) ? $"{product.Sku}-{v.Size}" : v.Sku,
+                            Sku = variantSku,
                             StockQuantity = v.StockQuantity,
                             lowStockQuantity = v.LowStockQuantity,
-                            VariantPrice = v.Price.HasValue ? new Money(v.Price.Value) : null,
+                            VariantPrice = new Money(variantPriceAmount),
                             CreatedAt = DateTime.UtcNow
                         });
                     }
+                }
+            }
+
+            // Update Tags (Differential Synchronization)
+            var incomingTagNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (command.Tags != null)
+            {
+                foreach (var tag in command.Tags)
+                {
+                    if (!string.IsNullOrWhiteSpace(tag))
+                    {
+                        incomingTagNames.Add(tag.Trim());
+                    }
+                }
+            }
+
+            // 1. Mark removed tags for deletion
+            var tagsToRemove = product.Tags
+                .Where(t => !incomingTagNames.Contains(t.Name))
+                .ToList();
+
+            foreach (var tag in tagsToRemove)
+            {
+                product.Tags.Remove(tag);
+            }
+
+            // 2. Identify remaining existing tag names
+            var existingTagNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var tag in product.Tags)
+            {
+                existingTagNames.Add(tag.Name);
+            }
+
+            // 3. Add only new tags
+            foreach (var tagName in incomingTagNames)
+            {
+                if (!existingTagNames.Contains(tagName))
+                {
+                    product.Tags.Add(new ProductTag
+                    {
+                        ProductId = product.Id,
+                        Name = tagName,
+                        CreatedAt = DateTime.UtcNow
+                    });
                 }
             }
 

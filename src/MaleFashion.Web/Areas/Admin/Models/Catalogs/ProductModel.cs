@@ -70,6 +70,9 @@ namespace MaleFashion.Web.Areas.Admin.Models.Catalogs
         [Display(Name = "Hot Sale")]
         public bool IsHotSale { get; set; }
 
+        [Display(Name = "Tags (comma-separated)")]
+        public string? TagNamesCsv { get; set; }
+
         // Primary Image
         [Display(Name = "Primary Image")]
         public IFormFile? PrimaryImage { get; set; }

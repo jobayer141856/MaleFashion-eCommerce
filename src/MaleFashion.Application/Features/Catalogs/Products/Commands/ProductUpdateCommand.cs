@@ -25,6 +25,7 @@ namespace MaleFashion.Application.Features.Catalogs.Products.Commands
         public List<string> NewGalleryImageNames { get; set; } = new();
         public List<Guid> DeletedImageIds { get; set; } = new();
         public List<ProductVariantDto> Variants { get; set; } = new();
+        public List<string> Tags { get; set; } = new();
     }
 }
 

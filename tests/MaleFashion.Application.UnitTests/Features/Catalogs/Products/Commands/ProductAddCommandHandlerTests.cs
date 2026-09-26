@@ -146,6 +146,66 @@ namespace MaleFashion.Application.UnitTests.Features.Catalogs.Products.Commands
                 () => _mockUnitOfWork.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never)
             );
         }
+
+        [Test]
+        public async Task Handle_VariantsWithOptionalPriceAndTags_SetsBasePriceFallbackAndPersistsTags()
+        {
+            // Arrange
+            var command = new ProductAddCommand
+            {
+                Name = "Test Casual Pants",
+                Sku = "PANTS-001",
+                BasePrice = 100m,
+                CategoryId = Guid.NewGuid(),
+                BrandId = Guid.NewGuid(),
+                Tags = new List<string> { "Clothing", "Pants" },
+                Variants = new List<ProductVariantDto>
+                {
+                    new ProductVariantDto
+                    {
+                        Size = "M",
+                        ColorName = "Black",
+                        Price = null // No price specified -> should fallback to BasePrice 100m
+                    },
+                    new ProductVariantDto
+                    {
+                        Size = "L",
+                        ColorName = "Navy",
+                        Price = 120m // Custom price specified
+                    }
+                }
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.ProductRepository)
+                .Returns(_mockProductRepository.Object);
+
+            _mockProductRepository.Setup(x => x.IsDuplicateSku(command.Sku, null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            _mockProductRepository.Setup(x => x.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.Tags.Count.ShouldBe(2),
+                () => result.Tags.Select(t => t.Name).ShouldContain("Clothing"),
+                () => result.Tags.Select(t => t.Name).ShouldContain("Pants"),
+                () => result.Variants.Count.ShouldBe(2),
+                () => result.Variants.First(v => v.Size == "M").VariantPrice.ShouldNotBeNull(),
+                () => result.Variants.First(v => v.Size == "M").VariantPrice!.Amount.ShouldBe(100m),
+                () => result.Variants.First(v => v.Size == "L").VariantPrice.ShouldNotBeNull(),
+                () => result.Variants.First(v => v.Size == "L").VariantPrice!.Amount.ShouldBe(120m),
+                () => _mockProductRepository.Verify(x => x.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Once),
+                () => _mockUnitOfWork.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Once)
+            );
+        }
     }
 }
 

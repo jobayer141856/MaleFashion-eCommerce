@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Support
 {
     [Route("newsletter")]
     public class NewsletterController : Controller

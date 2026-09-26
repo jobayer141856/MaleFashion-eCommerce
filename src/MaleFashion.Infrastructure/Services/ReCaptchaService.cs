@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Infrastructure.Services.ReCaptcha
+namespace MaleFashion.Infrastructure.Services
 {
     public class ReCaptchaService : IRecaptchaService
     {

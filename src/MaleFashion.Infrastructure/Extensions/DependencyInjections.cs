@@ -20,8 +20,6 @@ using MaleFashion.Infrastructure.Data.Repositories.Promotions;
 using MaleFashion.Infrastructure.Data.Repositories.Reviews;
 using MaleFashion.Infrastructure.Data.Repositories.Support;
 using MaleFashion.Infrastructure.Services;
-using MaleFashion.Infrastructure.Services.SSLCommerz;
-using MaleFashion.Infrastructure.Services.ReCaptcha;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;

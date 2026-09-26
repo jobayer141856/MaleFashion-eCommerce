@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.About
 {
     [Route("about")]
     [Route("about-us")]

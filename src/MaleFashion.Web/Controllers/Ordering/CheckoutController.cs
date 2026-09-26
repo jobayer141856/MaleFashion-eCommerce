@@ -19,7 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Ordering
 {
     public class CheckoutController : Controller
     {

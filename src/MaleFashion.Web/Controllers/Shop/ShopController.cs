@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Shop
 {
     public class ShopController : Controller
     {
@@ -147,8 +147,8 @@ namespace MaleFashion.Web.Controllers
                 }
             }
 
-            var (success, message) = await _mediator.SendCommandAsync<MaleFashion.Application.Features.Reviews.Commands.ProductReviewAddCustomerCommand, (bool Success, string Message)>(
-                new MaleFashion.Application.Features.Reviews.Commands.ProductReviewAddCustomerCommand
+            var (success, message) = await _mediator.SendCommandAsync<Application.Features.Reviews.Commands.ProductReviewAddCustomerCommand, (bool Success, string Message)>(
+                new Application.Features.Reviews.Commands.ProductReviewAddCustomerCommand
                 {
                     ProductId = model.ProductId,
                     CustomerId = customerId,

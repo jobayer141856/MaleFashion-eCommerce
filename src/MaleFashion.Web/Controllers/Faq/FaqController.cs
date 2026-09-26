@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Faq
 {
     [Route("faq")]
     [Route("faqs")]

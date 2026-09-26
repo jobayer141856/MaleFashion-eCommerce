@@ -7,6 +7,7 @@ using MaleFashion.Application.Contracts.Repositories.Ordering;
 using MaleFashion.Application.Contracts.Repositories.Promotions;
 using MaleFashion.Application.Contracts.Repositories.Reviews;
 using MaleFashion.Application.Contracts.Repositories.Support;
+using MaleFashion.Application.Contracts.Services;
 using MaleFashion.Domain.Contracts;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,6 @@ namespace MaleFashion.Application.Contracts
         public IPartnerClientRepository PartnerClientRepository { get; }
         public ITestimonialRepository TestimonialRepository { get; }
         public IHeroSlideRepository HeroSlideRepository { get; }
-        public MaleFashion.Application.Contracts.Services.ISqlUtility SqlUtility { get; }
+        public ISqlUtility SqlUtility { get; }
     }
 }

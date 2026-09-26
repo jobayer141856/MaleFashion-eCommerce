@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Infrastructure.Services.SSLCommerz
+namespace MaleFashion.Infrastructure.Services
 {
     public class SSLCommerzService : ISSLCommerzService
     {

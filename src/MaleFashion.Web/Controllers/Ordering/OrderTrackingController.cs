@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MaleFashion.Web.Controllers
+namespace MaleFashion.Web.Controllers.Ordering
 {
     [Route("Order")]
     public class OrderTrackingController : Controller

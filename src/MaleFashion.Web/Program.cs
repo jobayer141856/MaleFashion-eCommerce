@@ -10,8 +10,7 @@ using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Reflection;
 using MaleFashion.Web.Areas.Admin.Conventions;
-using MaleFashion.Infrastructure.Services.SSLCommerz;
-using MaleFashion.Infrastructure.Services.ReCaptcha;
+using MaleFashion.Infrastructure.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);

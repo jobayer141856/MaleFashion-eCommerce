@@ -14,4 +14,9 @@
 **/appsettings.Development.json
 **/.env
 **/.env.*
-!**/.env.example
+!**/.env.example
+
+# User Uploaded Media
+**/wwwroot/uploads/**
+!**/wwwroot/uploads/**/
+!**/wwwroot/uploads/**/.gitkeep

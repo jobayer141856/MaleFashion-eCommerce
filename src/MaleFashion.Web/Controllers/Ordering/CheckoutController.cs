@@ -10,6 +10,7 @@ using MaleFashion.Domain.Entities.Ordering;
 using MaleFashion.Domain.Enums;
 using MaleFashion.Domain.ValueOfObjects;
 using MaleFashion.Infrastructure.Identity;
+using MaleFashion.Web.Helpers;
 using MaleFashion.Web.Models.Ordering;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -388,9 +389,9 @@ namespace MaleFashion.Web.Controllers.Ordering
                     ProductName = i.ProductName,
                     Size = i.ProductVariant?.Size,
                     Color = i.ProductVariant?.ColorName,
-                    ImageUrl = i.Product?.Images?.FirstOrDefault(img => img.IsPrimary)?.ImageUrl 
-                               ?? i.Product?.Images?.FirstOrDefault()?.ImageUrl 
-                               ?? "/malefashion/img/product/product-default.jpg",
+                    ImageUrl = ProductImageHelper.GetProductImageUrl(
+                        i.Product?.Images?.FirstOrDefault(img => img.IsPrimary)?.ImageUrl 
+                        ?? i.Product?.Images?.FirstOrDefault()?.ImageUrl),
                     UnitPrice = i.UnitPrice?.Amount ?? 0,
                     Quantity = i.Quantity,
                     TotalPrice = i.TotalPrice?.Amount ?? 0

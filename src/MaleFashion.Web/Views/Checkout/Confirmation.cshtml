@@ -34,9 +34,36 @@
                     <small class="text-white-50">Placed on @Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt") UTC</small>
                 </div>
                 <div class="mt-2 mt-sm-0">
-                    <span class="badge badge-light px-3 py-2 text-uppercase font-weight-bold mr-2">
-                        Status: @Model.Status
-                    </span>
+                    @if (Model.Status == MaleFashion.Domain.Enums.OrderStatus.Delivered)
+                    {
+                        <span class="badge badge-success px-3 py-2 text-uppercase font-weight-bold mr-2 text-white">
+                            Status: Delivered
+                        </span>
+                    }
+                    else if (Model.Status == MaleFashion.Domain.Enums.OrderStatus.Shipped)
+                    {
+                        <span class="badge badge-primary px-3 py-2 text-uppercase font-weight-bold mr-2 text-white">
+                            Status: Shipped
+                        </span>
+                    }
+                    else if (Model.Status == MaleFashion.Domain.Enums.OrderStatus.Processing)
+                    {
+                        <span class="badge badge-info px-3 py-2 text-uppercase font-weight-bold mr-2 text-white">
+                            Status: Processing
+                        </span>
+                    }
+                    else if (Model.Status == MaleFashion.Domain.Enums.OrderStatus.Cancelled)
+                    {
+                        <span class="badge badge-danger px-3 py-2 text-uppercase font-weight-bold mr-2 text-white">
+                            Status: Cancelled
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-light px-3 py-2 text-uppercase font-weight-bold mr-2 text-dark border">
+                            Status: @Model.Status
+                        </span>
+                    }
                     @if (Model.PaymentStatus == MaleFashion.Domain.Enums.PaymentStatus.Paid)
                     {
                         <span class="badge badge-success px-3 py-2 text-uppercase font-weight-bold">
@@ -113,7 +140,7 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="@item.ImageUrl" alt="@item.ProductName" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" class="mr-3 border" />
+                                            <img src="@Url.Content(ProductImageHelper.GetProductImageUrl(item.ImageUrl))" alt="@item.ProductName" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" class="mr-3 border" onerror="this.onerror=null;this.src='/malefashion/img/product/product-1.jpg';" />
                                             <div>
                                                 <strong class="text-dark d-block">@item.ProductName</strong>
                                                 @if (!string.IsNullOrWhiteSpace(item.Size) || !string.IsNullOrWhiteSpace(item.Color))

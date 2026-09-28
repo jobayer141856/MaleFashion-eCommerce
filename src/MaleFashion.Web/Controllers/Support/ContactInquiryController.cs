@@ -4,7 +4,7 @@ using MaleFashion.Application.Features.Support.ContactInquiries.Commands;
 using MaleFashion.Application.Features.Support.StoreLocations.Queries;
 using MaleFashion.Domain.Entities.Support;
 using MaleFashion.Infrastructure.Identity;
-using MaleFashion.Web.Models.ContactInquiries;
+using MaleFashion.Web.Models.Support;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

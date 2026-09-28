@@ -20,7 +20,7 @@ namespace MaleFashion.Web.Controllers.Ordering
         [HttpGet("Track")]
         public IActionResult Index(string? orderNumber)
         {
-            var model = new OrderTrackingViewModel();
+            var model = new OrderTrackingModel();
             if (!string.IsNullOrWhiteSpace(orderNumber))
             {
                 model.OrderNumber = orderNumber.Trim();
@@ -30,7 +30,7 @@ namespace MaleFashion.Web.Controllers.Ordering
 
         [HttpPost("Track")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(OrderTrackingViewModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> Index(OrderTrackingModel model, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
                 return View(model);

@@ -32,17 +32,5 @@ namespace MaleFashion.Web.Models.Shop
         public int EndRecord => Math.Min(PageIndex * PageSize, TotalDisplay);
     }
 
-    public class CategoryFilterItem
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int ProductCount { get; set; }
-    }
-
-    public class BrandFilterItem
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
 }
 

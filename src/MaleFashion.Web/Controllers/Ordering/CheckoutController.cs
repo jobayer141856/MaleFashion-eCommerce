@@ -10,7 +10,7 @@ using MaleFashion.Domain.Entities.Ordering;
 using MaleFashion.Domain.Enums;
 using MaleFashion.Domain.ValueOfObjects;
 using MaleFashion.Infrastructure.Identity;
-using MaleFashion.Web.Models.Checkout;
+using MaleFashion.Web.Models.Ordering;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -63,7 +63,7 @@ namespace MaleFashion.Web.Controllers.Ordering
                 return RedirectToAction("Index", "Cart");
             }
 
-            var model = new CheckoutViewModel
+            var model = new CheckoutModel
             {
                 Cart = cart,
                 PaymentMethod = PaymentMethod.SSLCommerz
@@ -104,7 +104,7 @@ namespace MaleFashion.Web.Controllers.Ordering
         // POST: /Checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(CheckoutViewModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> Index(CheckoutModel model, CancellationToken cancellationToken)
         {
             var (customerId, sessionId) = await _cartSessionService.GetCartIdentityAsync(cancellationToken);
             var cart = await _mediator.SendQueryAsync<GetCustomerCartQuery, CustomerCartDto>(
@@ -363,7 +363,7 @@ namespace MaleFashion.Web.Controllers.Ordering
                 ? $"{order.BillingAddress.StreetAddress}, {order.BillingAddress.City} - {order.BillingAddress.PostalCode}, {order.BillingAddress.Country}"
                 : shippingAddr;
 
-            var model = new OrderConfirmationViewModel
+            var model = new OrderConfirmationModel
             {
                 OrderId = order.Id,
                 OrderNumber = order.OrderNumber,
@@ -382,7 +382,7 @@ namespace MaleFashion.Web.Controllers.Ordering
                 ShippingAddressText = shippingAddr,
                 BillingAddressText = billingAddr,
                 OrderNotes = order.OrderNotes,
-                Items = order.OrderItems.Select(i => new OrderConfirmationItemViewModel
+                Items = order.OrderItems.Select(i => new OrderConfirmationItemModel
                 {
                     ProductId = i.ProductId,
                     ProductName = i.ProductName,

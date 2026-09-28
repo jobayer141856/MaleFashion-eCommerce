@@ -12,6 +12,5 @@ namespace MaleFashion.Web.Models.Blogs
         public string? SelectedTag { get; set; }
         public string? SearchTerm { get; set; }
     }
-
     
 }

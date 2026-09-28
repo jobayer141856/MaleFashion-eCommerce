@@ -180,7 +180,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to update blog post.");
+                    _logger.LogError(ex, "Failed to update blog post with Id: {BlogPostId}", model.Id);
                     TempData.Put(Constants.ResponseTempKey, new ResponseModel { Message = "Failed to update blog post.", Type = ResponseTypes.Danger });
                 }
             }

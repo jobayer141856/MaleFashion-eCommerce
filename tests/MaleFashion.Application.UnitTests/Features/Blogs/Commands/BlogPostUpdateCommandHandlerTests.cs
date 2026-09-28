@@ -85,6 +85,10 @@ namespace MaleFashion.Application.UnitTests.Features.Blogs.Commands
                 .ReturnsAsync(post)
                 .Verifiable();
 
+            _mockBlogPostRepository.Setup(x => x.EditAsync(post, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
             _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -101,6 +105,119 @@ namespace MaleFashion.Application.UnitTests.Features.Blogs.Commands
                 () => result.FeaturedImageUrl.ShouldBe("new_img.jpg"),
                 () => result.IsPublished.ShouldBeTrue(),
                 () => result.Tags.Count.ShouldBe(2),
+                () => _mockBlogPostRepository.VerifyAll(),
+                () => _mockUnitOfWork.VerifyAll()
+            );
+        }
+
+        [Test]
+        public async Task Handle_ExistingPost_PreservesExistingTagsAndRemovesMissingTags()
+        {
+            // Arrange
+            var postId = Guid.NewGuid();
+            var existingTagId = Guid.NewGuid();
+            var post = new BlogPost
+            {
+                Id = postId,
+                Title = "Title",
+                Content = "Content",
+                AuthorName = "Author",
+                Tags = new List<BlogTag>
+                {
+                    new BlogTag { Id = existingTagId, BlogPostId = postId, Name = "PreservedTag" },
+                    new BlogTag { Id = Guid.NewGuid(), BlogPostId = postId, Name = "RemovedTag" }
+                }
+            };
+
+            var command = new BlogPostUpdateCommand
+            {
+                Id = postId,
+                Title = "Updated Title",
+                Content = "Updated Content",
+                AuthorName = "Author",
+                Tags = new List<string> { "PreservedTag", "NewTag" }
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.BlogPostRepository)
+                .Returns(_mockBlogPostRepository.Object)
+                .Verifiable();
+
+            _mockBlogPostRepository.Setup(x => x.GetBlogPostDetailsById(postId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(post)
+                .Verifiable();
+
+            _mockBlogPostRepository.Setup(x => x.EditAsync(post, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.Tags.Count.ShouldBe(2),
+                () => result.Tags.ShouldContain(t => t.Name == "PreservedTag" && t.Id == existingTagId),
+                () => result.Tags.ShouldContain(t => t.Name == "NewTag"),
+                () => result.Tags.ShouldNotContain(t => t.Name == "RemovedTag"),
+                () => _mockBlogPostRepository.VerifyAll(),
+                () => _mockUnitOfWork.VerifyAll()
+            );
+        }
+
+        [Test]
+        public async Task Handle_ExistingPost_WithEmptyTags_RemovesAllTags()
+        {
+            // Arrange
+            var postId = Guid.NewGuid();
+            var post = new BlogPost
+            {
+                Id = postId,
+                Title = "Title",
+                Content = "Content",
+                AuthorName = "Author",
+                Tags = new List<BlogTag>
+                {
+                    new BlogTag { Id = Guid.NewGuid(), BlogPostId = postId, Name = "Tag1" }
+                }
+            };
+
+            var command = new BlogPostUpdateCommand
+            {
+                Id = postId,
+                Title = "Title",
+                Content = "Content",
+                AuthorName = "Author",
+                Tags = new List<string>()
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.BlogPostRepository)
+                .Returns(_mockBlogPostRepository.Object)
+                .Verifiable();
+
+            _mockBlogPostRepository.Setup(x => x.GetBlogPostDetailsById(postId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(post)
+                .Verifiable();
+
+            _mockBlogPostRepository.Setup(x => x.EditAsync(post, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.Tags.Count.ShouldBe(0),
                 () => _mockBlogPostRepository.VerifyAll(),
                 () => _mockUnitOfWork.VerifyAll()
             );

@@ -537,7 +537,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Catalogs
                 var result = await _mediator.SendCommandAsync(command, cancellationToken);
                 if (result)
                 {
-                    return Json(new { success = true, message = $"Stock successfully updated to {request.NewStockQuantity} units." });
+                    return Json(new { success = true, message = "Stock successfully updated." });
                 }
                 else
                 {

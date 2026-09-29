@@ -103,7 +103,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
                     TempData.Put(Constants.ResponseTempKey, new ResponseModel
                     {
-                        Message = "Customer and login credentials successfully created.",
+                        Message = "Customer successfully created.",
                         Type = ResponseTypes.Success
                     });
 
@@ -208,7 +208,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers
 
                     TempData.Put(Constants.ResponseTempKey, new ResponseModel
                     {
-                        Message = "Customer profile and addresses successfully updated.",
+                        Message = "Customer successfully updated.",
                         Type = ResponseTypes.Success
                     });
 

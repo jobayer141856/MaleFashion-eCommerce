@@ -308,7 +308,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Promotions
                 TempData.Put(Constants.ResponseTempKey,
                     new ResponseModel
                     {
-                        Message = $"Coupon marked as {(isActive ? "Active" : "Inactive")}.",
+                        Message = $"Coupon successfully marked as {(isActive ? "Active" : "Inactive")}.",
                         Type = ResponseTypes.Success
                     });
             }

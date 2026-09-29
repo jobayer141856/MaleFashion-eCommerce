@@ -175,7 +175,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
                         }
                     }
 
-                    TempData.Put(Constants.ResponseTempKey, new ResponseModel { Message = "Blog post updated successfully.", Type = ResponseTypes.Success });
+                    TempData.Put(Constants.ResponseTempKey, new ResponseModel { Message = "Blog post successfully updated.", Type = ResponseTypes.Success });
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -259,7 +259,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
                 }
 
                 await _mediator.SendCommandAsync(new BlogPostDeleteCommand { Id = id }, cancellationToken);
-                TempData.Put(Constants.ResponseTempKey, new ResponseModel { Message = "Blog post deleted successfully.", Type = ResponseTypes.Success });
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel { Message = "Blog post successfully deleted.", Type = ResponseTypes.Success });
             }
             catch (Exception ex)
             {

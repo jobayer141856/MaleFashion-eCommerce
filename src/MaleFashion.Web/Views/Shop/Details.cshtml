@@ -95,6 +95,14 @@
                 <div class="col-lg-8">
                     <div class="product__details__text">
                         <h4>@Model.Product.Name</h4>
+                        @if (Model.ActiveDeal != null)
+                        {
+                            <div class="deal-badge mb-2">
+                                <span class="badge badge-danger p-2" style="font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">
+                                    <i class="fa fa-bolt"></i> FLASH DEAL: @Model.ActiveDeal.DealTitle @(Model.ActiveDeal.DiscountPercent > 0 ? $"(-{Model.ActiveDeal.DiscountPercent:0}%)" : "")
+                                </span>
+                            </div>
+                        }
                         <div class="rating">
                             @for (int s = 1; s <= 5; s++)
                             {
@@ -449,7 +457,9 @@
         $(document).ready(function () {
             // 1. Variant Data Matrix
             var variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.VariantItems));
-            var defaultBasePrice = @Model.EffectivePrice;
+            var defaultBasePrice = @Model.BasePriceAmount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var defaultEffectivePrice = @Model.EffectivePrice.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var isProductOnSale = @(Model.IsOnSale ? "true" : "false");
             var defaultSku = "@Model.Product.Sku";
 
             // State
@@ -492,8 +502,15 @@
                         $("#displaySku").text(defaultSku);
                     }
 
-                    var effectivePrice = (matchedVariant.Price && matchedVariant.Price > 0) ? matchedVariant.Price : defaultBasePrice;
-                    $("#productPriceDisplay").html("BDT " + Number(effectivePrice).toFixed(2));
+                    var hasVariantOverride = (matchedVariant.Price && matchedVariant.Price > 0 && matchedVariant.Price !== defaultBasePrice);
+                    var effectivePrice = hasVariantOverride ? matchedVariant.Price : defaultEffectivePrice;
+                    var showOriginal = !hasVariantOverride && isProductOnSale && (defaultEffectivePrice < defaultBasePrice);
+
+                    var priceHtml = 'BDT ' + Number(effectivePrice).toFixed(2);
+                    if (showOriginal) {
+                        priceHtml += ' <span id="originalPriceDisplay" style="text-decoration: line-through; color: #b7b7b7; font-size: 20px; font-weight: 400; margin-left: 10px;">BDT ' + Number(defaultBasePrice).toFixed(2) + '</span>';
+                    }
+                    $("#productPriceDisplay").html(priceHtml);
 
                     if (matchedVariant.StockQuantity > 0) {
                         $("#stockBadge")

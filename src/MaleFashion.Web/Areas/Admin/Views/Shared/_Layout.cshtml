@@ -74,6 +74,75 @@
         .swal2-container.swal2-top-end {
             top: 78px !important;
             right: 25px !important;
+            width: auto !important;
+            max-width: calc(100vw - 50px) !important;
+        }
+
+        /* SweetAlert2 Toast: Fixed Width (360px), Dynamic Height, Auto-Wrapping */
+        .swal2-popup.swal2-toast {
+            box-sizing: border-box !important;
+            width: 360px !important;
+            max-width: calc(100vw - 50px) !important;
+            min-height: 52px !important;
+            height: auto !important;
+            padding: 0.75rem 1rem !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            border-radius: 0.5rem !important;
+            background: #ffffff !important;
+            box-shadow: 0 0.35rem 1.25rem rgba(161, 172, 184, 0.4) !important;
+            overflow: hidden !important;
+        }
+
+        /* Icon Protection: Never Squeeze, Clip, or Slice */
+        .swal2-popup.swal2-toast .swal2-icon {
+            flex-shrink: 0 !important;
+            width: 1.75rem !important;
+            height: 1.75rem !important;
+            min-width: 1.75rem !important;
+            min-height: 1.75rem !important;
+            margin: 0 0.75rem 0 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-width: 2px !important;
+        }
+
+        .swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
+            font-size: 1.1rem !important;
+        }
+
+        /* Text Wrapping & Dynamic Height Expansion */
+        .swal2-popup.swal2-toast .swal2-title {
+            flex: 1 1 auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0.9375rem !important;
+            font-weight: 500 !important;
+            color: #566a7f !important;
+            line-height: 1.45 !important;
+            text-align: left !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        /* Timer Progress Bar */
+        .swal2-popup.swal2-toast .swal2-timer-progress-bar {
+            height: 3px !important;
+        }
+
+        @@media (max-width: 576px) {
+            .swal2-container.swal2-top-end {
+                top: 15px !important;
+                right: 15px !important;
+                left: 15px !important;
+            }
+            .swal2-popup.swal2-toast {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
         }
     </style>
 

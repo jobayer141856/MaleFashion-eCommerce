@@ -1,5 +1,7 @@
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.Entities.Reviews;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,10 +12,48 @@ namespace MaleFashion.Web.Models.Shop
         public Product Product { get; set; } = default!;
         public IList<Product> RelatedProducts { get; set; } = new List<Product>();
         public IList<ProductReview> Reviews { get; set; } = new List<ProductReview>();
+        public ProductActiveDealDto? ActiveDeal { get; set; }
 
-        public decimal EffectivePrice => (Product.SalePrice ?? Product.BasePrice)?.Amount ?? 0m;
         public decimal BasePriceAmount => Product.BasePrice?.Amount ?? 0m;
-        public bool IsOnSale => Product.SalePrice != null && Product.SalePrice.Amount < Product.BasePrice.Amount;
+
+        public decimal EffectivePrice
+        {
+            get
+            {
+                if (ActiveDeal != null && ActiveDeal.SalePrice > 0 && ActiveDeal.SalePrice < BasePriceAmount)
+                {
+                    return ActiveDeal.SalePrice;
+                }
+
+                if (Product.SalePrice != null && Product.SalePrice.Amount < BasePriceAmount)
+                {
+                    return Product.SalePrice.Amount;
+                }
+
+                return BasePriceAmount;
+            }
+        }
+
+        public bool IsOnSale => (ActiveDeal != null && ActiveDeal.SalePrice > 0 && ActiveDeal.SalePrice < BasePriceAmount)
+            || (Product.SalePrice != null && Product.SalePrice.Amount < BasePriceAmount);
+
+        public decimal DiscountPercent
+        {
+            get
+            {
+                if (ActiveDeal != null && ActiveDeal.DiscountPercent > 0)
+                {
+                    return ActiveDeal.DiscountPercent;
+                }
+
+                if (IsOnSale && BasePriceAmount > 0)
+                {
+                    return Math.Round(((BasePriceAmount - EffectivePrice) / BasePriceAmount) * 100, 0);
+                }
+
+                return 0;
+            }
+        }
 
         public ProductImage? PrimaryImage => Product.Images?.OrderByDescending(i => i.IsPrimary).ThenBy(i => i.DisplayOrder).FirstOrDefault();
 

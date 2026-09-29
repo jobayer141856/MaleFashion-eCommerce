@@ -197,7 +197,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
             try
             {
                 await _mediator.SendCommandAsync(new OrderUpdateStatusCommand(id, status), cancellationToken);
-                return Json(new { success = true, message = $"Order status updated to {status}." });
+                return Json(new { success = true, message = "Order status successfully updated." });
             }
             catch (Exception ex)
             {
@@ -212,7 +212,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
             try
             {
                 await _mediator.SendCommandAsync(new OrderUpdatePaymentStatusCommand(id, paymentStatus, transactionId), cancellationToken);
-                return Json(new { success = true, message = $"Payment status updated to {paymentStatus}." });
+                return Json(new { success = true, message = "Payment status successfully updated." });
             }
             catch (Exception ex)
             {
@@ -227,7 +227,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
             try
             {
                 await _mediator.SendCommandAsync(new OrderCancelCommand(id, reason), cancellationToken);
-                return Json(new { success = true, message = "Order cancelled successfully and stock restored." });
+                return Json(new { success = true, message = "Order successfully cancelled." });
             }
             catch (Exception ex)
             {
@@ -242,7 +242,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Ordering
             try
             {
                 await _mediator.SendCommandAsync(new OrderDeleteCommand(id), cancellationToken);
-                return Json(new { success = true, message = "Order deleted successfully." });
+                return Json(new { success = true, message = "Order successfully deleted." });
             }
             catch (Exception ex)
             {

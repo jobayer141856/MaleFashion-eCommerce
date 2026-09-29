@@ -4,6 +4,7 @@ using MaleFashion.Domain.Entities.Carts;
 using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.ValueOfObjects;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,8 +48,31 @@ namespace MaleFashion.Application.Features.Carts.Commands
                 variant = product.Variants.FirstOrDefault(v => v.StockQuantity > 0) ?? product.Variants.FirstOrDefault();
             }
 
-            // Calculate unit price
-            decimal priceAmount = (variant?.VariantPrice ?? product.SalePrice ?? product.BasePrice)?.Amount ?? 0m;
+            // Query active deals for product
+            var activeDeals = await _unitOfWork.ProductRepository.GetActiveDealsForProductIdsAsync(
+                new List<Guid> { product.Id }, cancellationToken);
+            var activeDeal = (activeDeals != null && activeDeals.TryGetValue(product.Id, out var deal)) ? deal : null;
+
+            decimal basePriceAmount = product.BasePrice?.Amount ?? 0m;
+            decimal priceAmount;
+
+            if (activeDeal != null && activeDeal.SalePrice > 0 && activeDeal.SalePrice < basePriceAmount)
+            {
+                priceAmount = activeDeal.SalePrice;
+            }
+            else if (variant?.VariantPrice != null && variant.VariantPrice.Amount > 0 && variant.VariantPrice.Amount != basePriceAmount)
+            {
+                priceAmount = variant.VariantPrice.Amount;
+            }
+            else if (product.SalePrice != null && product.SalePrice.Amount > 0 && product.SalePrice.Amount < basePriceAmount)
+            {
+                priceAmount = product.SalePrice.Amount;
+            }
+            else
+            {
+                priceAmount = basePriceAmount;
+            }
+
             string currency = product.BasePrice?.Currency ?? "BDT";
             var unitPrice = new Money(priceAmount, currency);
 

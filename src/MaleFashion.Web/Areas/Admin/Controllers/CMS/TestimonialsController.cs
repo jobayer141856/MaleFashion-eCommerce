@@ -80,7 +80,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     TempData.Put(Constants.ResponseTempKey,
                         new ResponseModel
                         {
-                            Message = "Testimonial successfully added.",
+                            Message = "Testimonial successfully created.",
                             Type = ResponseTypes.Success
                         });
 

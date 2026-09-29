@@ -143,7 +143,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
             TempData.Put(Constants.ResponseTempKey, new ResponseModel
             {
-                Message = $"Staff member '{user.Email}' was successfully created with assigned roles.",
+                Message = "User successfully created.",
                 Type = ResponseTypes.Success
             });
 
@@ -365,7 +365,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
             TempData.Put(Constants.ResponseTempKey, new ResponseModel
             {
-                Message = $"Staff roles successfully updated for user '{user.Email}'.",
+                Message = "User successfully updated.",
                 Type = ResponseTypes.Success
             });
 
@@ -483,7 +483,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
             TempData.Put(Constants.ResponseTempKey, new ResponseModel
             {
-                Message = $"Password for user '{user.Email}' was successfully reset. The user can now sign in with the new credentials.",
+                Message = "Password successfully reset.",
                 Type = ResponseTypes.Success
             });
 
@@ -556,7 +556,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
 
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = $"Staff account '{userEmail}' was successfully deleted.",
+                    Message = "User successfully deleted.",
                     Type = ResponseTypes.Success
                 });
             }

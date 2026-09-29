@@ -323,7 +323,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Promotions
                 TempData.Put(Constants.ResponseTempKey,
                     new ResponseModel
                     {
-                        Message = $"Flash deal marked as {(isActive ? "Active" : "Inactive")}.",
+                        Message = $"Flash deal successfully marked as {(isActive ? "Active" : "Inactive")}.",
                         Type = ResponseTypes.Success
                     });
             }

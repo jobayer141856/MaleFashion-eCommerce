@@ -3,6 +3,7 @@ using MaleFashion.Application.Contracts;
 using MaleFashion.Application.Contracts.Repositories.Carts;
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
 using MaleFashion.Application.Features.Carts.Commands;
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Domain.Entities.Carts;
 using MaleFashion.Domain.Entities.Catalogs;
 using MaleFashion.Domain.ValueOfObjects;
@@ -209,6 +210,212 @@ namespace MaleFashion.Application.UnitTests.Features.Carts.Commands
             this.ShouldSatisfyAllConditions(
                 () => result.ShouldBeFalse(),
                 () => _mockUnitOfWork.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never)
+            );
+        }
+
+        [Test]
+        public async Task Handle_ProductWithActiveFlashDeal_UsesFlashDealPrice()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var customerId = Guid.NewGuid();
+            var command = new AddToCartCommand
+            {
+                ProductId = productId,
+                CustomerId = customerId,
+                Quantity = 1
+            };
+
+            var product = new Product
+            {
+                Id = productId,
+                Name = "Flash Deal Jacket",
+                IsActive = true,
+                BasePrice = new Money(1000m, "BDT"),
+                SalePrice = new Money(800m, "BDT")
+            };
+
+            var activeDeals = new Dictionary<Guid, ProductActiveDealDto>
+            {
+                [productId] = new ProductActiveDealDto
+                {
+                    ProductId = productId,
+                    DealTitle = "Super Flash Sale",
+                    SalePrice = 600m,
+                    DiscountPercent = 40,
+                    IsLive = true
+                }
+            };
+
+            var cart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customerId,
+                Items = new List<CartItem>()
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.ProductRepository)
+                .Returns(_mockProductRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.CartRepository)
+                .Returns(_mockCartRepository.Object);
+
+            _mockProductRepository.Setup(x => x.GetProductDetailsById(productId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(product);
+            _mockProductRepository.Setup(x => x.GetActiveDealsForProductIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(activeDeals);
+
+            _mockCartRepository.Setup(x => x.GetActiveCartByCustomerOrSessionAsync(customerId, null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cart);
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldBeTrue(),
+                () => cart.Items.Count.ShouldBe(1),
+                () => cart.Items.First().UnitPrice.Amount.ShouldBe(600m)
+            );
+        }
+
+        [Test]
+        public async Task Handle_ProductWithSalePrice_UsesSalePrice()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var customerId = Guid.NewGuid();
+            var variantId = Guid.NewGuid();
+            var command = new AddToCartCommand
+            {
+                ProductId = productId,
+                ProductVariantId = variantId,
+                CustomerId = customerId,
+                Quantity = 1
+            };
+
+            var product = new Product
+            {
+                Id = productId,
+                Name = "Sale Jeans",
+                IsActive = true,
+                BasePrice = new Money(500m, "BDT"),
+                SalePrice = new Money(350m, "BDT"),
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Id = variantId,
+                        ProductId = productId,
+                        Size = "32",
+                        StockQuantity = 10,
+                        VariantPrice = new Money(500m, "BDT") // VariantPrice defaulted to BasePrice
+                    }
+                }
+            };
+
+            var cart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customerId,
+                Items = new List<CartItem>()
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.ProductRepository)
+                .Returns(_mockProductRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.CartRepository)
+                .Returns(_mockCartRepository.Object);
+
+            _mockProductRepository.Setup(x => x.GetProductDetailsById(productId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(product);
+            _mockProductRepository.Setup(x => x.GetActiveDealsForProductIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Dictionary<Guid, ProductActiveDealDto>());
+
+            _mockCartRepository.Setup(x => x.GetActiveCartByCustomerOrSessionAsync(customerId, null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cart);
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldBeTrue(),
+                () => cart.Items.Count.ShouldBe(1),
+                () => cart.Items.First().UnitPrice.Amount.ShouldBe(350m)
+            );
+        }
+
+        [Test]
+        public async Task Handle_VariantWithCustomPrice_UsesVariantPrice()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var customerId = Guid.NewGuid();
+            var variantId = Guid.NewGuid();
+            var command = new AddToCartCommand
+            {
+                ProductId = productId,
+                ProductVariantId = variantId,
+                CustomerId = customerId,
+                Quantity = 1
+            };
+
+            var product = new Product
+            {
+                Id = productId,
+                Name = "Premium Blazer",
+                IsActive = true,
+                BasePrice = new Money(1200m, "BDT"),
+                SalePrice = new Money(1100m, "BDT"),
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Id = variantId,
+                        ProductId = productId,
+                        Size = "XXL",
+                        StockQuantity = 5,
+                        VariantPrice = new Money(1400m, "BDT") // Custom variant override > BasePrice
+                    }
+                }
+            };
+
+            var cart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customerId,
+                Items = new List<CartItem>()
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.ProductRepository)
+                .Returns(_mockProductRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.CartRepository)
+                .Returns(_mockCartRepository.Object);
+
+            _mockProductRepository.Setup(x => x.GetProductDetailsById(productId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(product);
+            _mockProductRepository.Setup(x => x.GetActiveDealsForProductIdsAsync(It.IsAny<List<Guid>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Dictionary<Guid, ProductActiveDealDto>());
+
+            _mockCartRepository.Setup(x => x.GetActiveCartByCustomerOrSessionAsync(customerId, null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(cart);
+
+            _mockUnitOfWork.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldBeTrue(),
+                () => cart.Items.Count.ShouldBe(1),
+                () => cart.Items.First().UnitPrice.Amount.ShouldBe(1400m)
             );
         }
     }

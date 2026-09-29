@@ -178,11 +178,11 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Reviews
                     {
                         success = true,
                         isApproved,
-                        message = isApproved ? "Review approved and published to storefront." : "Review returned to pending moderation."
+                        message = isApproved ? "Review successfully approved." : "Review successfully moved to pending."
                     });
                 }
 
-                TempData["SuccessMessage"] = isApproved ? "Review approved and published." : "Review returned to pending moderation.";
+                TempData["SuccessMessage"] = isApproved ? "Review successfully approved." : "Review successfully moved to pending.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -203,9 +203,9 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Reviews
             {
                 await _mediator.SendCommandAsync(new ProductReviewDeleteCommand { Id = id }, cancellationToken);
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = true, message = "Product review deleted successfully." });
+                    return Json(new { success = true, message = "Product review successfully deleted." });
 
-                TempData["SuccessMessage"] = "Product review deleted successfully.";
+                TempData["SuccessMessage"] = "Product review successfully deleted.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

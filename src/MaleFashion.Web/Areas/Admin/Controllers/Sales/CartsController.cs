@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MaleFashion.Web.Helpers;
 using System.Web;
 
 namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
@@ -77,7 +78,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
                     PageIndex = model.PageIndex,
                     PageSize = model.PageSize,
                     SearchText = model.Search.Value ?? string.Empty,
-                    SortText = model.FormatSortExpression("CreatedAt", "UpdatedAt", "Id"),
+                    SortText = model.FormatSortExpression("CreatedAt", "CreatedAt", "CreatedAt", "CreatedAt", "UpdatedAt", "Id") ?? "UpdatedAt desc",
                     CartFilter = model.CartFilter
                 };
 
@@ -121,8 +122,8 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
                             let currency = item.Items.FirstOrDefault()?.UnitPrice.Currency ?? "BDT"
                             let thumbs = string.Join("", item.Items.Take(3).Select(i =>
                             {
-                                var img = !string.IsNullOrEmpty(i.ImageUrl) ? $"/uploads/products/{HttpUtility.HtmlEncode(i.ImageUrl)}" : "/img/product/product-1.jpg";
-                                return $"<img src='{img}' class='rounded me-1 border' style='width:32px;height:32px;object-fit:cover;' title='{HttpUtility.HtmlEncode(i.ProductName)} (x{i.Quantity})' />";
+                                var imgUrl = ProductImageHelper.GetProductImageUrl(i.ImageUrl);
+                                return $"<img src='{HttpUtility.HtmlAttributeEncode(imgUrl)}' class='rounded me-1 border' style='width:32px;height:32px;object-fit:cover;' title='{HttpUtility.HtmlEncode(i.ProductName)} (x{i.Quantity})' onerror=\"this.onerror=null;this.src='/malefashion/img/product/product-1.jpg';\" />";
                             }))
                             let extraThumbs = itemCount > 3 ? $"<span class='badge bg-label-secondary small'>+{itemCount - 3}</span>" : ""
                             let itemsHtml = $@"<div>
@@ -213,9 +214,9 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
                             ? $"{i.ProductVariant.ColorName} {i.ProductVariant.Size}".Trim()
                             : null;
 
-                        var img = !string.IsNullOrEmpty(i.ImageUrl)
-                            ? $"/uploads/products/{i.ImageUrl}"
-                            : (i.Product?.Images?.FirstOrDefault()?.ImageUrl != null ? $"/uploads/products/{i.Product.Images.First().ImageUrl}" : "/img/product/product-1.jpg");
+                        var img = ProductImageHelper.GetProductImageUrl(!string.IsNullOrEmpty(i.ImageUrl)
+                            ? i.ImageUrl
+                            : i.Product?.Images?.FirstOrDefault()?.ImageUrl);
 
                         return new CartItemViewModel
                         {
@@ -245,7 +246,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Sales
             try
             {
                 await _mediator.SendCommandAsync(new CartDeleteCommand(id), cancellationToken);
-                return Json(new { success = true, message = "Cart removed successfully." });
+                return Json(new { success = true, message = "Cart successfully deleted." });
             }
             catch (Exception ex)
             {

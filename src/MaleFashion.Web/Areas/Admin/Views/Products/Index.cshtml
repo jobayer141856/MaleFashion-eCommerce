@@ -552,12 +552,16 @@
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
-                                timer: 2000,
-                                timerProgressBar: true
+                                timer: 3500,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                                }
                             });
                             Toast.fire({
                                 icon: 'success',
-                                title: res.message || 'Stock updated successfully!'
+                                title: res.message || 'Stock successfully updated.'
                             });
 
                             // Refresh parent table without resetting pagination

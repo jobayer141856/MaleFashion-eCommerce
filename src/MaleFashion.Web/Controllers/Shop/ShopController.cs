@@ -113,12 +113,18 @@ namespace MaleFashion.Web.Controllers.Shop
                 }
             }
 
+            // 4. Query active flash deal for this product
+            var activeDeals = await _unitOfWork.ProductRepository.GetActiveDealsForProductIdsAsync(
+                new List<Guid> { product.Id }, cancellationToken);
+            var activeDeal = (activeDeals != null && activeDeals.TryGetValue(product.Id, out var deal)) ? deal : null;
+
             var model = new ShopDetailsModel
             {
                 Product = product,
                 RelatedProducts = relatedProducts.ToList(),
                 Reviews = reviews.ToList(),
-                ReviewInput = reviewInput
+                ReviewInput = reviewInput,
+                ActiveDeal = activeDeal
             };
 
             return View(model);

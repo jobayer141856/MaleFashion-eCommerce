@@ -117,7 +117,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Support
                 TempData.Put(Constants.ResponseTempKey,
                     new ResponseModel
                     {
-                        Message = $"Inquiry marked as {(isResolved ? "Resolved" : "Pending")}.",
+                        Message = $"Inquiry successfully marked as {(isResolved ? "Resolved" : "Pending")}.",
                         Type = ResponseTypes.Success
                     });
             }

@@ -78,7 +78,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     TempData.Put(Constants.ResponseTempKey,
                         new ResponseModel
                         {
-                            Message = "Partner client successfully added.",
+                            Message = "Partner client successfully created.",
                             Type = ResponseTypes.Success
                         });
 

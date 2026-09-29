@@ -99,7 +99,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = $"Role '{roleName}' was successfully created.",
+                    Message = "Role successfully created.",
                     Type = ResponseTypes.Success
                 });
                 return RedirectToAction(nameof(Index));
@@ -219,7 +219,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = "Role name successfully updated.",
+                    Message = "Role successfully updated.",
                     Type = ResponseTypes.Success
                 });
                 return RedirectToAction(nameof(Index));
@@ -325,7 +325,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
             {
                 TempData.Put(Constants.ResponseTempKey, new ResponseModel
                 {
-                    Message = $"Role '{role.Name}' was successfully deleted.",
+                    Message = "Role successfully deleted.",
                     Type = ResponseTypes.Success
                 });
             }

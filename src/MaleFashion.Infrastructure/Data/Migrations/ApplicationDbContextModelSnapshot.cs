@@ -1271,7 +1271,7 @@ namespace MaleFashion.Infrastructure.Data.Migrations
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "F1E852D4-90C3-481B-8526-7B1A45C9E231",
                             Email = "admin@malefashion.com",
-                            EmailConfirmed = false,
+                            EmailConfirmed = true,
                             FirstName = "Admin",
                             LastName = "User",
                             LockoutEnabled = false,

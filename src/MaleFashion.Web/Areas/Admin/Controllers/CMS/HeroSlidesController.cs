@@ -84,7 +84,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     TempData.Put(Constants.ResponseTempKey,
                         new ResponseModel
                         {
-                            Message = "Hero slide successfully added.",
+                            Message = "Hero slide successfully created.",
                             Type = ResponseTypes.Success
                         });
 
@@ -235,7 +235,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                 TempData.Put(Constants.ResponseTempKey,
                     new ResponseModel
                     {
-                        Message = $"Hero slide marked as {(isActive ? "Active" : "Inactive")}.",
+                        Message = $"Hero slide successfully marked as {(isActive ? "Active" : "Inactive")}.",
                         Type = ResponseTypes.Success
                     });
             }

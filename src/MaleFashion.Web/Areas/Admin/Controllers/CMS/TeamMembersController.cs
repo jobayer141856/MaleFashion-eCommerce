@@ -79,7 +79,7 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.CMS
                     TempData.Put(Constants.ResponseTempKey,
                         new ResponseModel
                         {
-                            Message = "Team member successfully added.",
+                            Message = "Team member successfully created.",
                             Type = ResponseTypes.Success
                         });
 

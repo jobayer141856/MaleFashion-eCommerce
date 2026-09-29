@@ -13,6 +13,30 @@ namespace MaleFashion.Web.Models.Shop
         public IList<Product> RelatedProducts { get; set; } = new List<Product>();
         public IList<ProductReview> Reviews { get; set; } = new List<ProductReview>();
         public ProductActiveDealDto? ActiveDeal { get; set; }
+        public Dictionary<Guid, ProductActiveDealDto> ActiveDeals { get; set; } = new();
+
+        public decimal GetProductEffectivePrice(Product p)
+        {
+            decimal basePrice = p.BasePrice?.Amount ?? 0m;
+            if (ActiveDeals != null && ActiveDeals.TryGetValue(p.Id, out var deal) && deal != null && deal.SalePrice > 0 && deal.SalePrice < basePrice)
+            {
+                return deal.SalePrice;
+            }
+            if (p.SalePrice != null && p.SalePrice.Amount < basePrice)
+            {
+                return p.SalePrice.Amount;
+            }
+            return basePrice;
+        }
+
+        public bool IsProductOnSale(Product p)
+        {
+            decimal basePrice = p.BasePrice?.Amount ?? 0m;
+            if (basePrice <= 0) return false;
+
+            return (ActiveDeals != null && ActiveDeals.TryGetValue(p.Id, out var deal) && deal != null && deal.SalePrice > 0 && deal.SalePrice < basePrice)
+                || (p.SalePrice != null && p.SalePrice.Amount < basePrice);
+        }
 
         public decimal BasePriceAmount => Product.BasePrice?.Amount ?? 0m;
 

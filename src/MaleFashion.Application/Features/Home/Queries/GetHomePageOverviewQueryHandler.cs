@@ -1,5 +1,6 @@
 using Cortex.Mediator.Queries;
 using MaleFashion.Application.Contracts;
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Application.Features.Home.DTOs;
 using MaleFashion.Domain.Entities.Blogs;
 using MaleFashion.Domain.Entities.Catalogs;
@@ -66,9 +67,25 @@ namespace MaleFashion.Application.Features.Home.Queries
             try
             {
                 products = await _unitOfWork.ProductRepository.GetFeaturedHomeProductsAsync(8, cancellationToken);
-                productDtos = (products != null && products.Count > 0)
-                    ? products.Select(MapProduct).ToList()
-                    : GetDefaultProducts();
+                if (products != null && products.Count > 0)
+                {
+                    Dictionary<Guid, ProductActiveDealDto>? activeDeals = null;
+                    try
+                    {
+                        var productIds = products.Select(p => p.Id).ToList();
+                        activeDeals = await _unitOfWork.ProductRepository.GetActiveDealsForProductIdsAsync(productIds, cancellationToken);
+                    }
+                    catch
+                    {
+                        activeDeals = null;
+                    }
+
+                    productDtos = products.Select(p => MapProduct(p, activeDeals)).ToList();
+                }
+                else
+                {
+                    productDtos = GetDefaultProducts();
+                }
             }
             catch
             {
@@ -166,7 +183,7 @@ namespace MaleFashion.Application.Features.Home.Queries
             return result;
         }
 
-        private static HomeProductDto MapProduct(Product product)
+        private static HomeProductDto MapProduct(Product product, Dictionary<Guid, ProductActiveDealDto>? activeDeals = null)
         {
             var primaryImage = product.Images?.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
                 ?? product.Images?.FirstOrDefault()?.ImageUrl;
@@ -180,14 +197,26 @@ namespace MaleFashion.Application.Features.Home.Queries
                 .Take(4)
                 .ToList() ?? new List<string>();
 
+            decimal basePriceAmount = product.BasePrice?.Amount ?? 0m;
+            decimal? effectiveSalePrice = null;
+
+            if (activeDeals != null && activeDeals.TryGetValue(product.Id, out var deal) && deal != null && deal.SalePrice > 0 && deal.SalePrice < basePriceAmount)
+            {
+                effectiveSalePrice = deal.SalePrice;
+            }
+            else if (product.SalePrice != null && product.SalePrice.Amount > 0 && product.SalePrice.Amount < basePriceAmount)
+            {
+                effectiveSalePrice = product.SalePrice.Amount;
+            }
+
             return new HomeProductDto
             {
                 Id = product.Id,
                 Name = product.Name,
                 Sku = product.Sku,
                 CategoryName = product.Category?.Name,
-                BasePrice = product.BasePrice?.Amount ?? 0,
-                SalePrice = product.SalePrice?.Amount,
+                BasePrice = basePriceAmount,
+                SalePrice = effectiveSalePrice,
                 Currency = product.BasePrice?.Currency ?? "BDT",
                 Rating = product.Rating,
                 IsNewArrival = product.IsNewArrival,

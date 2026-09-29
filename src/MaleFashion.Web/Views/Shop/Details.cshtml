@@ -398,8 +398,8 @@
                         ?? rel.Images?.FirstOrDefault()?.ImageUrl
                         ?? string.Empty;
                     var relImg = ProductImageHelper.GetProductImageUrl(relRawImg);
-                    var relPrice = (rel.SalePrice ?? rel.BasePrice)?.Amount ?? 0m;
-                    var isRelSale = rel.SalePrice != null && rel.SalePrice.Amount < rel.BasePrice.Amount;
+                    var relPrice = Model.GetProductEffectivePrice(rel);
+                    var isRelSale = Model.IsProductOnSale(rel);
 
                     <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="product__item @(isRelSale ? "sale" : "")">
@@ -441,7 +441,15 @@
                                         }
                                     }
                                 </div>
-                                <h5>BDT @relPrice.ToString("N2")</h5>
+                                <h5>
+                                    BDT @relPrice.ToString("N2")
+                                    @if (isRelSale)
+                                    {
+                                        <span class="text-muted small ml-1" style="text-decoration: line-through; font-size: 13px; font-weight: normal;">
+                                            BDT @(rel.BasePrice?.Amount.ToString("N2") ?? "0.00")
+                                        </span>
+                                    }
+                                </h5>
                             </div>
                         </div>
                     </div>

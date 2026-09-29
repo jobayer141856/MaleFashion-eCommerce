@@ -4,6 +4,7 @@ using MaleFashion.Application.Contracts.Repositories.Blogs;
 using MaleFashion.Application.Contracts.Repositories.Catalogs;
 using MaleFashion.Application.Contracts.Repositories.CMS;
 using MaleFashion.Application.Contracts.Repositories.Promotions;
+using MaleFashion.Application.Features.Catalogs.Products.DTOs;
 using MaleFashion.Application.Features.Home.Queries;
 using MaleFashion.Domain.Entities.Blogs;
 using MaleFashion.Domain.Entities.Catalogs;
@@ -209,6 +210,67 @@ namespace MaleFashion.Application.UnitTests.Features.Home.Queries
                 () => result.DealOfTheWeek.ShouldNotBeNull(),
                 () => result.LatestBlogs.ShouldNotBeEmpty(),
                 () => result.InstagramPosts.ShouldNotBeEmpty()
+            );
+        }
+
+        [Test]
+        public async Task Handle_WithActiveFlashDealOnFeaturedProduct_AppliesFlashDealPriceAndSaleBadge()
+        {
+            // Arrange
+            var query = new GetHomePageOverviewQuery();
+            var productId = Guid.NewGuid();
+
+            var products = new List<Product>
+            {
+                new Product
+                {
+                    Id = productId,
+                    Name = "Classic Slim-Fit Oxford Cotton Shirt",
+                    BasePrice = new Money(2590m, "BDT"),
+                    IsActive = true
+                }
+            };
+
+            var activeDeals = new Dictionary<Guid, ProductActiveDealDto>
+            {
+                {
+                    productId,
+                    new ProductActiveDealDto
+                    {
+                        ProductId = productId,
+                        DealTitle = "Summer Flash Sale",
+                        SalePrice = 1800m,
+                        DiscountPercent = 31,
+                        IsLive = true
+                    }
+                }
+            };
+
+            _mockUnitOfWork.SetupGet(x => x.HeroSlideRepository).Returns(_mockHeroSlideRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.CategoryRepository).Returns(_mockCategoryRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.ProductRepository).Returns(_mockProductRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.DealCountdownRepository).Returns(_mockDealCountdownRepository.Object);
+            _mockUnitOfWork.SetupGet(x => x.BlogPostRepository).Returns(_mockBlogPostRepository.Object);
+
+            _mockProductRepository.Setup(x => x.GetFeaturedHomeProductsAsync(8, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(products);
+
+            _mockProductRepository.Setup(x => x.GetActiveDealsForProductIdsAsync(It.Is<List<Guid>>(ids => ids.Contains(productId)), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(activeDeals);
+
+            // Act
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            this.ShouldSatisfyAllConditions(
+                () => result.ShouldNotBeNull(),
+                () => result.FeaturedProducts.Count.ShouldBe(1),
+                () => result.FeaturedProducts[0].Name.ShouldBe("Classic Slim-Fit Oxford Cotton Shirt"),
+                () => result.FeaturedProducts[0].BasePrice.ShouldBe(2590m),
+                () => result.FeaturedProducts[0].SalePrice.ShouldBe(1800m),
+                () => result.FeaturedProducts[0].HasDiscount.ShouldBeTrue(),
+                () => result.FeaturedProducts[0].DisplayPrice.ShouldBe(1800m),
+                () => result.FeaturedProducts[0].MixItUpClasses.ShouldContain("hot-sales")
             );
         }
     }

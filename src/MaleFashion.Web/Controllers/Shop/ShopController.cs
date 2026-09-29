@@ -113,9 +113,14 @@ namespace MaleFashion.Web.Controllers.Shop
                 }
             }
 
-            // 4. Query active flash deal for this product
+            // 4. Query active flash deal for this product and related products
+            var dealProductIds = new List<Guid> { product.Id };
+            if (relatedProducts != null && relatedProducts.Any())
+            {
+                dealProductIds.AddRange(relatedProducts.Select(r => r.Id));
+            }
             var activeDeals = await _unitOfWork.ProductRepository.GetActiveDealsForProductIdsAsync(
-                new List<Guid> { product.Id }, cancellationToken);
+                dealProductIds, cancellationToken);
             var activeDeal = (activeDeals != null && activeDeals.TryGetValue(product.Id, out var deal)) ? deal : null;
 
             var model = new ShopDetailsModel
@@ -124,7 +129,8 @@ namespace MaleFashion.Web.Controllers.Shop
                 RelatedProducts = relatedProducts.ToList(),
                 Reviews = reviews.ToList(),
                 ReviewInput = reviewInput,
-                ActiveDeal = activeDeal
+                ActiveDeal = activeDeal,
+                ActiveDeals = activeDeals ?? new Dictionary<Guid, ProductActiveDealDto>()
             };
 
             return View(model);

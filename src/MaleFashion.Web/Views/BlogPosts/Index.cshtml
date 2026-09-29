@@ -1,4 +1,4 @@
-﻿@model BlogModel
+@model BlogModel
 @{
     ViewData["Title"] = "Our Blog";
 }
@@ -53,7 +53,7 @@
                     <div class="product__pagination">
                         @for (int i = 1; i <= Model.TotalPages; i++)
                         {
-                            <a class="@(i == Model.CurrentPage ? "active" : "")" asp-controller="Blog" asp-action="Index" asp-route-page="@i">@i</a>
+                            <a class="@(i == Model.CurrentPage ? "active" : "")" asp-controller="BlogPosts" asp-action="Index" asp-route-page="@i">@i</a>
                         }
                     </div>
                 </div>

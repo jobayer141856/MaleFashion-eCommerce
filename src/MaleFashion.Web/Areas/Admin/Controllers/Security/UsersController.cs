@@ -547,6 +547,17 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Security
                 }
             }
 
+            // 4. Role-assignment safeguard: prevent deletion if staff member has active roles
+            if (targetRoles.Any())
+            {
+                TempData.Put(Constants.ResponseTempKey, new ResponseModel
+                {
+                    Message = $"Cannot delete staff account '{user.Email}' because it has assigned role(s): {string.Join(", ", targetRoles)}. Please unassign the role(s) first.",
+                    Type = ResponseTypes.Warning
+                });
+                return RedirectToAction(nameof(Index));
+            }
+
             var userEmail = user.Email;
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)

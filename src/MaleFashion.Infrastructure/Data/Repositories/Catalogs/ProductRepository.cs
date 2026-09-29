@@ -294,5 +294,43 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Catalogs
                 .OrderBy(t => t)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<string>> GetAllDistinctSizesAsync(CancellationToken cancellationToken)
+        {
+            var rawSizes = await _context.Set<ProductVariant>()
+                .AsNoTracking()
+                .Where(v => v.Product != null && v.Product.IsActive && !string.IsNullOrWhiteSpace(v.Size) && v.StockQuantity > 0)
+                .Select(v => v.Size.Trim())
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            return SortSizes(rawSizes);
+        }
+
+        private static List<string> SortSizes(IEnumerable<string> sizes)
+        {
+            var standardOrder = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "xxs", 1 },
+                { "xs", 2 },
+                { "s", 3 },
+                { "m", 4 },
+                { "l", 5 },
+                { "xl", 6 },
+                { "2xl", 7 },
+                { "xxl", 8 },
+                { "3xl", 9 },
+                { "xxxl", 10 },
+                { "4xl", 11 },
+                { "xxxxl", 12 },
+                { "5xl", 13 }
+            };
+
+            return sizes
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(s => standardOrder.TryGetValue(s.Trim(), out var rank) ? rank : 100)
+                .ThenBy(s => s)
+                .ToList();
+        }
     }
 }

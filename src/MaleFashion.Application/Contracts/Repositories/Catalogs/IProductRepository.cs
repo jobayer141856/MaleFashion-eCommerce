@@ -25,6 +25,7 @@ namespace MaleFashion.Application.Contracts.Repositories.Catalogs
         Task<IList<Product>> GetRelatedProductsAsync(Guid categoryId, Guid excludeProductId, int take, CancellationToken cancellationToken);
         Task<IList<Product>> GetProductsByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken);
         Task<List<string>> GetAllDistinctTagNamesAsync(CancellationToken cancellationToken);
+        Task<List<string>> GetAllDistinctSizesAsync(CancellationToken cancellationToken);
     }
 }
 

@@ -129,12 +129,20 @@
                                 <div id="collapseFour" class="collapse show" data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="shop__sidebar__size">
-                                            @foreach (var sz in Model.Sizes)
+                                            @if (Model.Sizes != null && Model.Sizes.Any())
                                             {
-                                                <a href="@Url.Action("Index", new { Size = sz, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
-                                                   class="badge @(string.Equals(Model.Size, sz, StringComparison.OrdinalIgnoreCase) ? "badge-dark text-white" : "badge-light text-dark") p-2 m-1">
-                                                    @sz.ToUpper()
-                                                </a>
+                                                @foreach (var sz in Model.Sizes)
+                                                {
+                                                    var isSelected = string.Equals(Model.Size, sz, StringComparison.OrdinalIgnoreCase);
+                                                    <a href="@Url.Action("Index", new { Size = isSelected ? (string?)null : sz, CategoryId = Model.CategoryId, BrandId = Model.BrandId, PriceFrom = Model.PriceFrom, PriceTo = Model.PriceTo, Color = Model.Color, TagName = Model.TagName, OrderBy = Model.OrderBy, SearchText = Model.SearchText })"
+                                                       class="badge @(isSelected ? "badge-dark text-white" : "badge-light text-dark") p-2 m-1">
+                                                        @sz.ToUpper()
+                                                    </a>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">No sizes available</span>
                                             }
                                         </div>
                                     </div>

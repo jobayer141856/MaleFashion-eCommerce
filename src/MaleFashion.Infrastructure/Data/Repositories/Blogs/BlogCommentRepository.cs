@@ -1,4 +1,4 @@
-﻿using MaleFashion.Application.Contracts.Repositories.Blogs;
+using MaleFashion.Application.Contracts.Repositories.Blogs;
 using MaleFashion.Application.Features.Blogs.Queries;
 using MaleFashion.Domain.Entities.Blogs;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +24,11 @@ namespace MaleFashion.Infrastructure.Data.Repositories.Blogs
             var sortText = string.IsNullOrWhiteSpace(query.SortText) ? "CreatedAt desc" : query.SortText;
 
             return await GetDynamicAsync(
-                x => (query.SearchText == null || x.Name.Contains(query.SearchText) || x.CommentText.Contains(query.SearchText) || x.Email.Contains(query.SearchText)) &&
+                x => (string.IsNullOrWhiteSpace(query.SearchText) ||
+                      x.Name.Contains(query.SearchText) ||
+                      x.CommentText.Contains(query.SearchText) ||
+                      x.Email.Contains(query.SearchText) ||
+                      (x.BlogPost != null && x.BlogPost.Title.Contains(query.SearchText))) &&
                      (!query.StatusFilter.HasValue || (query.StatusFilter.Value ? x.IsApproved : !x.IsApproved)),
                 sortText,
                 x => x.Include(c => c.BlogPost),

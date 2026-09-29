@@ -1,96 +1,162 @@
-﻿<div class="container-xxl flex-grow-1 container-p-y">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bx bx-comment-detail me-1"></i> Comments Moderation</h5>
-            <div class="d-flex gap-2">
-                <select id="statusFilter" class="form-select form-select-sm" style="width: 150px;">
-                    <option value="">All Comments</option>
-                    <option value="false" selected>Pending Review</option>
-                    <option value="true">Approved</option>
-                </select>
+@{
+    ViewData["Title"] = "Comments Moderation";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.min.css">
+}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <div class="col-12">
+            <partial name="_ResponsePartial" />
+            @Html.AntiForgeryToken()
+            <div class="card">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bx bx-comment-detail me-1"></i> Comments Moderation</h5>
+                    <div class="d-flex gap-2">
+                        <select id="statusFilter" class="form-select form-select-sm" style="width: 160px;">
+                            <option value="">All Comments</option>
+                            <option value="false" selected>Pending Review</option>
+                            <option value="true">Approved</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body table-responsive pt-3">
+                    <table class="table table-bordered table-hover w-100" id="commentsTable">
+                        <thead>
+                            <tr>
+                                <th>Blog Post</th>
+                                <th>Commenter</th>
+                                <th>Comment Text</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th style="width: 140px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div class="card-datatable table-responsive">
-            <table class="table border-top" id="commentsTable">
-                <thead>
-                    <tr>
-                        <th>Blog Post</th>
-                        <th>Commenter</th>
-                        <th>Comment Text</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+
     <script>
-        $(function() {
+        $(function () {
             let table = $('#commentsTable').DataTable({
                 processing: true,
                 serverSide: true,
+                order: [[3, 'desc']],
                 ajax: {
                     url: '@Url.Action("GetPagedComments", "BlogComments", new { area = "Admin" })',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: function(d) {
+                    data: function (d) {
                         let filter = $('#statusFilter').val();
-                        d.statusFilter = filter === "" ? null : filter === "true";
+                        d.statusFilter = filter === "" ? null : (filter === "true");
                         return JSON.stringify(d);
                     }
                 },
-                columns: [
-                    { data: 0 },
-                    { data: 1 },
-                    { data: 2 },
-                    { data: 3 },
+                columnDefs: [
                     {
-                        data: 4,
-                        render: function(data) {
+                        targets: 4,
+                        render: function (data) {
                             return data === 'Approved'
-                                ? '<span class="badge bg-label-success">Approved</span>'
-                                : '<span class="badge bg-label-warning">Pending</span>';
+                                ? '<span class="badge bg-label-success"><i class="bx bx-check me-1"></i>Approved</span>'
+                                : '<span class="badge bg-label-warning"><i class="bx bx-time me-1"></i>Pending</span>';
                         }
                     },
                     {
-                        data: 5,
+                        targets: 5,
                         orderable: false,
-                        render: function(id, type, row) {
+                        render: function (id, type, row) {
                             let isApproved = row[4] === 'Approved';
                             return `
-                                        <button class="btn btn-sm btn-${isApproved ? 'outline-warning' : 'outline-success'} toggle-btn" data-id="${id}">
-                                            ${isApproved ? '<i class="bx bx-x"></i> Reject' : '<i class="bx bx-check"></i> Approve'}
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${id}">
-                                            <i class="bx bx-trash"></i>
-                                        </button>
-                                    `;
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-sm btn-${isApproved ? 'outline-warning' : 'outline-success'} toggle-btn" data-id="${id}" title="${isApproved ? 'Reject' : 'Approve'}">
+                                        ${isApproved ? '<i class="bx bx-x"></i> Reject' : '<i class="bx bx-check"></i> Approve'}
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${id}" title="Delete Comment">
+                                        <i class="bx bx-trash"></i>
+                                    </button>
+                                </div>
+                            `;
                         }
                     }
                 ]
             });
 
-            $('#statusFilter').on('change', function() {
+            $('#statusFilter').on('change', function () {
                 table.ajax.reload();
             });
 
-            $('#commentsTable').on('click', '.toggle-btn', function() {
+            $('#commentsTable').on('click', '.toggle-btn', function () {
                 let id = $(this).data('id');
-                $.post('@Url.Action("ToggleApproval", "BlogComments", new { area = "Admin" })', { id: id }, function() {
-                    table.ajax.reload(null, false);
+                $.ajax({
+                    url: '@Url.Action("ToggleApproval", "BlogComments", new { area = "Admin" })',
+                    type: 'POST',
+                    data: { id: id },
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function () {
+                        table.ajax.reload(null, false);
+                    },
+                    error: function () {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Unable to update approval status.', showConfirmButton: false, timer: 3000 });
+                        }
+                    }
                 });
             });
 
-            $('#commentsTable').on('click', '.delete-btn', function() {
-                if (confirm('Permanently delete this comment?')) {
-                    let id = $(this).data('id');
-                    $.post('@Url.Action("Delete", "BlogComments", new { area = "Admin" })', { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() }, function() {
-                        table.ajax.reload(null, false);
+            $('#commentsTable').on('click', '.delete-btn', function () {
+                let id = $(this).data('id');
+                let token = $('input[name="__RequestVerificationToken"]').val();
+
+                let executeDelete = function () {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "BlogComments", new { area = "Admin" })',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: token
+                        },
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function () {
+                            table.ajax.reload(null, false);
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Comment deleted successfully.', showConfirmButton: false, timer: 3000 });
+                            }
+                        },
+                        error: function () {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Unable to delete comment.', showConfirmButton: false, timer: 3000 });
+                            }
+                        }
                     });
+                };
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Delete this comment?',
+                        text: 'This comment will be permanently removed.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#8592a3',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            executeDelete();
+                        }
+                    });
+                } else if (confirm('Permanently delete this comment?')) {
+                    executeDelete();
                 }
             });
         });

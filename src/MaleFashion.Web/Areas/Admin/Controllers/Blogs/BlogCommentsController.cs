@@ -2,6 +2,7 @@ using Cortex.Mediator;
 using MaleFashion.Application.Features.Blogs.Commands;
 using MaleFashion.Application.Features.Blogs.Queries;
 using MaleFashion.Web.Areas.Admin.Models.Blogs;
+using MaleFashion.Domain.Utilities;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,29 +31,36 @@ namespace MaleFashion.Web.Areas.Admin.Controllers.Blogs
         [HttpPost]
         public async Task<JsonResult> GetPagedComments([FromBody] BlogCommentListModel model)
         {
-            var query = _mapper.Map<GetAllBlogCommentsByPagingQuery>(model);
-            query.SearchText = model.Search.Value;
-            query.StatusFilter = model.StatusFilter;
-            query.SortText = model.FormatSortExpression("BlogPost.Title", "Name", "CommentText", "CreatedAt", "IsApproved", "Id");
-
-            var (items, total, totalDisplay) = await _mediator.SendQueryAsync<GetAllBlogCommentsByPagingQuery, (System.Collections.Generic.IList<Domain.Entities.Blogs.BlogComment>, int, int)>(query);
-
-            var response = new
+            try
             {
-                recordsTotal = total,
-                recordsFiltered = totalDisplay,
-                data = items.Select(c => new string[]
-                {
-                    HttpUtility.HtmlEncode(c.BlogPost?.Title ?? "N/A"),
-                    HttpUtility.HtmlEncode(c.Name),
-                    HttpUtility.HtmlEncode(c.CommentText),
-                    c.CreatedAt.ToString("MMM dd, yyyy"),
-                    c.IsApproved ? "Approved" : "Pending",
-                    c.Id.ToString()
-                }).ToArray()
-            };
+                var query = _mapper.Map<GetAllBlogCommentsByPagingQuery>(model);
+                query.SearchText = model.Search.Value?.Trim();
+                query.StatusFilter = model.StatusFilter;
+                query.SortText = model.FormatSortExpression("BlogPost.Title", "Name", "CommentText", "CreatedAt", "IsApproved", "Id");
 
-            return Json(response);
+                var (items, total, totalDisplay) = await _mediator.SendQueryAsync<GetAllBlogCommentsByPagingQuery, (System.Collections.Generic.IList<Domain.Entities.Blogs.BlogComment>, int, int)>(query);
+
+                var response = new
+                {
+                    recordsTotal = total,
+                    recordsFiltered = totalDisplay,
+                    data = items.Select(c => new string[]
+                    {
+                        HttpUtility.HtmlEncode(c.BlogPost?.Title ?? "N/A"),
+                        HttpUtility.HtmlEncode(c.Name),
+                        HttpUtility.HtmlEncode(c.CommentText),
+                        c.CreatedAt.ToString("MMM dd, yyyy"),
+                        c.IsApproved ? "Approved" : "Pending",
+                        c.Id.ToString()
+                    }).ToArray()
+                };
+
+                return Json(response);
+            }
+            catch
+            {
+                return Json(DataTables.EmptyResult);
+            }
         }
 
         [HttpPost]

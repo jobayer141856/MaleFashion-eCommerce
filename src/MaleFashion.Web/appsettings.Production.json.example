@@ -3,6 +3,28 @@
     "DefaultConnection": "Server=YOUR_SMARTERASP_DB_SERVER;Database=YOUR_DB_NAME;User Id=YOUR_DB_USER;Password=YOUR_DB_PASSWORD;Trust Server Certificate=True;"
   },
   "APPLY_MIGRATIONS": true,
+  "SmtpSettings": {
+    "Host": "smtp.gmail.com",
+    "Port": 465,
+    "Username": "your_email@example.com",
+    "Password": "YOUR_GMAIL_APP_PASSWORD_HERE",
+    "FromName": "Male Fashion Support",
+    "FromEmail": "support@example.com",
+    "Timeout": 10000,
+    "SmtpEncryption": "StartTls"
+  },
+  "SSLCommerz": {
+    "StoreId": "YOUR_SSLCOMMERZ_STORE_ID",
+    "StorePassword": "YOUR_SSLCOMMERZ_STORE_PASSWORD",
+    "IsSandbox": true,
+    "BaseUrl": "https://sandbox.sslcommerz.com"
+  },
+  "ReCaptcha": {
+    "SiteKey": "YOUR_RECAPTCHA_V3_SITE_KEY",
+    "SecretKey": "YOUR_RECAPTCHA_V3_SECRET_KEY",
+    "MinimumScore": 0.5,
+    "IsEnabled": false
+  },
   "Logging": {
     "LogLevel": {
       "Default": "Information",
@@ -11,4 +33,3 @@
   },
   "AllowedHosts": "*"
 }
-

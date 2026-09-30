@@ -32,11 +32,35 @@ jobs:
           import json, os
           path = 'src/MaleFashion.Web/appsettings.Production.json'
           conn = os.environ.get('PROD_DB_CONN', '')
+          is_sandbox = os.environ.get('SSLCOMMERZ_IS_SANDBOX', 'true').lower() == 'true'
+
           data = {
               'ConnectionStrings': {
                   'DefaultConnection': conn if conn else 'Server=YOUR_SERVER;Database=MaleFashion;Trust Server Certificate=True'
               },
               'APPLY_MIGRATIONS': True,
+              'SmtpSettings': {
+                  'Host': os.environ.get('SMTP_HOST', 'smtp.gmail.com'),
+                  'Port': int(os.environ.get('SMTP_PORT', '465')),
+                  'Username': os.environ.get('SMTP_USERNAME', 'your_email@example.com'),
+                  'Password': os.environ.get('SMTP_PASSWORD', 'YOUR_GMAIL_APP_PASSWORD_HERE'),
+                  'FromName': os.environ.get('SMTP_FROM_NAME', 'Male Fashion Support'),
+                  'FromEmail': os.environ.get('SMTP_FROM_EMAIL', 'support@example.com'),
+                  'Timeout': 10000,
+                  'SmtpEncryption': 'StartTls'
+              },
+              'SSLCommerz': {
+                  'StoreId': os.environ.get('SSLCOMMERZ_STORE_ID', 'YOUR_SSLCOMMERZ_STORE_ID'),
+                  'StorePassword': os.environ.get('SSLCOMMERZ_STORE_PASSWORD', 'YOUR_SSLCOMMERZ_STORE_PASSWORD'),
+                  'IsSandbox': is_sandbox,
+                  'BaseUrl': 'https://sandbox.sslcommerz.com' if is_sandbox else 'https://securepay.sslcommerz.com'
+              },
+              'ReCaptcha': {
+                  'SiteKey': os.environ.get('RECAPTCHA_SITE_KEY', 'YOUR_RECAPTCHA_V3_SITE_KEY'),
+                  'SecretKey': os.environ.get('RECAPTCHA_SECRET_KEY', 'YOUR_RECAPTCHA_V3_SECRET_KEY'),
+                  'MinimumScore': 0.5,
+                  'IsEnabled': os.environ.get('RECAPTCHA_IS_ENABLED', 'false').lower() == 'true'
+              },
               'Logging': {
                   'LogLevel': {
                       'Default': 'Information',
@@ -45,23 +69,26 @@ jobs:
               },
               'AllowedHosts': '*'
           }
-          if os.path.exists(path):
-              try:
-                  with open(path, 'r') as f:
-                      existing = json.load(f)
-                      data.update(existing)
-                      if conn:
-                          data.setdefault('ConnectionStrings', {})['DefaultConnection'] = conn
-              except Exception as e:
-                  print('Could not merge existing file:', e)
 
           with open(path, 'w') as f:
               json.dump(data, f, indent=2)
 
-          print('Prepared appsettings.Production.json successfully.')
+          print('Prepared appsettings.Production.json with all services successfully.')
           "
         env:
           PROD_DB_CONN: ${{ secrets.PROD_DB_CONNECTION }}
+          SMTP_HOST: ${{ vars.SMTP_HOST || 'smtp.gmail.com' }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '465' }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_NAME: ${{ vars.SMTP_FROM_NAME || 'Male Fashion Support' }}
+          SMTP_FROM_EMAIL: ${{ secrets.SMTP_FROM_EMAIL || vars.SMTP_FROM_EMAIL }}
+          SSLCOMMERZ_STORE_ID: ${{ secrets.SSLCOMMERZ_STORE_ID }}
+          SSLCOMMERZ_STORE_PASSWORD: ${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}
+          SSLCOMMERZ_IS_SANDBOX: ${{ vars.SSLCOMMERZ_IS_SANDBOX || 'true' }}
+          RECAPTCHA_SITE_KEY: ${{ secrets.RECAPTCHA_SITE_KEY }}
+          RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET_KEY }}
+          RECAPTCHA_IS_ENABLED: ${{ vars.RECAPTCHA_IS_ENABLED || 'false' }}
 
       - name: 4. Restore Dependencies
         run: dotnet restore src/MaleFashion.Web/MaleFashion.Web.csproj

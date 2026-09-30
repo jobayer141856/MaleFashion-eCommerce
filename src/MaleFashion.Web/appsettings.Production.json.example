@@ -5,7 +5,7 @@
   "APPLY_MIGRATIONS": true,
   "SmtpSettings": {
     "Host": "smtp.gmail.com",
-    "Port": 465,
+    "Port": 587,
     "Username": "your_email@example.com",
     "Password": "YOUR_GMAIL_APP_PASSWORD_HERE",
     "FromName": "Male Fashion Support",

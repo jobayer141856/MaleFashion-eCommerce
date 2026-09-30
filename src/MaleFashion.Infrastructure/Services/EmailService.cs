@@ -32,8 +32,15 @@ namespace MaleFashion.Infrastructure.Services
 
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(_smtpSettings.Host, _smtpSettings.Port,
-                    _smtpSettings.SmtpEncryption != SmtpEncryptionTypes.Normal);
+                var socketOption = _smtpSettings.SmtpEncryption switch
+                {
+                    SmtpEncryptionTypes.SslTls => MailKit.Security.SecureSocketOptions.SslOnConnect,
+                    SmtpEncryptionTypes.StartTls => MailKit.Security.SecureSocketOptions.StartTls,
+                    SmtpEncryptionTypes.Normal => MailKit.Security.SecureSocketOptions.None,
+                    _ => MailKit.Security.SecureSocketOptions.Auto
+                };
+
+                await client.ConnectAsync(_smtpSettings.Host, _smtpSettings.Port, socketOption);
 
                 client.Timeout = _smtpSettings.Timeout;
 

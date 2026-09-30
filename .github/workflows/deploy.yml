@@ -41,13 +41,13 @@ jobs:
               'APPLY_MIGRATIONS': True,
               'SmtpSettings': {
                   'Host': os.environ.get('SMTP_HOST', 'smtp.gmail.com'),
-                  'Port': int(os.environ.get('SMTP_PORT', '465')),
+                  'Port': int(os.environ.get('SMTP_PORT', '587')),
                   'Username': os.environ.get('SMTP_USERNAME', 'your_email@example.com'),
                   'Password': os.environ.get('SMTP_PASSWORD', 'YOUR_GMAIL_APP_PASSWORD_HERE'),
                   'FromName': os.environ.get('SMTP_FROM_NAME', 'Male Fashion Support'),
                   'FromEmail': os.environ.get('SMTP_FROM_EMAIL', 'support@example.com'),
                   'Timeout': 10000,
-                  'SmtpEncryption': 'StartTls'
+                  'SmtpEncryption': os.environ.get('SMTP_ENCRYPTION', 'StartTls')
               },
               'SSLCommerz': {
                   'StoreId': os.environ.get('SSLCOMMERZ_STORE_ID', 'YOUR_SSLCOMMERZ_STORE_ID'),

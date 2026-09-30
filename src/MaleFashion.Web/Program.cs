@@ -17,15 +17,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
 
-Log.Logger = new LoggerConfiguration()
-      //.WriteTo.Console()
+var bootstrapLoggerConfig = new LoggerConfiguration()
       .WriteTo.File(
         "Logs/log-.log",
-        rollingInterval: RollingInterval.Day)
-      .WriteTo.MSSqlServer(
-        connectionString: builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."),
-        sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs", AutoCreateSqlTable = true })
-      .CreateBootstrapLogger();
+        rollingInterval: RollingInterval.Day);
+
+try
+{
+    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (!string.IsNullOrWhiteSpace(connStr) && !connStr.Contains("YOUR_SERVER", StringComparison.OrdinalIgnoreCase))
+    {
+        bootstrapLoggerConfig.WriteTo.MSSqlServer(
+            connectionString: connStr,
+            sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs", AutoCreateSqlTable = true });
+    }
+}
+catch
+{
+    // Ignore bootstrap SQL logging failures so startup proceeds to migrations and main host
+}
+
+Log.Logger = bootstrapLoggerConfig.CreateBootstrapLogger();
 
 try
 {

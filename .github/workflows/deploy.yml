@@ -96,10 +96,10 @@ jobs:
           EOF
 
           echo "Uploading app_offline.htm to SmarterASP.NET..."
-          curl --ssl -k --ftp-create-dirs -T app_offline.htm -u "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}${FTP_DIR}app_offline.htm" || echo "Note: app_offline upload skipped or failed, proceeding with deploy."
+          curl --ftp-pasv --ftp-create-dirs -T app_offline.htm -u "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}${FTP_DIR}app_offline.htm" || echo "Note: app_offline upload skipped, proceeding with deploy."
           sleep 3
 
-      - name: 7. Deploy Published Files via FTPS
+      - name: 7. Deploy Published Files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -107,9 +107,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ vars.FTP_DIR || '/site1/' }}
           local-dir: ./publish/
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
           port: 21
           dangerous-clean-slate: false
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
@@ -122,4 +123,4 @@ jobs:
         shell: bash
         run: |
           echo "Removing app_offline.htm to restart the application..."
-          curl --ssl -k -u "${FTP_USERNAME}:${FTP_PASSWORD}" -Q "DELE ${FTP_DIR}app_offline.htm" "ftp://${FTP_SERVER}/" || echo "app_offline.htm already removed or not present."
+          curl --ftp-pasv -u "${FTP_USERNAME}:${FTP_PASSWORD}" -Q "DELE ${FTP_DIR}app_offline.htm" "ftp://${FTP_SERVER}/" || echo "app_offline.htm already removed or not present."

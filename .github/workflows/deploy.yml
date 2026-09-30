@@ -1,0 +1,125 @@
+name: Build & Deploy to SmarterASP.NET
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      FTP_DIR: ${{ vars.FTP_DIR || '/site1/' }}
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 3. Prepare Production Configuration
+        shell: bash
+        run: |
+          python3 -c "
+          import json, os
+          path = 'src/MaleFashion.Web/appsettings.Production.json'
+          conn = os.environ.get('PROD_DB_CONN', '')
+          data = {
+              'ConnectionStrings': {
+                  'DefaultConnection': conn if conn else 'Server=YOUR_SERVER;Database=MaleFashion;Trust Server Certificate=True'
+              },
+              'APPLY_MIGRATIONS': True,
+              'Logging': {
+                  'LogLevel': {
+                      'Default': 'Information',
+                      'Microsoft.AspNetCore': 'Warning'
+                  }
+              },
+              'AllowedHosts': '*'
+          }
+          if os.path.exists(path):
+              try:
+                  with open(path, 'r') as f:
+                      existing = json.load(f)
+                      data.update(existing)
+                      if conn:
+                          data.setdefault('ConnectionStrings', {})['DefaultConnection'] = conn
+              except Exception as e:
+                  print('Could not merge existing file:', e)
+
+          with open(path, 'w') as f:
+              json.dump(data, f, indent=2)
+
+          print('Prepared appsettings.Production.json successfully.')
+          "
+        env:
+          PROD_DB_CONN: ${{ secrets.PROD_DB_CONNECTION }}
+
+      - name: 4. Restore Dependencies
+        run: dotnet restore src/MaleFashion.Web/MaleFashion.Web.csproj
+
+      - name: 5. Publish Application (Self-Contained for SmarterASP)
+        run: >
+          dotnet publish src/MaleFashion.Web/MaleFashion.Web.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -o ./publish
+
+      - name: 6. Take Site Offline (Upload app_offline.htm)
+        shell: bash
+        run: |
+          cat << 'EOF' > app_offline.htm
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="utf-8" />
+              <title>Updating MaleFashion</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding-top: 15%; background: #f8f9fa; color: #333; }
+                  h1 { font-size: 2rem; margin-bottom: 10px; }
+                  p { color: #666; font-size: 1.1rem; }
+              </style>
+          </head>
+          <body>
+              <h1>Deploying Updates...</h1>
+              <p>The site is currently updating. Please refresh in 30 seconds.</p>
+          </body>
+          </html>
+          EOF
+
+          echo "Uploading app_offline.htm to SmarterASP.NET..."
+          curl --ssl -k --ftp-create-dirs -T app_offline.htm -u "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}${FTP_DIR}app_offline.htm" || echo "Note: app_offline upload skipped or failed, proceeding with deploy."
+          sleep 3
+
+      - name: 7. Deploy Published Files via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ vars.FTP_DIR || '/site1/' }}
+          local-dir: ./publish/
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          port: 21
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/appsettings.local.json
+            **/Logs/**
+            **/app_offline.htm
+
+      - name: 8. Bring Site Back Online (Remove app_offline.htm)
+        if: always()
+        shell: bash
+        run: |
+          echo "Removing app_offline.htm to restart the application..."
+          curl --ssl -k -u "${FTP_USERNAME}:${FTP_PASSWORD}" -Q "DELE ${FTP_DIR}app_offline.htm" "ftp://${FTP_SERVER}/" || echo "app_offline.htm already removed or not present."

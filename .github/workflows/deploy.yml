@@ -14,6 +14,7 @@ jobs:
       FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
       FTP_DIR: ${{ vars.FTP_DIR || '/site1/' }}
+      FTP_PROTOCOL: ${{ vars.FTP_PROTOCOL || 'ftp' }}
 
     steps:
       - name: 1. Checkout Repository
@@ -96,7 +97,7 @@ jobs:
           EOF
 
           echo "Uploading app_offline.htm to SmarterASP.NET..."
-          curl --ftp-pasv --ftp-create-dirs -T app_offline.htm -u "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}${FTP_DIR}app_offline.htm" || echo "Note: app_offline upload skipped, proceeding with deploy."
+          curl --ftp-pasv --ftp-create-dirs -T app_offline.htm -u "${FTP_USERNAME}:${FTP_PASSWORD}" "${FTP_PROTOCOL}://${FTP_SERVER}${FTP_DIR}app_offline.htm" || echo "Note: app_offline upload skipped, proceeding with deploy."
           sleep 3
 
       - name: 7. Deploy Published Files via FTP
@@ -123,4 +124,4 @@ jobs:
         shell: bash
         run: |
           echo "Removing app_offline.htm to restart the application..."
-          curl --ftp-pasv -u "${FTP_USERNAME}:${FTP_PASSWORD}" -Q "DELE ${FTP_DIR}app_offline.htm" "ftp://${FTP_SERVER}/" || echo "app_offline.htm already removed or not present."
+          curl --ftp-pasv -u "${FTP_USERNAME}:${FTP_PASSWORD}" -Q "DELE ${FTP_DIR}app_offline.htm" "${FTP_PROTOCOL}://${FTP_SERVER}/" || echo "app_offline.htm already removed or not present."

@@ -142,12 +142,19 @@ namespace MaleFashion.Web.Controllers.Account
 
                     var fullName = $"{user.FirstName} {user.LastName}".Trim();
 
-                    await _emailService.SendEmailAsync(
-                        fullName,
-                        user.Email!,
-                        "Confirm your email",
-                        $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
-                    );
+                    try
+                    {
+                        await _emailService.SendEmailAsync(
+                            fullName,
+                            user.Email!,
+                            "Confirm your email",
+                            $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>."
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send email confirmation to {Email}. Please verify SMTP settings.", user.Email);
+                    }
 
                     // Redirect user to the confirmation notice page
                     return RedirectToAction("RegisterConfirmation", new { email = model.Email, returnUrl = model.ReturnUrl });
@@ -344,8 +351,15 @@ namespace MaleFashion.Web.Controllers.Account
 
                     var fullName = $"{user.FirstName} {user.LastName}";
 
-                    await _emailService.SendEmailAsync(fullName, model.Email, "Confirm your email",
-                         $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+                    try
+                    {
+                        await _emailService.SendEmailAsync(fullName, model.Email, "Confirm your email",
+                             $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send registration confirmation email to {Email}. Please verify SMTP settings.", model.Email);
+                    }
 
                     // 2. Direct redirect without the if/else check (stops auto-login):
                     return RedirectToAction("RegisterConfirmation", new { email = model.Email, returnUrl = model.ReturnUrl });
@@ -480,8 +494,15 @@ namespace MaleFashion.Web.Controllers.Account
                 protocol: Request.Scheme)!;
 
             // Send email
-            await _emailService.SendEmailAsync($"{user.FirstName} {user.LastName}", model.Email, "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            try
+            {
+                await _emailService.SendEmailAsync($"{user.FirstName} {user.LastName}", model.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send confirmation email to {Email}. Please verify SMTP settings.", model.Email);
+            }
 
             TempData["SuccessMessage"] = "Verification email sent. Please check your email inbox.";
             return RedirectToAction(nameof(ResendEmailConfirmation));
@@ -540,8 +561,15 @@ namespace MaleFashion.Web.Controllers.Account
 
             var fullName = $"{user.FirstName} {user.LastName}".Trim();
 
-            await _emailService.SendEmailAsync(fullName, model.Email, "Reset Password",
-                $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            try
+            {
+                await _emailService.SendEmailAsync(fullName, model.Email, "Reset Password",
+                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to {Email}. Please verify SMTP settings.", model.Email);
+            }
             return RedirectToAction("ForgotPasswordConfirmation");
         }
 
